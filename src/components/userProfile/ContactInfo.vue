@@ -74,7 +74,7 @@
         // Logic to save contact info
       },
       exit() {
-        // Logic to exit
+        this.$router.push('/');
       },
       goNext() {
         this.$router.push('/education');

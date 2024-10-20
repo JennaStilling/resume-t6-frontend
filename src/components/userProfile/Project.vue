@@ -91,7 +91,7 @@
         this.$router.push('/skills');
       },
       goNext() {
-        // Next navigation logic
+        this.$router.push('/');
       }
     },
   };

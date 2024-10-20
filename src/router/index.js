@@ -1,22 +1,22 @@
+/* src/router/index.js */
 import { createRouter, createWebHistory } from 'vue-router';
-
-// Import your components
-import ContactInfo from '../components/ContactInfo.vue';
-import Education from '../components/Education.vue';
-import Experience from '../components/Experience.vue';
-import Certifications from '../components/Certifications.vue';
-import Skills from '../components/Skills.vue';
-import Project from '../components/Project.vue';
+import HomePage from '../components/HomePage.vue'; // Import the HomePage component
+import ContactInfo from '../components/userProfile/ContactInfo.vue';
+import Education from '../components/userProfile/Education.vue';
+import Experience from '../components/userProfile/Experience.vue';
+import Certifications from '../components/userProfile/Certifications.vue';
+import Skills from '../components/userProfile/Skills.vue';
+import Project from '../components/userProfile/Project.vue';
 
 // Define routes
 const routes = [
+  { path: '/', component: HomePage }, 
   { path: '/contact-info', component: ContactInfo },
   { path: '/education', component: Education },
   { path: '/experience', component: Experience },
   { path: '/certifications', component: Certifications },
   { path: '/skills', component: Skills },
-  { path: '/project', component: Project },
-  { path: '/', redirect: '/contact-info' } // Default
+  { path: '/project', component: Project }
 ];
 
 // Create and export router instance

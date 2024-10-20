@@ -63,6 +63,10 @@ button.active {
   color: #FFF;
 }
 
+button:hover {
+  background-color:#084565;
+}
+
 .navbar::after {
   content: '';
   display: block;

@@ -1,7 +1,9 @@
+<!-- src/App.vue -->
 <template>
   <div id="app">
     <Header />
-    <NavBar :currentTab="currentTab" />
+    <!--Don't show Header on HomePage -->
+    <NavBar v-if="!isHomePage" :currentTab="currentTab" />
     <router-view></router-view>
   </div>
 </template>
@@ -9,14 +11,22 @@
 <script>
 import Header from './components/Header.vue';
 import NavBar from './components/NavBar.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   components: {
     Header,
     NavBar,
   },
-  computed: {
-    currentTab() {
+  setup() {
+    const route = useRoute();
+    
+    // Check if the current route is the root homepage
+    const isHomePage = computed(() => route.path === '/');
+
+    // Define the currentTab based on route path
+    const currentTab = computed(() => {
       const routeToTabName = {
         '/contact-info': 'Contact Info',
         '/education': 'Education',
@@ -25,9 +35,14 @@ export default {
         '/skills': 'Skills',
         '/project': 'Project'
       };
-      return routeToTabName[this.$route.path] || 'Contact Info'; // Default to Contact Info
-    }
-  }
+      return routeToTabName[route.path] || 'Contact Info'; // Default to Contact Info
+    });
+
+    return {
+      isHomePage,
+      currentTab
+    };
+  },
 };
 </script>
 
