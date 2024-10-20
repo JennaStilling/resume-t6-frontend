@@ -1,6 +1,5 @@
-/* src/router/index.js */
 import { createRouter, createWebHistory } from 'vue-router';
-import HomePage from '../components/HomePage.vue'; // Import the HomePage component
+import HomePage from '../components/HomePage.vue';
 import ContactInfo from '../components/userProfile/ContactInfo.vue';
 import Education from '../components/userProfile/Education.vue';
 import Experience from '../components/userProfile/Experience.vue';

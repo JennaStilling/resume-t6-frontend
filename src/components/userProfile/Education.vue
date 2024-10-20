@@ -2,17 +2,21 @@
   <div class="education-container container">
     <div class="sidebar">
       <div class="education-list list">
+        <!--EDUCATION LIST ON LEFT SIDE-->
         <div class="list-title" @click="toggleDropdown">Education List ▼</div>
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
             <li v-for="(item, index) in educationItems" :key="index" class="dropdown-item">
+              <!-- Display each institution's name -->
               <span class="university-name name">{{ item.name }}</span>
               <div class="buttons">
+                <!-- Edit button for entry -->
                 <div class="edit-button" @click.stop="editEntry(index)">
                   <div class="edit-button-child"></div>
                   <b class="edit">EDIT</b>
                 </div>
+                <!-- Delete button for entry -->
                 <button class="delete-button" @click.stop="deleteEntry(index)">DELETE</button>
               </div>
             </li>
@@ -21,8 +25,10 @@
       </div>
     </div>
 
+    <!-- Main form for entering education details -->
     <div class="main-content">
       <div class="form">
+        <!-- Degree input field -->
         <div class="text-field-with-title">
           <label for="degree" class="field-label">DEGREE</label>
           <input
@@ -35,6 +41,7 @@
           />
           <span class="mandatory">*</span>
         </div>
+        <!-- Institution input field -->
         <div class="text-field-with-title">
           <label for="institution" class="field-label">INSTITUTION</label>
           <input
@@ -47,6 +54,7 @@
           />
           <span class="mandatory">*</span>
         </div>
+        <!-- GPA input field -->
         <div class="text-field-with-title">
           <label for="gpa" class="field-label">GPA</label>
           <input
@@ -60,6 +68,7 @@
           />
           <span class="mandatory">*</span>
         </div>
+        <!-- Graduation date input field -->
         <div class="text-field-with-title">
           <label for="graduation" class="field-label">GRADUATION</label>
           <input
@@ -71,12 +80,14 @@
           />
           <span class="mandatory">*</span>
         </div>
+        <!-- Save changes button -->
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
           <b class="save-changes">SAVE CHANGES</b>
         </div>
       </div>
 
+      <!-- Navigation buttons -->
       <div class="navigation-buttons">
         <button class="nav-button" @click="goBack">BACK</button>
         <button class="nav-button" @click="goNext">NEXT</button>
@@ -89,14 +100,15 @@
 export default {
   data() {
     return {
-      showDropdown: false,
+      showDropdown: false,  
+      // UPDATE WITH BACKEND DATA LATER
       formData: {
-        degree: 'B.S Computer Science',
-        institution: 'Oklahoma Christian University',
-        gpa: '3.91',
+        degree: 'B.S Computer Science',  
+        institution: 'Oklahoma Christian University', 
+        gpa: '3.97',
         graduation: '2025-06-12',
       },
-      educationItems: [
+      educationItems: [  
         { name: 'Oklahoma Christian University' },
         { name: 'Hogwarts' },
         { name: 'Sky High' }
@@ -114,12 +126,15 @@ export default {
       // Delete logic for specific entry
     },
     saveChanges() {
-      console.log('Education Info Saved:', this.formData);
       // Save changes logic
     },
+
+     // NAVIGATE TO PAGES:
+    // Goes back to the previous page (Contact Info)
     goBack() {
       this.$router.push('/contact-info');
     },
+    // Goes to the next section (Experience)
     goNext() {
       this.$router.push('/experience');
     }
