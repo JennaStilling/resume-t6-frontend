@@ -77,7 +77,7 @@
         // Logic to exit
       },
       goNext() {
-        // Logic to go to the next section
+        this.$router.push('/education');
       }
     },
   };

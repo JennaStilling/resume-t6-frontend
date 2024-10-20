@@ -88,10 +88,10 @@
         // Save changes logic
       },
       goBack() {
-        // Back navigation logic
+        this.$router.push('/education');
       },
       goNext() {
-        // Next navigation logic
+        this.$router.push('/certifications');
       }
     },
   };

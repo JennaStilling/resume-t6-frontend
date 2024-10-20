@@ -53,7 +53,7 @@
   
         <div class="navigation-buttons">
           <button class="nav-button" @click="goBack">BACK</button>
-          <button class="nav-button" @click="goNext">NEXT</button>
+          <button class="nav-button" @click="goNext">NEXT?</button>
         </div>
       </div>
     </div>
@@ -88,7 +88,7 @@
         // Save logic for specific entry
       },
       goBack() {
-        // Back navigation logic
+        this.$router.push('/skills');
       },
       goNext() {
         // Next navigation logic

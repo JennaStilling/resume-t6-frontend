@@ -118,10 +118,10 @@ export default {
       // Save changes logic
     },
     goBack() {
-      // Back navigation logic
+      this.$router.push('/contact-info');
     },
     goNext() {
-      // Next navigation logic
+      this.$router.push('/experience');
     }
   },
 };
