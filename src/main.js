@@ -3,9 +3,7 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
+import router from "./router.js";
+import vuetify from "./plugins/vuetify.js";
 
-const app = createApp(App)
-
-app.use(createPinia())
-
-app.mount('#app')
+createApp(App).use(router).use(createPinia()).use(vuetify).mount('#app');
