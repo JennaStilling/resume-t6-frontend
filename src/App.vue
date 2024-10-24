@@ -1,47 +1,57 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
+<!-- src/App.vue -->
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div id="app">
+    <Header />
+    <!--Don't show Header on HomePage -->
+    <NavBar v-if="!isHomePage" :currentTab="currentTab" />
+    <router-view></router-view>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script>
+import Header from './components/Header.vue';
+import NavBar from './components/NavBar.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+export default {
+  components: {
+    Header,
+    NavBar,
+  },
+  setup() {
+    const route = useRoute();
+    
+    // Check if the current route is the root homepage
+    const isHomePage = computed(() => route.path === '/');
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+    // Define the currentTab based on route path
+    const currentTab = computed(() => {
+      const routeToTabName = {
+        '/contact-info': 'Contact Info',
+        '/education': 'Education',
+        '/experience': 'Experience',
+        '/certifications': 'Certifications',
+        '/skills': 'Skills',
+        '/project': 'Project'
+      };
+      return routeToTabName[route.path] || 'Contact Info'; // Default to Contact Info
+    });
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+    return {
+      isHomePage,
+      currentTab
+    };
+  },
+};
+</script>
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+<style>
+#app {
+  font-family: 'Helvetica', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #021E2C;
 }
 </style>
