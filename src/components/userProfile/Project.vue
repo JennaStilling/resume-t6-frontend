@@ -64,7 +64,7 @@
       <!-- Navigation buttons -->
       <div class="navigation-buttons">
         <button class="nav-button" @click="goBack">BACK</button>
-        <button class="nav-button" @click="goNext">NEXT?</button>
+        <button class="nav-button" @click="goNext">BUILD</button>
       </div>
     </div>
   </div>
@@ -106,7 +106,7 @@ export default {
     },
     // FIX LATER: Goes to the home page
     goNext() {
-      this.$router.push('/');
+      this.$router.push('/build-resume');
     }
   },
 };

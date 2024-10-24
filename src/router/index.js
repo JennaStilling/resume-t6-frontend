@@ -6,6 +6,7 @@ import Experience from '../components/userProfile/Experience.vue';
 import Certifications from '../components/userProfile/Certifications.vue';
 import Skills from '../components/userProfile/Skills.vue';
 import Project from '../components/userProfile/Project.vue';
+import BuildResume from '../components/BuildResume.vue';
 
 // Define routes
 const routes = [
@@ -15,7 +16,8 @@ const routes = [
   { path: '/experience', component: Experience },
   { path: '/certifications', component: Certifications },
   { path: '/skills', component: Skills },
-  { path: '/project', component: Project }
+  { path: '/project', component: Project },
+  { path: '/build-resume', component: BuildResume}
 ];
 
 // Create and export router instance

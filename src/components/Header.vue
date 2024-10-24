@@ -2,13 +2,13 @@
   <header class="header">
     <div class="logo-title">
       <router-link to="/">
-        <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
+        <img src="/src/assets/header-icons/smallLogo.png" alt="ResuMate Logo" class="logo" />
       </router-link>
       <div class="title">Your AI resume builder</div>
     </div>
     <div class="user-menu">
       <img  
-        src="/src/assets/userIcon.png" 
+        src="/src/assets/header-icons/userIcon.png" 
         alt="User" 
         class="user-icon" 
         @click="toggleMenu" 
@@ -50,7 +50,7 @@ export default {
 .header {
   background-color: #65001F;
   color: #FFF;
-  padding: 3px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;

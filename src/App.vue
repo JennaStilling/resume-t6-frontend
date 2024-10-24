@@ -1,9 +1,9 @@
-<!-- src/App.vue -->
+/* src/App.vue */
 <template>
   <div id="app">
     <Header />
-    <!--Don't show Header on HomePage -->
-    <NavBar v-if="!isHomePage" :currentTab="currentTab" />
+    <!--Don't show NavBar on HomePage or on BuildResume -->
+    <NavBar v-if="!showNavBar" :currentTab="currentTab" />
     <router-view></router-view>
   </div>
 </template>
@@ -21,9 +21,9 @@ export default {
   },
   setup() {
     const route = useRoute();
-    
-    // Check if the current route is the root homepage
-    const isHomePage = computed(() => route.path === '/');
+   
+    // Check if the current route is the root homepage or '/build-resume' page
+    const isHomeOrBuildResumePage = computed(() => route.path === '/' || route.path === '/build-resume');
 
     // Define the currentTab based on route path
     const currentTab = computed(() => {
@@ -39,7 +39,7 @@ export default {
     });
 
     return {
-      isHomePage,
+      showNavBar: isHomeOrBuildResumePage,
       currentTab
     };
   },
