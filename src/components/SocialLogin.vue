@@ -28,9 +28,6 @@
       async loginWithGoogle() {
         window.handleCredentialResponse = this.handleCredentialResponse;
         const client = import.meta.env.VITE_APP_CLIENT_ID;
-        console.log(client);
-
-        console.log(client);
         window.google.accounts.id.initialize({
           client_id: client,
           cancel_on_tap_outside: false,
@@ -58,8 +55,8 @@
             Utils.setStore("user", this.user);
             this.fName = this.user.fName;
             this.lName = this.user.lName;
-            this.$router.push({ name: "tutorials" });
-            this.$router.go();
+            this.$router.push({ name: "goodTest" });
+            //this.$router.go();
           })
           .catch((error) => {
             console.log("error", error);
