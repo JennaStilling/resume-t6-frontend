@@ -6,7 +6,7 @@ import EditResume from "./views/EditResume.vue";
 import ViewProfile from "./views/ViewProfile.vue";
 
 import Login from "./views/LoginTest.vue";
-import goodTest from "./views/good.vue";
+import Logout from "./views/LogoutTest.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,9 +17,9 @@ const router = createRouter({
       component: Login,
     },
     {
-      path: "/good",
-      name: "goodTest",
-      component: goodTest,
+      path: "/logout",
+      name: "logout",
+      component: Logout,
     },
     {
       path: "/",

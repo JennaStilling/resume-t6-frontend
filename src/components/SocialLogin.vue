@@ -55,7 +55,7 @@
             Utils.setStore("user", this.user);
             this.fName = this.user.fName;
             this.lName = this.user.lName;
-            this.$router.push({ name: "goodTest" });
+            this.$router.push({ name: "logout" });
             //this.$router.go();
           })
           .catch((error) => {
