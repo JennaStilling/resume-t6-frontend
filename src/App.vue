@@ -29,8 +29,8 @@ export default {
     const currentTab = computed(() => {
       const routeToTabName = {
         '/contact-info': 'Contact Info',
-        '/education': 'Education',
-        '/experience': 'Experience',
+        '/education': 'Education', '/education/edit': 'Education',
+        '/experience': 'Experience', '/experience/edit': 'Experience',
         '/certifications': 'Certifications',
         '/skills': 'Skills',
         '/project': 'Project'
@@ -49,9 +49,9 @@ export default {
 <style>
 #app {
   font-family: 'Helvetica', sans-serif;
-  height: 100vh;
-  display: flex;
   flex-direction: column;
+  height: min-content;
   background-color: #021E2C;
+  overflow: hidden;
 }
 </style>

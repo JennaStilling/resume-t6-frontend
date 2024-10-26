@@ -54,6 +54,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
 }
 
 .logo-title {
@@ -61,6 +62,7 @@ export default {
   align-items: center;
   text-indent: 10px;
   font-size: 18px;
+  overflow: hidden;
 }
 
 .logo {

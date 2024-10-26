@@ -12,10 +12,15 @@ const routes = [
   { path: '/', component: HomePage },
   { path: '/contact-info', component: ContactInfo },
   { path: '/education', component: Education },
+  { path: '/education/edit', component: Education },
   { path: '/experience', component: Experience },
+  { path: '/experience/edit', component: Experience },
   { path: '/certifications', component: Certifications },
+  { path: '/certifications/edit', component: Certifications },
   { path: '/skills', component: Skills },
-  { path: '/project', component: Project }
+  { path: '/skills/edit', component: Skills },
+  { path: '/project', component: Project },
+  { path: '/project/edit', component: Project }
 ];
 
 const router = createRouter({

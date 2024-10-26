@@ -1,5 +1,5 @@
 <template>
-  <div class="main-content-centered">
+  <div class="main-content">
     <div class="form">
       <!-- First Name Field -->
       <div class="text-field-with-title">

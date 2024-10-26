@@ -1,197 +1,157 @@
 /* Layout Styles */
 .container {
     display: flex;
-    height: 100vh;
     background-color: #021E2C;
     color: #FFF;
     overflow: hidden;
 }
 .sidebar {
     width: 25%;
-    padding: 20px;
+    padding: 10px;
     background-color: #021E2C;
     color: #FFF;
     box-sizing: border-box;
+    overflow: hidden;
 }
 .main-content {
-    flex: 1;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    background-color: #021E2C;
-}
-.main-content-centered {
+    overflow: hidden;
     flex: 1;
     padding: 50px;
-    overflow-y: auto;
+    box-sizing: border-box;
     background-color: #021E2C;
 }
 
 /* List and Dropdown Styles */
 .list {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     cursor: pointer;
+    padding-left: 30px;
+    padding-top: 20px;
 }
 .dropdown {
     width: 100%;
-    max-height: 180px;
+    max-height: 240px;
     overflow-y: auto;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
     border-radius: 2px;
     background-color: #FFF;
-    padding: 15px;
+    padding: 10px;
 }
 .dropdown-item {
     display: flex;
-    flex-direction: column;
-    align-items: start;
+    justify-content: space-between;
+    align-items: center;
     color: #000;
-    gap: 10px;
-    margin-bottom: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+.dropdown-item:last-child {
+    border-bottom: none; 
 }
 
 /* Name and Button Styles */
 .name {
-    font-size: 18px;
+    font-size: 14px;
 }
 .buttons {
     display: flex;
+    gap: 5px;
+}
+.icon-buttons {
+    display: flex;
     gap: 10px;
 }
-.edit-button-child {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    border-radius: 4px;
-    background-color: #118acb;
-    width: 65px;
-    height: 21px;
-}
-.edit {
-    position: absolute;
-    top: 1px;
-    left: 13px;
-}
-.edit-button {
-    width: 65px;
-    position: relative;
-    height: 21px;
-    text-align: left;
-    font-size: 16px;
-    color: #fff;
-    font-family: Helvetica, sans-serif;
+.icon{
     cursor: pointer;
-}
-.delete-button {
-    background-color: #d9534f;
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    padding: 2px 10px;
-    cursor: pointer;
-    font-family: Helvetica, sans-serif;
+    width: 25px;
+    height: 25px;
 }
 
 /* Form and Field Styles */
 .text-field-with-title {
-    width: 100%;
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    width: 70%;
 }
 .field-label {
     position: absolute;
     top: 0;
     left: 0;
     font-weight: 700;
-    font-size: 24px;
+    font-size: 16px;
     color: #fff;
     font-family: 'Helvetica', sans-serif;
+    margin: 5px;
 }
 .text-field {
-    width: 100%;
-    margin-top: 40px;
-    padding: 8px;
+    width: 30%;
+    margin-top: 30px;
+    padding: 5px;
     border-radius: 4px;
     background-color: #084565;
     border: 1px solid #099ace;
     color: #fff;
-    font-size: 24px;
+    font-size: 16px; 
     font-family: 'Helvetica', sans-serif;
 }
 
 /* Save Button Styles */
 .save-button {
-    width: 100%;
+    width: 130px; 
     position: relative;
-    height: 70px;
-    text-align: right;
-    font-size: 32px;
+    height: 40px; 
+    text-align: center; 
+    font-size: 12px; 
     color: #021E2C;
     font-family: Helvetica, sans-serif;
-    margin-top: 20px;
+    margin-top: 10px;
     cursor: pointer;
-    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
 }
+
 .save-button-child {
     position: absolute;
     top: 0;
     left: 0;
-    border-radius: 11px;
+    border-radius: 8px;
     background: linear-gradient(90deg, #118acb, #69cbff);
-    border: 4px solid #084565;
+    border: 3px solid #084565;
     box-sizing: border-box;
-    width: 310px;
-    height: 70px;
+    width: 100%;
+    height: 100%;
 }
+
 .save-changes {
-    position: absolute;
-    top: 16px;
-    left: 31px;
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold; 
 }
 
 /* Navigation Button Styles */
 .navigation-buttons {
-    margin-top: 40px;
+    margin-top: 30px;
     display: flex;
     justify-content: space-between;
 }
 
 .nav-button {
     position: relative;
-    height: 54.1px;
-    width: 98px;
+    height: 40px;
+    width: 80px;
     text-align: center;
-    line-height: 54.1px;
-    font-size: 20px;
+    line-height: 40px;
+    font-size: 14px; /* Smaller text size */
     color: #fff;
     font-family: 'Helvetica', sans-serif;
     background-color: transparent;
     border: none;
     cursor: pointer;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 35px;
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
     background: linear-gradient(90deg, #7b1329, #e1234b);
     font-weight: 700;
-}
-
-.nav-button .nav-button-child {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: transparent;
-    width: 198px;
-    height: 54.1px;
-    border-radius: 35px;
-}
-
-.nav-button b {
-    position: relative;
-    top: 13.52px;
-    display: block;
-    text-align: center;
-    width: 100%;
-    height: 27px;
-    line-height: 27px;
 }
 
 /* Minimal Scrollbar Style */
@@ -209,14 +169,14 @@
 /* Form Data Styles */
 .mandatory {
     color: red;
-    margin-left: 4px;
-    font-size: 16px;
+    margin-left: 2px;
+    font-size: 12px;
 }
 
 .text-field-with-title {
     display: flex;
     align-items: baseline;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .field-label {
@@ -225,9 +185,74 @@
 
 .text-field {
     flex: 2;
-    margin-left: 10px;
+    margin-left: 5px;
 }
 
 .text-field::placeholder {
     color: #118ACB;
+    font-size: 14px; /* Smaller text size */
+}
+
+/* Modal styles */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+  
+.modal-content {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: left;
+    max-width: 400px;
+    width: 80%;
+    position: relative;
+}
+  
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: black;
+}
+  
+.modal-header p {
+    font-size: 20px;
+    color:#000a0f;
+}
+  
+.modal-header hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #9f9b9b;
+}
+  
+.modal-body {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 20px;
+}
+  
+.modal-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #118ACB;
+    color: white;
+    box-shadow: #0c557d;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+  
+.error {
+    background-color: #e74c3c;
 }
