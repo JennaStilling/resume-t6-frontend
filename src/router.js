@@ -5,9 +5,22 @@ import AddResume from "./views/AddResume.vue";
 import EditResume from "./views/EditResume.vue";
 import ViewProfile from "./views/ViewProfile.vue";
 
+import Login from "./views/LoginTest.vue";
+import Logout from "./views/LogoutTest.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: "/login",
+      name: "login",
+      component: Login,
+    },
+    {
+      path: "/logout",
+      name: "logout",
+      component: Logout,
+    },
     {
       path: "/",
       name: "resumes",

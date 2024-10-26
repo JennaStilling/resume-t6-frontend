@@ -12,6 +12,12 @@
       <ul>
         <div>
           <li>
+            <router-link :to="{name: 'login'}"><a>LOGIN</a></router-link>
+          </li>
+          <li>
+            <router-link :to="{name: 'logout'}"><a>LOGOUT</a></router-link>
+          </li>
+          <li>
             <router-link :to="{name: 'resumes'}"><a>LIST</a></router-link>
           </li>
           <li>
