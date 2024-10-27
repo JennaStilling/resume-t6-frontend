@@ -1,40 +1,65 @@
-<!-- src/App.vue -->
 <template>
   <div id="app">
-    <nav>
-      <ul>
-        <div>
-          <li>
-            <a>{{ "Resume Listing" }}</a>
-          </li>
-        </div>
-      </ul>
-      <ul>
-        <div>
-          <li>
-            <router-link :to="{name: 'login'}"><a>LOGIN</a></router-link>
-          </li>
-          <li>
-            <router-link :to="{name: 'logout'}"><a>LOGOUT</a></router-link>
-          </li>
-          <li>
-            <router-link :to="{name: 'resumes'}"><a>LIST</a></router-link>
-          </li>
-          <li>
-            <router-link :to="{name: 'resume', params: { id: 1 }}"><a>VIEW RESUME</a></router-link>
-          </li>
-          <li>
-            <router-link :to="{name: 'addResume'}"><a>ADD RESUME</a></router-link>
-          </li>
-          <li>
-            <router-link :to="{name: 'editResume', params: { id: 1 }}"><a>EDIT RESUME</a></router-link>
-          </li>
-          <li>
-            <router-link :to="{name: 'profile'}"><a>VIEW PROFILE</a></router-link>
-          </li>
-        </div>
-      </ul>
-    </nav>
-    <router-view />
+    <Header />
+    <!-- Show NavBar only if the current route should have it -->
+    <NavBar v-if="showNavBar" :currentTab="currentTab" />
+    <router-view></router-view>
   </div>
 </template>
+
+<script>
+import Header from './components/Header.vue';
+import NavBar from './components/NavBar.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+export default {
+  components: {
+    Header,
+    NavBar,
+  },
+  setup() {
+    const route = useRoute();
+
+    // Define a mapping of specific base paths to tab names
+    const routeToTabName = {
+      '/contact-info': 'Contact Info',
+      '/education': 'Education',
+      '/experience': 'Experience',
+      '/certifications': 'Certifications',
+      '/skills': 'Skills',
+      '/project': 'Project'
+    };
+    
+    // Check if the current route is the root home page
+    const isHomePage = computed(() => route.path === '/');
+
+    // Determine the current tab based on route path
+    const currentTab = computed(() => {
+      const basePath = Object.keys(routeToTabName).find(path => route.path.startsWith(path));
+      return routeToTabName[basePath] || ''; 
+    });
+
+    // Determine if the NavBar should be shown
+    const showNavBar = computed(() => {
+      return currentTab.value !== '';
+    });
+
+    return {
+      isHomePage,
+      currentTab,
+      showNavBar
+    };
+  },
+};
+</script>
+
+<style>
+#app {
+  font-family: 'Helvetica', sans-serif;
+  flex-direction: column;
+  height: min-content;
+  background-color: #021E2C;
+  overflow: hidden;
+}
+</style>

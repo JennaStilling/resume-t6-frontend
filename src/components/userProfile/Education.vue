@@ -1,23 +1,30 @@
 <template>
-  <div class="education-container container">
+  <div class="container">
     <div class="sidebar">
-      <div class="education-list list">
-        <!--EDUCATION LIST ON LEFT SIDE-->
-        <div class="list-title" @click="toggleDropdown">Education List ▼</div>
-        <br>
+      <div class="list">
+        <!-- EDUCATION LIST ON LEFT SIDE -->
+        <div class="list-title" @click="toggleDropdown">
+          Education List {{ showDropdown ? '▲' : '▼' }}
+        </div>
+        <br />
         <div v-if="showDropdown" class="dropdown">
           <ul>
             <li v-for="(item, index) in educationItems" :key="index" class="dropdown-item">
               <!-- Display each institution's name -->
               <span class="university-name name">{{ item.name }}</span>
-              <div class="buttons">
-                <!-- Edit button for entry -->
-                <div class="edit-button" @click.stop="editEntry(index)">
-                  <div class="edit-button-child"></div>
-                  <b class="edit">EDIT</b>
-                </div>
-                <!-- Delete button for entry -->
-                <button class="delete-button" @click.stop="deleteEntry(index)">DELETE</button>
+              <div class="icon-buttons">
+                <img
+                  src="@/assets/list-elements/edit-list-item.png"
+                  alt="Edit"
+                  class="icon"
+                  @click.stop="editEntry(index)"
+                />
+                <img
+                  src="@/assets/list-elements/delete-list-item.png"
+                  alt="Delete"
+                  class="icon"
+                  @click.stop="showDeleteConfirmation(index)"
+                />
               </div>
             </li>
           </ul>
@@ -80,10 +87,10 @@
           />
           <span class="mandatory">*</span>
         </div>
-        <!-- Save changes button -->
+        <!-- Save/Add button -->
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
-          <b class="save-changes">SAVE CHANGES</b>
+          <b class="save-changes">{{ buttonLabel }}</b>
         </div>
       </div>
 
@@ -93,6 +100,46 @@
         <button class="nav-button" @click="goNext">NEXT</button>
       </div>
     </div>
+
+    <!-- Hidden Delete Confirmation Pop-up -->
+    <div v-if="displayDelete" class="modal">
+      <div class="modal-content">
+        <span @click="displayDelete = false" class="close">&times;</span>
+        <div class="modal-header">
+          <p style="font-weight: bold;">This action is permanent.</p>
+          <hr />
+          <p v-if="!deleteError">
+            Are you sure you want to delete <br />
+            {{ educationItems[currentEducationIndex].name }}?
+          </p>
+          <p v-if="deleteError">
+            Error deleting<br />
+            {{ educationItems[currentEducationIndex].name }}.
+          </p>
+        </div>
+
+        <br />
+        <div class="modal-body">
+          <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
+            CANCEL
+          </button>
+          <button
+            v-if="!deleteError"
+            class="error modal-button"
+            @click="deleteEducation()"
+          >
+            DELETE
+          </button>
+          <button
+            v-if="deleteError"
+            @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -100,44 +147,59 @@
 export default {
   data() {
     return {
-      showDropdown: false,  
-      // UPDATE WITH BACKEND DATA LATER
+      showDropdown: true,
       formData: {
-        degree: 'B.S Computer Science',  
-        institution: 'Oklahoma Christian University', 
-        gpa: '3.97',
-        graduation: '2025-06-12',
+        degree: '',
+        institution: '',
+        gpa: '',
+        graduation: '',
       },
-      educationItems: [  
+      educationItems: [
         { name: 'Oklahoma Christian University' },
         { name: 'Hogwarts' },
-        { name: 'Sky High' }
+        { name: 'Sky High' },
+        { name: 'Starfleet Academy' },
+        { name: "Xavier's School for Gifted Youngsters" }
       ],
+      displayDelete: false,
+      deleteError: false,
+      currentEducationIndex: null,
     };
+  },
+  computed: {
+    buttonLabel() {
+      return this.$route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD EDUCATION';
+    },
   },
   methods: {
     toggleDropdown() {
       this.showDropdown = !this.showDropdown;
     },
     editEntry(index) {
-      // Edit logic for specific entry
+      this.$router.push({ path: `/education/edit/` });
     },
-    deleteEntry(index) {
-      // Delete logic for specific entry
+    showDeleteConfirmation(index) {
+      this.currentEducationIndex = index;
+      this.displayDelete = true;
+    },
+    deleteEducation() {
+      try {
+        this.educationItems.splice(this.currentEducationIndex, 1);
+        this.currentEducationIndex = null;
+        this.displayDelete = false;
+      } catch (error) {
+        this.deleteError = true;
+      }
     },
     saveChanges() {
       // Save changes logic
     },
-
-     // NAVIGATE TO PAGES:
-    // Goes back to the previous page (Contact Info)
     goBack() {
       this.$router.push('/contact-info');
     },
-    // Goes to the next section (Experience)
     goNext() {
       this.$router.push('/experience');
-    }
+    },
   },
 };
 </script>

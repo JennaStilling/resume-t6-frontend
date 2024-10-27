@@ -1,10 +1,9 @@
-/* src/components/NavBar.vue */
 <template>
   <nav class="navbar">
     <button 
       v-for="tab in tabs"
       :key="tab"
-      :class="{ active: currentTab === tab }"
+      :class="{ active: isActiveTab(tab) }"
       @click="changeTab(tab)"
     >
       {{ tab }}
@@ -21,6 +20,19 @@ export default {
     }
   },
   methods: {
+    isActiveTab(tab) {
+      const currentPath = this.$route.path;
+      const tabPathMap = {
+        'Contact Info': '/contact-info',
+        'Education': '/education',
+        'Experience': '/experience',
+        'Certifications': '/certifications',
+        'Skills': '/skills',
+        'Project': '/project',
+      };
+      const basePath = tabPathMap[tab];
+      return currentPath.startsWith(basePath);
+    },
     changeTab(tab) {
       const routes = {
         'Contact Info': '/contact-info',
@@ -43,8 +55,9 @@ export default {
   display: flex;
   justify-content: space-around;
   padding: 10px;
-  width: 100%;
+  width: 70%;
   position: relative;
+  font-size: 3px;
 }
 
 button {

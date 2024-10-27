@@ -3,21 +3,30 @@
     <div class="sidebar">
       <div class="list">
         <!-- PROJECT LIST ON LEFT SIDE -->
-        <div class="list-title" @click="toggleDropdown">Project List ▼</div>
+        <div class="list-title" @click="toggleDropdown">
+          Project List {{ showDropdown ? '▲' : '▼' }}
+        </div>
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
             <li v-for="(item, index) in projectItems" :key="index" class="dropdown-item">
               <!-- Display each project's name -->
               <span class="project-name name">{{ item.name }}</span>
-              <div class="buttons">
-                <!-- Edit button for entry -->
-                <div class="edit-button" @click.stop="editEntry(index)">
-                  <div class="edit-button-child"></div>
-                  <b class="edit">EDIT</b>
-                </div>
-                <!-- Delete button for entry -->
-                <button class="delete-button" @click.stop="deleteEntry(index)">DELETE</button>
+              <div class="icon-buttons">
+                <!-- Edit icon for entry -->
+                <img
+                  src="@/assets/list-elements/edit-list-item.png"
+                  alt="Edit"
+                  class="icon"
+                  @click.stop="editEntry(index)"
+                />
+                <!-- Delete icon for entry -->
+                <img
+                  src="@/assets/list-elements/delete-list-item.png"
+                  alt="Delete"
+                  class="icon"
+                  @click.stop="showDeleteConfirmation(index)"
+                />
               </div>
             </li>
           </ul>
@@ -57,7 +66,7 @@
         <!-- Save changes button -->
         <div class="save-button" @click="saveChanges">
           <div class="save-button-child"></div>
-          <b class="save-changes">SAVE CHANGES</b>
+          <b class="save-changes">{{ buttonLabel }}</b>
         </div>
       </div>
 
@@ -67,6 +76,39 @@
         <button class="nav-button" @click="goNext">NEXT?</button>
       </div>
     </div>
+
+    <!-- Hidden Delete Confirmation Pop-up -->
+    <div v-if="displayDelete" class="modal">
+      <div class="modal-content">
+        <span @click="displayDelete = false" class="close">&times;</span>
+        <div class="modal-header">
+          <p style="font-weight: bold;">This action is permanent.</p>
+          <hr />
+          <p v-if="!deleteError">
+            Are you sure you want to delete <br />
+            {{ projectItems[currentProjectIndex].name }}?
+          </p>
+          <p v-if="deleteError">
+            Error deleting<br />
+            {{ projectItems[currentProjectIndex].name }}.
+          </p>
+        </div>
+
+        <br />
+        <div class="modal-body">
+          <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
+            CANCEL
+          </button>
+          <button
+            v-if="!deleteError"
+            class="error modal-button"
+            @click="deleteCourse()"
+          >
+            DELETE
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -74,37 +116,52 @@
 export default {
   data() {
     return {
-      showDropdown: false, 
-      // UPDATE WITH BACKEND DATA LATER
+      showDropdown: true,
       formData: {
-        name: '', 
-        description: '', 
+        name: '',
+        description: '',
       },
-      projectItems: [ 
+      projectItems: [
         { name: 'Course Listing App' },
         { name: 'Calculator' }
       ],
+      displayDelete: false,
+      deleteError: false,
+      currentProjectIndex: null,
     };
+  },
+  computed: {
+    buttonLabel() {
+      return this.$route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD PROJECT';
+    },
   },
   methods: {
     toggleDropdown() {
       this.showDropdown = !this.showDropdown;
     },
     editEntry(index) {
-      // Edit logic for specific entry
+      const projectName = this.projectItems[index].name;
+      this.$router.push({ path: `/project/edit/` });
     },
-    deleteEntry(index) {
-      // Delete logic for specific entry
+    showDeleteConfirmation(index) {
+      this.currentProjectIndex = index;
+      this.displayDelete = true;
+    },
+    deleteCourse() {
+      try {
+        this.projectItems.splice(this.currentProjectIndex, 1);
+        this.currentProjectIndex = null;
+        this.displayDelete = false;
+      } catch (error) {
+        this.deleteError = true;
+      }
     },
     saveChanges() {
       // Save logic for specific entry
     },
-    // Navigate to pages:
-    // Goes back to the previous section (Skills)
     goBack() {
       this.$router.push('/skills');
     },
-    // FIX LATER: Goes to the home page
     goNext() {
       this.$router.push('/');
     }

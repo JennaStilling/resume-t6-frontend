@@ -2,8 +2,10 @@
 <template>
     <div class="home-page">
       <h1>Welcome to ResuMate!</h1>
-      <p> (Will fix Home Page later) </p>
+      <p> (Fix Home Page later) </p>
   
+      <div class="start-button" @click="login">Login Page Idea</div>
+      <div class="start-button" @click="list">Testing Login Features</div>
       <div class="start-button" @click="start">START A NEW RESUME</div>
     </div>
   </template>
@@ -14,6 +16,12 @@
     methods: {
         start(){
             this.$router.push('/contact-info');
+        },
+        login(){
+          this.$router.push('/login');
+        },
+        list(){
+          this.$router.push('/profile-app');
         }
     }
 
@@ -29,6 +37,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
   }
   
   .start-button {
