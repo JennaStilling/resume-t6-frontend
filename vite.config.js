@@ -7,10 +7,7 @@ import dns from "dns";
 dns.setDefaultResultOrder("verbatim");
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    vuetify({ autoImport: true })
-  ],
+  plugins: [vue(), vuetify({ autoImport: true })],
 
   server: {
     host: "localhost",
@@ -21,20 +18,7 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@': '/src',  
+      '@': path.resolve(__dirname, './src')
     },
-<<<<<<< HEAD
   },
 });
-=======
-
-    base: baseURL,
-
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'), // Set '@' to point to the 'src' directory
-      },
-    },
-  });
-};
->>>>>>> dev
