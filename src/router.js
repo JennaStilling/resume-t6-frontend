@@ -16,11 +16,16 @@ import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
 
+import AdminHomePage from './views/admin/AdminHome.vue';
+import ViewStudentResume from './views/admin/ViewStudentResume.vue';
+
 // Define routes
 const routes = [
+  // Home Pages:
   { path: '/', component: HomePage },
+  { path: '/admin-home', name: 'admin-home', component: AdminHomePage },
 
-  // Profile paths:
+  // Profile Paths:
   { path: '/contact-info', component: ContactInfo },
   { path: '/education', component: Education },
   { path: '/education/edit', component: Education },
@@ -33,7 +38,10 @@ const routes = [
   { path: '/project', component: Project },
   { path: '/project/edit', component: Project },
 
-  //Login/out: 
+  // Admin Specific Pages
+  { path: '/student-resume-request', name: 'viewStudentResume', component: ViewStudentResume, props: true },
+
+  // Login/out: 
   { path: '/profile-app', name: 'profile-app', component: ProfileApp},
   { path: '/login', name: 'login', component: Login },
   { path: '/logout', name: 'logout', component: Logout },
