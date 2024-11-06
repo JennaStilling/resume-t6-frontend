@@ -39,11 +39,11 @@
       <div class="form">
         <!-- Certification name input field -->
         <div class="text-field-with-title">
-          <label for="certification" class="field-label">CERTIFICATION</label>
+          <label for="name" class="field-label">CERTIFICATION NAME</label>
           <input
             type="text"
-            id="certification"
-            v-model="formData.certification"
+            id="name"
+            v-model="formData.name"
             class="text-field"
             placeholder="Enter certification name"
             required
@@ -67,11 +67,11 @@
 
         <!-- Date acquired input field -->
         <div class="text-field-with-title">
-          <label for="date" class="field-label">DATE ACQUIRED</label>
+          <label for="date_acquired" class="field-label">DATE ACQUIRED</label>
           <input
             type="date"
-            id="date"
-            v-model="formData.date"
+            id="date_acquired"
+            v-model="formData.date_acquired"
             class="text-field"
             required
           />
@@ -135,14 +135,16 @@
 </template>
 
 <script>
+import certificationServices from "../../services/certificationServices.js";
+import Utils from "../../config/utils.js";
 export default {
   data() {
     return {
       showDropdown: true,
       formData: {
-        certification: '',
+        name: '',
         company: '',
-        date: '',
+        date_acquired: '',
       },
       certificationItems: [
         { name: 'Security+' },
@@ -179,7 +181,38 @@ export default {
       }
     },
     saveChanges() {
-      // Save changes logic
+      if(this.$route.path.includes('/certifications/edit/'))
+      {
+          //save
+      }
+      else {
+        console.log(this.formData);
+        certificationServices.createCertification(Utils.getUser.value.studentId, this.formData)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              // for (let obj in errors.value) {
+              //   errors.value[obj] = '*'
+              // }
+              // for (let obj of error.response.data) {
+              //   if (obj.attributeName === undefined) {
+              //     obj.attributeName = "idNumber";
+              //   }
+              //   errors.value[obj.attributeName] = obj.message;
+              // }
+            // } else {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+              //console.log(token);
+            }
+          });
+      }
     },
     goBack() {
       this.$router.push('/experience');

@@ -120,6 +120,8 @@
 </template>
 
 <script>
+import skillServices from "../../services/skillServices.js";
+import Utils from "../../config/utils.js";
 export default {
   data() {
     return {
@@ -163,7 +165,38 @@ export default {
       }
     },
     saveChanges() {
-      // Save logic for specific entry
+      if(this.$route.path.includes('/skills/edit/'))
+      {
+          //save
+      }
+      else {
+        console.log(this.formData);
+        skillServices.createSkill(Utils.getUser.value.studentId, this.formData)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              // for (let obj in errors.value) {
+              //   errors.value[obj] = '*'
+              // }
+              // for (let obj of error.response.data) {
+              //   if (obj.attributeName === undefined) {
+              //     obj.attributeName = "idNumber";
+              //   }
+              //   errors.value[obj.attributeName] = obj.message;
+              // }
+            // } else {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+              //console.log(token);
+            }
+          });
+      }
     },
     goBack() {
       this.$router.push('/certifications');

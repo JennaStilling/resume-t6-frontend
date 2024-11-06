@@ -81,7 +81,7 @@
           <input
             type="date"
             id="graduation"
-            v-model="formData.graduation"
+            v-model="formData.graduation_date"
             class="text-field"
             required
           />
@@ -143,65 +143,100 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        degree: '',
-        institution: '',
-        gpa: '',
-        graduation: '',
-      },
-      educationItems: [
-        { name: 'Oklahoma Christian University' },
-        { name: 'Hogwarts' },
-        { name: 'Sky High' },
-        { name: 'Starfleet Academy' },
-        { name: "Xavier's School for Gifted Youngsters" }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentEducationIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD EDUCATION';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      this.$router.push({ path: `/education/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentEducationIndex = index;
-      this.displayDelete = true;
-    },
-    deleteEducation() {
-      try {
-        this.educationItems.splice(this.currentEducationIndex, 1);
-        this.currentEducationIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
-      }
-    },
-    saveChanges() {
-      // Save changes logic
-    },
-    goBack() {
-      this.$router.push('/contact-info');
-    },
-    goNext() {
-      this.$router.push('/experience');
-    },
-  },
-};
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import educationServices from "../../services/educationServices.js";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+  });
+});
+
+
+const showDropdown = ref(true);
+const formData = ref({
+  degree: '',
+  institution: '',
+  gpa: '',
+  graduation_date: ''
+});
+const educationItems = ref([
+  { name: 'Oklahoma Christian University' },
+  { name: 'Hogwarts' },
+  { name: 'Sky High' },
+  { name: 'Starfleet Academy' },
+  { name: "Xavier's School for Gifted Youngsters" }
+]);
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const currentEducationIndex = ref(null);
+const message = ref('');
+
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD EDUCATION';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/education/edit/` });
+}
+
+function showDeleteConfirmation(index) {
+  currentEducationIndex.value = index;
+  displayDelete.value = true;
+}
+
+function deleteEducation() {
+  try {
+    educationItems.value.splice(currentEducationIndex.value, 1);
+    currentEducationIndex.value = null;
+    displayDelete.value = false;
+  } catch (error) {
+    deleteError.value = true;
+  }
+}
+
+function saveChanges() {
+  if (route.path.includes('/education/edit/')) {
+    // Implement save functionality here
+  } else {
+    educationServices.createEducation(studentId.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 406) {
+          message.value = "Error: " + error.code + ":" + error.message;
+          console.log(error);
+        } else {
+          console.log(error);
+        }
+      });
+  }
+}
+
+// Navigation methods
+function goBack() {
+  router.push('/contact-info');
+}
+
+function goNext() {
+  router.push('/experience');
+}
 </script>
 
 <style>

@@ -37,15 +37,55 @@
     <!-- Main form for entering experience details -->
     <div class="main-content">
       <div class="form">
-        <!-- Experience name input field -->
+        <!-- Experience role input field -->
         <div class="text-field-with-title">
-          <label for="experienceName" class="field-label">NAME</label>
+          <label for="experienceName" class="field-label">ROLE</label>
           <input
             type="text"
             id="experienceName"
-            v-model="formData.name"
+            v-model="formData.role"
             class="text-field"
-            placeholder="Enter experience name"
+            placeholder="Enter role"
+            required
+          />
+          <span class="mandatory">*</span>
+        </div>
+
+        <!-- Experience company input field -->
+        <div class="text-field-with-title">
+          <label for="experienceCompany" class="field-label">COMPANY</label>
+          <input
+            type="text"
+            id="experienceCompany"
+            v-model="formData.company"
+            class="text-field"
+            placeholder="Enter company"
+            required
+          />
+          <span class="mandatory">*</span>
+        </div>
+
+        <!-- Graduation date input field -->
+        <div class="text-field-with-title">
+          <label for="start_date" class="field-label">START DATE</label>
+          <input
+            type="date"
+            id="start_date"
+            v-model="formData.start_date"
+            class="text-field"
+            required
+          />
+          <span class="mandatory">*</span>
+        </div>
+
+        <!-- Graduation date input field -->
+        <div class="text-field-with-title">
+          <label for="end_date" class="field-label">END DATE</label>
+          <input
+            type="date"
+            id="end_date"
+            v-model="formData.end_date"
+            class="text-field"
             required
           />
           <span class="mandatory">*</span>
@@ -53,10 +93,10 @@
 
         <!-- Experience description input field -->
         <div class="text-field-with-title">
-          <label for="description" class="field-label">DESCRIPTION</label>
+          <label for="job_description" class="field-label">JOB DESCRIPTION</label>
           <textarea
-            id="description"
-            v-model="formData.description"
+            id="job_description"
+            v-model="formData.job_description"
             class="text-field"
             rows="4"
             placeholder="Enter a detailed description of your experience"
@@ -120,13 +160,18 @@
 </template>
 
 <script>
+import experienceServices from "../../services/experienceServices.js";
+import Utils from "../../config/utils.js";
 export default {
   data() {
     return {
       showDropdown: true,
       formData: {
-        name: '',
-        description: '',
+        role: '',
+        company: '',
+        start_date: '',
+        end_date: '',
+        job_description: '',
       },
       experiencesItems: [
         { name: 'JavaScript' },
@@ -163,7 +208,38 @@ export default {
       }
     },
     saveChanges() {
-      // Save changes logic
+      if(this.$route.path.includes('/experience/edit/'))
+      {
+          //save
+      }
+      else {
+        console.log(this.formData);
+        experienceServices.createExperience(Utils.getUser.value.studentId, this.formData)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              // for (let obj in errors.value) {
+              //   errors.value[obj] = '*'
+              // }
+              // for (let obj of error.response.data) {
+              //   if (obj.attributeName === undefined) {
+              //     obj.attributeName = "idNumber";
+              //   }
+              //   errors.value[obj.attributeName] = obj.message;
+              // }
+            // } else {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+              //console.log(token);
+            }
+          });
+      }
     },
     goBack() {
       this.$router.push('/education');
