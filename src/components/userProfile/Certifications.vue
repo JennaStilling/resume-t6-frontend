@@ -9,7 +9,7 @@
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in certificationItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in certifications" :key="index" class="dropdown-item">
               <!-- Display each certification's name -->
               <span class="certification-name name">{{ item.name }}</span>
               <div class="icon-buttons">
@@ -134,61 +134,103 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        certification: '',
-        company: '',
-        date: '',
-      },
-      certificationItems: [
-        { name: 'Security+' },
-        { name: 'Cloud+' }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentCertificationIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/certifications/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      this.$router.push({ path: `/certifications/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentCertificationIndex = index;
-      this.displayDelete = true;
-    },
-    deleteCertification() {
-      try {
-        this.certificationItems.splice(this.currentCertificationIndex, 1);
-        this.currentCertificationIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
-      }
-    },
-    saveChanges() {
-      // Save changes logic
-    },
-    goBack() {
-      this.$router.push('/experience');
-    },
-    goNext() {
-      this.$router.push('/skills');
-    },
-  },
-};
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import certificationServices from "../../services/certificationServices.js";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const certifications = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getCertification();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  certification: '',
+  company: '',
+  date: '',
+});
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const currentCertificationIndex = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/certification/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/certification/edit/` });
+}
+
+function showDeleteConfirmation(index) {
+  currentCertificationIndex.value = index;
+  displayDelete.value = true;
+}
+
+function deleteCertification() {
+  try {
+    certificationItems.value.splice(currentCertificationIndex.value, 1);
+    currentCertificationIndex.value = null;
+    displayDelete.value = false;
+  } catch (error) {
+    deleteError.value = true;
+  }
+}
+
+function saveChanges() {
+  if (route.path.includes('/certification/edit/')) {
+    // Implement save functionality here
+  } else {
+    certificationServices.createCertification(studentId.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 406) {
+          message.value = "Error: " + error.code + ":" + error.message;
+          console.log(error);
+        } else {
+          console.log(error);
+        }
+      });
+  }
+}
+
+// Navigation methods
+function goBack() {
+  router.push('/experience');
+}
+
+function goNext() {
+  router.push('/skills');
+}
+
+const getCertification = () => {
+      certificationServices.getAllCertifications(studentId.value)
+        .then((res) => {
+            certifications.value = res.data;
+            console.log(certifications.value);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 </script>
 
 <style>

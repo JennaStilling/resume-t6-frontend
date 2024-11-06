@@ -9,9 +9,9 @@
         <br />
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in experiencesItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in experiences" :key="index" class="dropdown-item">
               <!-- Display each experience's name -->
-              <span class="experience-name name">{{ item.name }}</span>
+              <span class="experience-name name">{{ item.role }}</span>
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
                 <img
@@ -119,60 +119,102 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        name: '',
-        description: '',
-      },
-      experiencesItems: [
-        { name: 'JavaScript' },
-        { name: 'Vue' }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentExperienceIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/experience/edit/') ? 'SAVE CHANGES' : 'ADD EXPERIENCE';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      this.$router.push({ path: `/experience/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentExperienceIndex = index;
-      this.displayDelete = true;
-    },
-    deleteExperience() {
-      try {
-        this.experiencesItems.splice(this.currentExperienceIndex, 1);
-        this.currentExperienceIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
-      }
-    },
-    saveChanges() {
-      // Save changes logic
-    },
-    goBack() {
-      this.$router.push('/education');
-    },
-    goNext() {
-      this.$router.push('/certifications');
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import experienceServices from "../../services/experienceServices.js";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const experiences = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getExperience();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  name: '',
+  description: '',
+})
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const currentExperienceIndex = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/experience/edit/') ? 'SAVE CHANGES' : 'ADD EXPERIENCE';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/experience/edit/` });
+}
+
+function showDeleteConfirmation(index) {
+  currentExperienceIndex.value = index;
+  displayDelete.value = true;
+}
+
+function deleteExperience() {
+  try {
+    experienceItems.value.splice(currentExperienceIndex.value, 1);
+    currentExperienceIndex.value = null;
+    displayDelete.value = false;
+  } catch (error) {
+    deleteError.value = true;
+  }
+}
+
+function saveChanges() {
+  if (route.path.includes('/experience/edit/')) {
+    // Implement save functionality here
+  } else {
+    experienceServices.createExperience(studentId.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 406) {
+          message.value = "Error: " + error.code + ":" + error.message;
+          console.log(error);
+        } else {
+          console.log(error);
+        }
+      });
+  }
+}
+
+// Navigation methods
+function goBack() {
+  router.push('/education');
+}
+
+function goNext() {
+  router.push('/certifications');
+}
+
+const getExperience = () => {
+      experienceServices.getAllExperiences(studentId.value)
+        .then((res) => {
+            experiences.value = res.data;
+            console.log(experiences.value);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     }
-  },
-};
 </script>
 
 <style>
