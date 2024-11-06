@@ -25,7 +25,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -86,11 +86,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ projectItems[currentProjectIndex].name }}?
+            {{ projectToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ projectItems[currentProjectIndex].name }}.
+            {{ projectToDelete.name }}.
           </p>
         </div>
 
@@ -139,7 +139,7 @@ const formData = ref({
 });
 const displayDelete = ref(false);
 const deleteError = ref(false);
-const currentProjectIndex = ref(null);
+const projectToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
@@ -156,18 +156,21 @@ function editEntry(index) {
 }
 
 function showDeleteConfirmation(index) {
-  currentProjectIndex.value = index;
+  projectToDelete.value = index;
   displayDelete.value = true;
 }
 
 function deleteProject() {
-  try {
-    projectItems.value.splice(currentProjectIndex.value, 1);
-    currentProjectIndex.value = null;
-    displayDelete.value = false;
-  } catch (error) {
-    deleteError.value = true;
-  }
+  projectServices.deleteProject(studentId.value, projectToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getProject();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
 }
 
 function saveChanges() {

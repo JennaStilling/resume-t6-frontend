@@ -25,7 +25,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -86,11 +86,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ skillsItems[currentSkillIndex].name }}?
+            {{ skillToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ skillsItems[currentSkillIndex].name }}.
+            {{ skillToDelete.name }}.
           </p>
         </div>
 
@@ -146,7 +146,7 @@ const formData = ref({
 });
 const displayDelete = ref(false);
 const deleteError = ref(false);
-const currentSkillIndex = ref(null);
+const skillToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
@@ -163,18 +163,21 @@ function editEntry(index) {
 }
 
 function showDeleteConfirmation(index) {
-  currentSkillIndex.value = index;
+  skillToDelete.value = index;
   displayDelete.value = true;
 }
 
 function deleteSkill() {
-  try {
-    skillItems.value.splice(currentSkillIndex.value, 1);
-    currentSkillIndex.value = null;
-    displayDelete.value = false;
-  } catch (error) {
-    deleteError.value = true;
-  }
+  skillServices.deleteSkill(studentId.value, skillToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getSkill();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
 }
 
 function saveChanges() {

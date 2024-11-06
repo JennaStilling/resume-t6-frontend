@@ -25,7 +25,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -86,11 +86,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ experiencesItems[currentExperienceIndex].name }}?
+            {{ experienceToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ experiencesItems[currentExperienceIndex].name }}.
+            {{ experienceToDelete.name }}.
           </p>
         </div>
 
@@ -146,7 +146,7 @@ const formData = ref({
 })
 const displayDelete = ref(false);
 const deleteError = ref(false);
-const currentExperienceIndex = ref(null);
+const experienceToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
@@ -162,19 +162,22 @@ function editEntry(index) {
   router.push({ path: `/experience/edit/` });
 }
 
-function showDeleteConfirmation(index) {
-  currentExperienceIndex.value = index;
+function showDeleteConfirmation(item) {
+  experienceToDelete.value = item;
   displayDelete.value = true;
 }
 
 function deleteExperience() {
-  try {
-    experienceItems.value.splice(currentExperienceIndex.value, 1);
-    currentExperienceIndex.value = null;
-    displayDelete.value = false;
-  } catch (error) {
-    deleteError.value = true;
-  }
+  experienceServices.deleteExperience(studentId.value, experienceToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getExperience();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
 }
 
 function saveChanges() {

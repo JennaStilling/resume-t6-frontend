@@ -23,7 +23,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -110,11 +110,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ educationItems[currentEducationIndex].name }}?
+            {{ educationToDelete.institution }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ educationItems[currentEducationIndex].name }}.
+            {{ educationToDelete.institution }}.
           </p>
         </div>
 
@@ -170,9 +170,10 @@ const formData = ref({
   gpa: '',
   graduation_date: ''
 });
+
 const displayDelete = ref(false);
 const deleteError = ref(false);
-const currentEducationIndex = ref(null);
+const educationToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
@@ -188,19 +189,22 @@ function editEntry(index) {
   router.push({ path: `/education/edit/` });
 }
 
-function showDeleteConfirmation(index) {
-  currentEducationIndex.value = index;
+function showDeleteConfirmation(item) {
+  educationToDelete.value = item;
   displayDelete.value = true;
 }
 
 function deleteEducation() {
-  try {
-    educationItems.value.splice(currentEducationIndex.value, 1);
-    currentEducationIndex.value = null;
-    displayDelete.value = false;
-  } catch (error) {
-    deleteError.value = true;
-  }
+  educationServices.deleteEducation(studentId.value, educationToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getEducation();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
 }
 
 function saveChanges() {
