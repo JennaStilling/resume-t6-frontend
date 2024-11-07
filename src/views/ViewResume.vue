@@ -1,13 +1,19 @@
 <template>
   <div class="resume-builder">
+
+  <!-- Left side of the screen -->
     <div class="resume-sidebar">
+      <!-- Input Filename -->
       <div class="title-section">
-        <label for="resumeTitle">Title:</label>
-        <input v-model="resumeTitle" id="resumeTitle" class="title-input" placeholder="First Resume" />
+        <label for="resumeTitle">Filename:</label>
+        <input v-model="resumeTitle" id="resumeTitle" class="title-input" placeholder="first-resume" />
         <img :src="editPencilIcon" alt="edit" class="edit-icon" />
       </div>
 
+      <!-- Dropdown Sections for Each Resume Category -->
       <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
+        
+        <!-- Header of Each Dropdown (example: Education) -->
         <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
           <img class="section-icon" :src="section.icon" :alt="`${section.label} Icon`" />
           <span>{{ section.label }}</span>
@@ -17,103 +23,33 @@
             alt="arrow"
           />
         </div>
-       
+        
+        <!-- Content of Each Dropdown (example: CS, Oklahoma Christian University [✓] ) -->
         <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
-          <!-- Education Section -->
-          <div v-if="sectionKey === 'education' && section.items.length" class="education-list">
+          <div v-if="section.items.length" class="list-section">
+            
+            <!-- Item List within Each Section (example: gets all skills) -->
             <div
-              v-for="(education, index) in section.items"
+              v-for="(item, index) in section.items"
               :key="index"
               class="student-contact-info"
-              @click="toggleCheckbox(education)"
+              @click="toggleCheckbox(item)"
             >
               <div class="student-contact-info-inner">
                 <div
                   class="group-child"
-                  :class="{ 'selected': education.isSelected }"
+                  :class="{ 'selected': item.isSelected }"
                 >
-                  <p> {{ education.degree }}, {{ education.institution }}</p>
+                  <p>{{ formatItem(sectionKey, item) }}</p>
                   <label class="custom-checkbox">
-                    <input type="checkbox" v-model="education.isSelected" @click.stop />
+                    <input type="checkbox" v-model="item.isSelected" @click.stop />
                     <span class="checkmark"></span>
                   </label>
                 </div>
               </div>
             </div>
           </div>
-          <p v-else-if="sectionKey === 'education'">No education data available.</p>
-
-          <!-- Experience Section -->
-          <div v-if="sectionKey === 'experience' && section.items.length" class="experience-list">
-            <div
-              v-for="(experience, index) in section.items"
-              :key="index"
-              class="student-contact-info"
-              @click="toggleCheckbox(experience)"
-            >
-              <div class="student-contact-info-inner">
-                <div
-                  class="group-child"
-                  :class="{ 'selected': experience.isSelected }"
-                >
-                  <p> {{ experience.role }}, {{ experience.company }}</p>
-                  <label class="custom-checkbox">
-                    <input type="checkbox" v-model="experience.isSelected" @click.stop />
-                    <span class="checkmark"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p v-else-if="sectionKey === 'experience'">No experience data available.</p>
-
-          <!-- Certification Section -->
-          <div v-if="sectionKey === 'certifications' && section.items.length" class="certification-list">
-            <div
-              v-for="(certification, index) in section.items"
-              :key="index"
-              class="student-contact-info"
-              @click="toggleCheckbox(certification)"
-            >
-              <div class="student-contact-info-inner">
-                <div
-                  class="group-child"
-                  :class="{ 'selected': certification.isSelected }"
-                >
-                  <p> {{ certification.name }}, {{ certification.company }}</p>
-                  <label class="custom-checkbox">
-                    <input type="checkbox" v-model="certification.isSelected" @click.stop />
-                    <span class="checkmark"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p v-else-if="sectionKey === 'certifications'">No certification data available.</p>
-
-          <!-- Skills Section -->
-          <div v-if="sectionKey === 'skills' && section.items.length" class="skills-list">
-            <div
-              v-for="(skill, index) in section.items"
-              :key="index"
-              class="student-contact-info"
-              @click="toggleCheckbox(skill)"
-            >
-              <div class="student-contact-info-inner">
-                <div
-                  class="group-child"
-                  :class="{ 'selected': skill.isSelected }"
-                >
-                  <p> {{ skill.name }}</p>
-                  <label class="custom-checkbox">
-                    <input type="checkbox" v-model="skill.isSelected" @click.stop />
-                    <span class="checkmark"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p v-else-if="sectionKey === 'skills'">No skills data available.</p>
+          <p v-else>No {{ section.label.toLowerCase() }} data available.</p>
         </div>
       </div>
     </div>
@@ -121,9 +57,15 @@
 </template>
 
 <script>
+/* Imports for Services and Icons */
 import { ref, onMounted } from 'vue';
+import educationServices from '@/services/educationServices';
+import experienceServices from '@/services/experienceServices';
+import certificationServices from '@/services/certificationServices';
+import skillServices from '@/services/skillServices';
 import Utils from '../config/utils';
 
+// Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
 import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
 import dropDownIcon from '@/assets/build-icons/drop-down.png';
@@ -140,152 +82,90 @@ export default {
     const studentId = ref('');
     const user = ref(null);
 
+    /* Keeps dropdowns closed until clicked on */
     const isDropdownOpen = ref({
-      contactInfo: false,
       education: false,
       experience: false,
       certifications: false,
       skills: false,
     });
 
+    /* Configuration of Dropdown Sections */
     const dropdownSections = ref({
       education: {
         label: 'Education',
         icon: educationIcon,
-        items: []
+        items: [],
+        service: educationServices.getAllEducations
       },
       experience: {
         label: 'Experience',
         icon: experienceIcon,
-        items: []
+        items: [],
+        service: experienceServices.getAllExperiences
       },
       certifications: {
         label: 'Certifications',
         icon: certsIcon,
-        items: []
+        items: [],
+        service: certificationServices.getAllCertifications
       },
       skills: {
         label: 'Skills',
         icon: skillsIcon,
-        items: []
+        items: [],
+        service: skillServices.getAllSkills
       }
     });
 
-    user.value = Utils.getStore("user");
-    if (user.value) {
-      authToken.value = user.value.token;
-      studentId.value = user.value.studentId;
-    }
-
-    const fetchEducationData = async () => {
-      if (!authToken.value) return;
-
-      try {
-        const response = await fetch('http://localhost:3026/resume-t6/student/${studentId.value}/education/', {
-          headers: {
-            'Authorization': `Bearer ${authToken.value}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch education data');
-        }
-
-        const educationData = await response.json();
-        dropdownSections.value.education.items = educationData.map(item => ({
-          ...item,
-          isSelected: false
-        }));
-      } catch (error) {
-        console.error('Error fetching education data:', error);
-      }
-    };
-
-    const fetchExperienceData = async () => {
-      if (!authToken.value) return;
-
-      try {
-        const response = await fetch('http://localhost:3026/resume-t6/student/${studentId.value}/experience/', {
-          headers: {
-            'Authorization': `Bearer ${authToken.value}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch experience data');
-        }
-
-        const experienceData = await response.json();
-        dropdownSections.value.experience.items = experienceData.map(item => ({
-          ...item,
-          isSelected: false
-        }));
-      } catch (error) {
-        console.error('Error fetching experience data:', error);
-      }
-    };
-
-    const fetchCertificationData = async () => {
-      if (!authToken.value) return;
-
-      try {
-        const response = await fetch('http://localhost:3026/resume-t6/student/${studentId.value}/certification/', {
-          headers: {
-            'Authorization': `Bearer ${authToken.value}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch certification data');
-        }
-
-        const certificationData = await response.json();
-        dropdownSections.value.certifications.items = certificationData.map(item => ({
-          ...item,
-          isSelected: false
-        }));
-      } catch (error) {
-        console.error('Error fetching certification data:', error);
-      }
-    };
-
-    const fetchSkillsData = async () => {
-      if (!authToken.value) return;
-
-      try {
-        const response = await fetch('http://localhost:3026/resume-t6/student/${studentId.value}/skill/', {
-          headers: {
-            'Authorization': `Bearer ${authToken.value}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch skills data');
-        }
-
-        const skillsData = await response.json();
-        dropdownSections.value.skills.items = skillsData.map(item => ({
-          ...item,
-          isSelected: false
-        }));
-      } catch (error) {
-        console.error('Error fetching skills data:', error);
-      }
-    };
-
+    /* Load User Data from Storage */
     onMounted(() => {
-      fetchEducationData();
-      fetchExperienceData();
-      fetchCertificationData();
-      fetchSkillsData();
+      const user = Utils.getStore('user');
+      if (user) {
+        authToken.value = user.token;
+        studentId.value = user.studentId;
+        
+        // Fetch data for each category
+        Object.keys(dropdownSections.value).forEach(fetchData);
+      }
     });
 
+    /* Fetch Data for Each Section */
+    const fetchData = (sectionKey) => {
+      if (!authToken.value) return;
+
+      const section = dropdownSections.value[sectionKey];
+      section.service(studentId.value)
+        .then((res) => {
+          section.items = res.data.map(item => ({
+            ...item,
+            isSelected: false
+          }));
+        })
+        .catch((err) => {
+          console.error(`Error fetching ${sectionKey} data:`, err);
+        });
+    };
+
+    /* Toggle Dropdown Visibility */
     const toggleDropdown = (sectionKey) => {
       isDropdownOpen.value[sectionKey] = !isDropdownOpen.value[sectionKey];
     };
 
+    /* Toggle Selection Checkbox */
     const toggleCheckbox = (item) => {
       item.isSelected = !item.isSelected;
+    };
+
+    /* Shows enough data for each item so the user can pick what they want on their resume */
+    const formatItem = (sectionKey, item) => {
+      const formats = {
+        education: `${item.degree}, ${item.institution}`,
+        experience: `${item.role}, ${item.company}`,
+        certifications: `${item.name}, ${item.company}`,
+        skills: `${item.name}`
+      };
+      return formats[sectionKey];
     };
 
     return {
@@ -296,7 +176,8 @@ export default {
       isDropdownOpen,
       dropdownSections,
       toggleDropdown,
-      toggleCheckbox
+      toggleCheckbox,
+      formatItem
     };
   }
 };
@@ -304,4 +185,4 @@ export default {
 
 <style scoped>
   @import '@/assets/view-resume.css';
-</style>  
+</style>
