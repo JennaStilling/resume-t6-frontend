@@ -9,7 +9,7 @@
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in certificationItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in certifications" :key="index" class="dropdown-item">
               <!-- Display each certification's name -->
               <span class="certification-name name">{{ item.name }}</span>
               <div class="icon-buttons">
@@ -25,7 +25,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -101,11 +101,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ certificationItems[currentCertificationIndex].name }}?
+            {{ certificationToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ certificationItems[currentCertificationIndex].name }}.
+            {{ certificationToDelete.name }}.
           </p>
         </div>
 
@@ -134,53 +134,69 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import certificationServices from "../../services/certificationServices.js";
 import Utils from "../../config/utils.js";
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        name: '',
-        company: '',
-        date_acquired: '',
-      },
-      certificationItems: [
-        { name: 'Security+' },
-        { name: 'Cloud+' }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentCertificationIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/certifications/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      this.$router.push({ path: `/certifications/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentCertificationIndex = index;
-      this.displayDelete = true;
-    },
-    deleteCertification() {
-      try {
-        this.certificationItems.splice(this.currentCertificationIndex, 1);
-        this.currentCertificationIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
-      }
-    },
-    saveChanges() {
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const certifications = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getCertification();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  certification: '',
+  company: '',
+  date: '',
+});
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const certificationToDelete = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/certification/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/certification/edit/` });
+}
+
+function showDeleteConfirmation(item) {
+  certificationToDelete.value = item;
+  displayDelete.value = true;
+}
+
+function deleteCertification() {
+  certificationServices.deleteCertification(studentId.value, certificationToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getCertification();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
+}
+
+function saveChanges() {
       if(this.$route.path.includes('/certifications/edit/'))
       {
           //save
@@ -213,15 +229,27 @@ export default {
             }
           });
       }
-    },
-    goBack() {
-      this.$router.push('/experience');
-    },
-    goNext() {
-      this.$router.push('/skills');
-    },
-  },
-};
+    }
+
+// Navigation methods
+function goBack() {
+  router.push('/experience');
+}
+
+function goNext() {
+  router.push('/skills');
+}
+
+const getCertification = () => {
+      certificationServices.getAllCertifications(studentId.value)
+        .then((res) => {
+            certifications.value = res.data;
+            console.log(certifications.value);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 </script>
 
 <style>

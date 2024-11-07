@@ -9,7 +9,7 @@
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in projectItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in projects" :key="index" class="dropdown-item">
               <!-- Display each project's name -->
               <span class="project-name name">{{ item.name }}</span>
               <div class="icon-buttons">
@@ -17,8 +17,12 @@
                 <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
                   @click.stop="editEntry(index)" />
                 <!-- Delete icon for entry -->
-                <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
-                  @click.stop="showDeleteConfirmation(index)" />
+                <img
+                  src="@/assets/list-elements/delete-list-item.png"
+                  alt="Delete"
+                  class="icon"
+                  @click.stop="showDeleteConfirmation(item)"
+                />
               </div>
             </li>
           </ul>
@@ -67,11 +71,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ projectItems[currentProjectIndex].name }}?
+            {{ projectToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ projectItems[currentProjectIndex].name }}.
+            {{ projectToDelete.name }}.
           </p>
         </div>
 
@@ -80,7 +84,11 @@
           <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
             CANCEL
           </button>
-          <button v-if="!deleteError" class="error modal-button" @click="deleteCourse()">
+          <button
+            v-if="!deleteError"
+            class="error modal-button"
+            @click="deleteProject()"
+          >
             DELETE
           </button>
         </div>
@@ -89,93 +97,105 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import projectServices from "../../services/projectServices.js";
 import Utils from "../../config/utils.js";
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        name: '',
-        description: '',
-      },
-      projectItems: [
-        { name: 'Course Listing App' },
-        { name: 'Calculator' }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentProjectIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD PROJECT';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      const projectName = this.projectItems[index].name;
-      this.$router.push({ path: `/project/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentProjectIndex = index;
-      this.displayDelete = true;
-    },
-    deleteCourse() {
-      try {
-        this.projectItems.splice(this.currentProjectIndex, 1);
-        this.currentProjectIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
-      }
-    },
-    saveChanges() {
-      if (this.$route.path.includes('/project/edit/')) {
-        //save
-      }
-      else {
-        console.log(this.formData);
-        projectServices.createProject(Utils.getUser.value.studentId, this.formData)
-          .then(() => {
-            window.location.reload();
-          })
-          .catch((error) => {
-            if (error.response != null && error.response.status == "406") {
-              // for (let obj in errors.value) {
-              //   errors.value[obj] = '*'
-              // }
-              // for (let obj of error.response.data) {
-              //   if (obj.attributeName === undefined) {
-              //     obj.attributeName = "idNumber";
-              //   }
-              //   errors.value[obj.attributeName] = obj.message;
-              // }
-            // } else {
-              message.value = "Error: " + error.code + ":" + error.message;
-              console.log(error);
-            }
-            else
-            {
-              console.log(error);
-              //console.log(token);
-            }
-          });
-      }
-    },
-    goBack() {
-      this.$router.push('/skills');
-    },
-    goNext() {
-      this.$router.push('/');
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const projects = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getProject();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  name: '',
+  description: '',
+});
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const projectToDelete = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD PROJECT';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/project/edit/` });
+}
+
+function showDeleteConfirmation(index) {
+  projectToDelete.value = index;
+  displayDelete.value = true;
+}
+
+function deleteProject() {
+  projectServices.deleteProject(studentId.value, projectToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getProject();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
+}
+
+function saveChanges() {
+  if (route.path.includes('/project/edit/')) {
+    // Implement save functionality here
+  } else {
+    projectServices.createProject(studentId.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 406) {
+          message.value = "Error: " + error.code + ":" + error.message;
+          console.log(error);
+        } else {
+          console.log(error);
+        }
+      });
+  }
+}
+
+// Navigation methods
+function goBack() {
+  router.push('/skills');
+}
+
+function goNext() {
+  router.push('/');
+}
+
+const getProject = () => {
+      projectServices.getAllProjects(studentId.value)
+        .then((res) => {
+            projects.value = res.data;
+            console.log(projects.value);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     }
-  },
-};
 </script>
 
 <style>

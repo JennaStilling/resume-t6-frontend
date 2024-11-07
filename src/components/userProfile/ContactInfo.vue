@@ -68,31 +68,34 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      formData: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-      }
-    };
-  },
-  methods: {
-    saveContactInfo() {
-      // Logic to save contact info
-    },
-    // NAVIGATE TO PAGES:
-    exit() {
-      this.$router.push('/');
-    },
-    goNext() {
-      this.$router.push('/education');
-    }
-  },
-};
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+
+const formData = ref({
+  firstName: user.fName,
+  lastName: user.lName,
+  email: user.email,
+  phone: '',
+});
+
+function saveContactInfo() {
+  // Logic to save contact info, editing information
+}
+
+function exit() {
+  router.push('/contact-info');
+}
+
+function goNext() {
+  router.push('/experience');
+}
 </script>
 
 <style>

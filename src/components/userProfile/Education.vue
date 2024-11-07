@@ -9,9 +9,9 @@
         <br />
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in educationItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in educations" :key="index" class="dropdown-item">
               <!-- Display each institution's name -->
-              <span class="university-name name">{{ item.name }}</span>
+              <span class="university-name name">{{ item.institution }}</span>
               <div class="icon-buttons">
                 <img
                   src="@/assets/list-elements/edit-list-item.png"
@@ -23,7 +23,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -110,11 +110,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ educationItems[currentEducationIndex].name }}?
+            {{ educationToDelete.institution }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ educationItems[currentEducationIndex].name }}.
+            {{ educationToDelete.institution }}.
           </p>
         </div>
 
@@ -154,13 +154,14 @@ const route = useRoute();
 
 const user = Utils.getStore("user");
 const studentId = ref();
+const educations = ref(null);
 
 onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
+    getEducation();
   });
 });
-
 
 const showDropdown = ref(true);
 const formData = ref({
@@ -169,18 +170,11 @@ const formData = ref({
   gpa: '',
   graduation_date: ''
 });
-const educationItems = ref([
-  { name: 'Oklahoma Christian University' },
-  { name: 'Hogwarts' },
-  { name: 'Sky High' },
-  { name: 'Starfleet Academy' },
-  { name: "Xavier's School for Gifted Youngsters" }
-]);
+
 const displayDelete = ref(false);
 const deleteError = ref(false);
-const currentEducationIndex = ref(null);
+const educationToDelete = ref(null);
 const message = ref('');
-
 
 const buttonLabel = computed(() => {
   return route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD EDUCATION';
@@ -195,19 +189,22 @@ function editEntry(index) {
   router.push({ path: `/education/edit/` });
 }
 
-function showDeleteConfirmation(index) {
-  currentEducationIndex.value = index;
+function showDeleteConfirmation(item) {
+  educationToDelete.value = item;
   displayDelete.value = true;
 }
 
 function deleteEducation() {
-  try {
-    educationItems.value.splice(currentEducationIndex.value, 1);
-    currentEducationIndex.value = null;
-    displayDelete.value = false;
-  } catch (error) {
-    deleteError.value = true;
-  }
+  educationServices.deleteEducation(studentId.value, educationToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getEducation();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
 }
 
 function saveChanges() {
@@ -237,6 +234,17 @@ function goBack() {
 function goNext() {
   router.push('/experience');
 }
+
+const getEducation = () => {
+      educationServices.getAllEducations(studentId.value)
+        .then((res) => {
+            educations.value = res.data;
+            console.log(educations.value);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 </script>
 
 <style>

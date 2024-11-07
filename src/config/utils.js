@@ -1,4 +1,5 @@
-import userServices from "../services/userServices.js";
+import userServices from "../services/userServices.js"
+
 export default class Utils {
     // set local storage
     static setStore = (name, content) => {
@@ -24,15 +25,13 @@ export default class Utils {
         ? false
         : true;
     };
-    // get user
     static getUser = (user) => {
       return userServices.getUser(user.userId)
         .then((response) => {
-          console.log(response.data);
           return response.data;
         })
         .catch((error) => {
-          throw error;  // Ensures the onMounted .catch() handles the error
+          throw error;
         });
     };
   }
