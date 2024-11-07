@@ -1,39 +1,69 @@
 <script setup>
+import Utils from "../../config/utils.js";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import from ResumeReviewServices from "../../services/resumeReviewServices"
 
+const router = useRouter();
+// const tutorials = ref([]);
+// const user = Utils.getStore("user");
+
+const viewRequest = (request) => {
+    //router.push({ name: "view", params: { id: request.id } });
+};
+
+const cancelRequest = (request) => {
+      ResumeReviewServices.delete(request.id)
+        .then(() => {
+          retrieveTutorials();
+        })
+        .catch((e) => {
+          message.value = e.response.data.message;
+        });
+};
+
+const retrieveRequests = () => {
+      ResumeReviewServices.getAllForUser(user.userId)
+        .then((response) => {
+          request.value = response.data;
+        })
+        .catch((e) => {
+          message.value = e.response.data.message;
+        });
+};
+
+retrieveRequests();
 </script>
 
 <template>
-    <!-- admin sidebar -->
-    <div class="sidenav">
-        <ul class="menu">
-            <li class="menu-item">
-                <v-card class="mx-auto" width="100%">
-                    <v-btn class="side-bar-button"><router-link :to="{ name: 'viewStudentResume', params: { id: 1 } }">
-                            See Student Resume
-                        </router-link></v-btn>
-                </v-card>
-            </li>
-        </ul>
-    </div>
-
-    <!-- request area -->
+<!-- request area-->
     <div class="admin-container">
-        <v-card class="mx-auto" width="400">
-            <template v-slot:title>
-                <span class="font-weight-black">Student Name</span>
-            </template> 
+    <v-container fluid>
+        <v-row align="center" no-gutters v-for="row in 3" :key="row" class="mb-4">
+            <v-col cols="3" v-for="col in 3" :key="col" class="ma-2">
+                <v-card class="mx-auto card-padding" width="100%">
+                    <template v-slot:title>
+                        <span class="font-weight-black">ᓚᘏᗢ</span>
+                    </template>
 
-            <v-card-text>
-                Request Text
-            </v-card-text>
+                    <v-card-text>
+                        Request Text
+                    </v-card-text>
 
-            <v-card-actions>
-                <v-btn variant="outlined">Delete Request</v-btn>
-                <v-btn variant="elevated">View Request</v-btn>
-            </v-card-actions>
-        </v-card>
+                    <v-card-actions>
+                        <div class="d-flex justify-end">
+                            <v-btn variant="outlined" color="red">Delete Request</v-btn>
+                            <v-btn variant="elevated" color="blue">View Request</v-btn>
+                        </div>
+                    </v-card-actions>
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>
+</div>
 
-    </div>
+
+
 </template>
 
 <style scoped>
@@ -77,7 +107,7 @@
 }
 
 .card-padding {
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 10px;
+    padding: 10px;
 }
 </style>
