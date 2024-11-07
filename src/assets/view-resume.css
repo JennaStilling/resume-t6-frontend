@@ -1,0 +1,146 @@
+.resume-builder {
+    display: flex;
+  }
+  
+  .resume-sidebar {
+    background-color: #021e2cff;
+    padding-top: 29px;
+    padding-left: 70px;
+    color: #ffffff;
+  }
+  
+  .title-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .title-input {
+    border: none;
+    background-color: #ffffff;
+    color: #1c1b1fff;
+    border-radius: 4px;
+    margin-left: 10px;
+    padding: 5px;
+  }
+  
+  .edit-icon {
+    margin-left: 10px;
+    width: 16px; 
+    height: 16px; 
+  }
+  
+  .dropdown-section {
+    margin-bottom: 20px;
+    background-color: #084565;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 450px;
+  }
+  
+  .dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 16px;
+    font-size: large;
+  }
+  
+  .section-icon {
+    max-height: 35px;
+    max-width: 30px;
+  }
+  
+  .arrow-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .dropdown-content {
+    padding: 10px;
+  }
+  
+  .student-contact-info {
+    width: 100%;
+    position: relative;
+    height: 56.7px;
+    margin-bottom: 10px;
+  }
+  
+  .student-contact-info-inner {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 400px;
+    height: 56.7px;
+  }
+  
+  input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  
+  hr {
+    border: none;
+    border-top: 1px solid #ffffff;
+    margin: 10px 0;
+  }
+
+      
+  .group-child {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 16px;
+    background-color: #0b547c;
+    border: 1px solid #099ace;
+    box-sizing: border-box;
+    width: 420px;
+    height: 56.7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .group-child.selected {
+    background-color: #128DCF;
+  }
+
+  .group-child:hover {
+    background-color: #0e74a0;
+  }
+
+  .custom-checkbox {
+    display: flex;
+    align-items: center;
+  }
+
+  .custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .checkmark {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: #0B547C; /* unselected color */
+      border: 2px solid #021E2C; /* border color and width */
+      border-radius: 4px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .custom-checkbox input:checked + .checkmark {
+    background-color: #021E2C;
+    background-image: url('@/assets/build-icons/checkmark.png'); /* Use the correct path */
+    background-position: center;
+    background-size: cover;
+  }
