@@ -190,7 +190,6 @@ const getProject = () => {
       projectServices.getAllProjects(studentId.value)
         .then((res) => {
             projects.value = res.data;
-            console.log(projects.value);
         })
         .catch((err) => {
             console.log(err);

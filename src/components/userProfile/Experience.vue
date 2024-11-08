@@ -137,8 +137,11 @@ onMounted(() => {
 
 const showDropdown = ref(true);
 const formData = ref({
-  name: '',
-  description: '',
+  role: '',
+  company: '',
+  start_date: '',
+  end_date: '',
+  job_description: '',
 })
 const displayDelete = ref(false);
 const deleteError = ref(false);
@@ -177,33 +180,21 @@ function deleteExperience() {
 }
 
 function saveChanges() {
-  if (this.$route.path.includes('/experience/edit/')) {
+  if (route.path.includes('/experience/edit/')) {
     //save
   }
   else {
-    console.log(this.formData);
-    experienceServices.createExperience(Utils.getUser.value.studentId, this.formData)
+    experienceServices.createExperience(studentId.value, formData.value)
       .then(() => {
         window.location.reload();
       })
       .catch((error) => {
         if (error.response != null && error.response.status == "406") {
-          // for (let obj in errors.value) {
-          //   errors.value[obj] = '*'
-          // }
-          // for (let obj of error.response.data) {
-          //   if (obj.attributeName === undefined) {
-          //     obj.attributeName = "idNumber";
-          //   }
-          //   errors.value[obj.attributeName] = obj.message;
-          // }
-          // } else {
           message.value = "Error: " + error.code + ":" + error.message;
           console.log(error);
         }
         else {
           console.log(error);
-          //console.log(token);
         }
       });
   }
@@ -222,7 +213,6 @@ const getExperience = () => {
   experienceServices.getAllExperiences(studentId.value)
     .then((res) => {
       experiences.value = res.data;
-      console.log(experiences.value);
     })
     .catch((err) => {
       console.log(err);
