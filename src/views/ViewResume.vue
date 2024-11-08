@@ -16,7 +16,7 @@
             class="edit-icon"
           />
         </div>
- 
+  
         <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
           <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
             <img
@@ -31,10 +31,9 @@
               alt="arrow"
             />
           </div>
- 
+  
           <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
-
-
+  
             <!-- Education Section -->
             <div v-if="sectionKey === 'education' && dropdownSections.education.items.length" class="education-list">
               <div
@@ -58,7 +57,7 @@
               </div>
             </div>
             <p v-else-if="sectionKey === 'education'">No education data available.</p>
- 
+  
             <!-- Experience Section -->
             <div v-if="sectionKey === 'experience' && dropdownSections.experience.items.length" class="experience-list">
               <div
@@ -82,7 +81,7 @@
               </div>
             </div>
             <p v-else-if="sectionKey === 'experience'">No experience data available.</p>
- 
+  
             <!-- Certification Section -->
             <div v-if="sectionKey === 'certifications' && dropdownSections.certifications.items.length" class="certification-list">
               <div
@@ -106,7 +105,7 @@
               </div>
             </div>
             <p v-else-if="sectionKey === 'certifications'">No certification data available.</p>
- 
+  
             <!-- Skills Section -->
             <div v-if="sectionKey === 'skills' && dropdownSections.skills.items.length" class="skills-list">
               <div
@@ -130,12 +129,37 @@
               </div>
             </div>
             <p v-else-if="sectionKey === 'skills'">No skills data available.</p>
+  
+            <!-- Projects Section -->
+            <div v-if="sectionKey === 'projects' && dropdownSections.projects.items.length" class="projects-list">
+              <div
+                v-for="(project, index) in dropdownSections.projects.items"
+                :key="index"
+                class="student-contact-info"
+                @click="toggleCheckbox(project)"
+              >
+                <div class="student-contact-info-inner">
+                  <div
+                    class="group-child"
+                    :class="{ 'selected': project.isSelected }"
+                  >
+                    <p>{{ project.name }}</p>
+                    <label class="custom-checkbox">
+                      <input type="checkbox" v-model="project.isSelected" @click.stop />
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p v-else-if="sectionKey === 'projects'">No project data available.</p>
+  
           </div>
         </div>
       </div>
     </div>
   </template>
- 
+  
   <script>
   // Services, etc...
   import { ref, onMounted } from 'vue';
@@ -143,9 +167,9 @@
   import experienceServices from '../services/experienceServices.js';
   import certificationServices from '../services/certificationServices.js';
   import skillServices from '../services/skillServices.js';
+  import projectServices from '../services/projectServices.js';
   import Utils from '../config/utils';
-
-
+  
   // Icons
   import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
   import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
@@ -154,7 +178,8 @@
   import experienceIcon from '@/assets/build-icons/experience.png';
   import certsIcon from '@/assets/build-icons/certs.png';
   import skillsIcon from '@/assets/build-icons/skills.png';
- 
+  import projectIcon from '@/assets/build-icons/project.png';
+  
   export default {
     name: 'ViewResume',
     setup() {
@@ -165,8 +190,9 @@
         experience: false,
         certifications: false,
         skills: false,
+        projects: false,
       });
- 
+  
       const dropdownSections = ref({
         education: {
           label: 'Education',
@@ -187,9 +213,14 @@
           label: 'Skills',
           icon: skillsIcon,
           items: []
+        },
+        projects: {
+          label: 'Projects',
+          icon: projectIcon,
+          items: []
         }
       });
- 
+  
       onMounted(() => {
         Utils.getUser(Utils.getStore('user')).then(user => {
           studentId.value = user.studentId;
@@ -197,10 +228,11 @@
           loadExperienceData();
           loadCertificationData();
           loadSkillData();
+          loadProjectData();
         });
       });
- 
-      // LOAD ALL THE DATA BY CALLING THE SERVICES
+  
+      // Load all data by calling the services
       const loadEducationData = () => {
         educationServices.getAllEducations(studentId.value)
           .then(response => {
@@ -213,7 +245,7 @@
             console.error("Failed to fetch education data:", error);
           });
       };
- 
+  
       const loadExperienceData = () => {
         experienceServices.getAllExperiences(studentId.value)
           .then(response => {
@@ -226,7 +258,7 @@
             console.error("Failed to fetch experience data:", error);
           });
       };
- 
+  
       const loadCertificationData = () => {
         certificationServices.getAllCertifications(studentId.value)
           .then(response => {
@@ -239,7 +271,7 @@
             console.error("Failed to fetch certification data:", error);
           });
       };
- 
+  
       const loadSkillData = () => {
         skillServices.getAllSkills(studentId.value)
           .then(response => {
@@ -252,15 +284,28 @@
             console.error("Failed to fetch skills data:", error);
           });
       };
- 
+      
+      const loadProjectData = () => {
+        projectServices.getAllProjects(studentId.value)
+          .then(response => {
+            dropdownSections.value.projects.items = response.data.map(item => ({
+              ...item,
+              isSelected: false
+            }));
+          })
+          .catch(error => {
+            console.error("Failed to fetch project data:", error);
+          });
+      };
+  
       const toggleDropdown = (sectionKey) => {
         isDropdownOpen.value[sectionKey] = !isDropdownOpen.value[sectionKey];
       };
- 
+  
       const toggleCheckbox = (item) => {
         item.isSelected = !item.isSelected;
       };
- 
+  
       return {
         resumeTitle,
         editPencilIcon,
@@ -274,7 +319,7 @@
     }
   };
   </script>
- 
+  
   <style scoped>
   @import '@/assets/view-resume.css';
-  </style>
+  </style>  
