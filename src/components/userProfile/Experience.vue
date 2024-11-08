@@ -14,19 +14,11 @@
               <span class="experience-name name">{{ item.role }}</span>
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(index)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(index)" />
                 <!-- Delete icon for entry -->
-                <img
-                  src="@/assets/list-elements/delete-list-item.png"
-                  alt="Delete"
-                  class="icon"
-                  @click.stop="showDeleteConfirmation(item)"
-                />
+                <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
+                  @click.stop="showDeleteConfirmation(item)" />
               </div>
             </li>
           </ul>
@@ -37,30 +29,41 @@
     <!-- Main form for entering experience details -->
     <div class="main-content">
       <div class="form">
-        <!-- Experience name input field -->
+        <!-- Experience role input field -->
         <div class="text-field-with-title">
-          <label for="experienceName" class="field-label">NAME</label>
-          <input
-            type="text"
-            id="experienceName"
-            v-model="formData.name"
-            class="text-field"
-            placeholder="Enter experience name"
-            required
-          />
+          <label for="experienceName" class="field-label">ROLE</label>
+          <input type="text" id="experienceName" v-model="formData.role" class="text-field" placeholder="Enter role"
+            required />
+          <span class="mandatory">*</span>
+        </div>
+
+        <!-- Experience company input field -->
+        <div class="text-field-with-title">
+          <label for="experienceCompany" class="field-label">COMPANY</label>
+          <input type="text" id="experienceCompany" v-model="formData.company" class="text-field"
+            placeholder="Enter company" required />
+          <span class="mandatory">*</span>
+        </div>
+
+        <!-- Graduation date input field -->
+        <div class="text-field-with-title">
+          <label for="start_date" class="field-label">START DATE</label>
+          <input type="date" id="start_date" v-model="formData.start_date" class="text-field" required />
+          <span class="mandatory">*</span>
+        </div>
+
+        <!-- Graduation date input field -->
+        <div class="text-field-with-title">
+          <label for="end_date" class="field-label">END DATE</label>
+          <input type="date" id="end_date" v-model="formData.end_date" class="text-field" required />
           <span class="mandatory">*</span>
         </div>
 
         <!-- Experience description input field -->
         <div class="text-field-with-title">
-          <label for="description" class="field-label">DESCRIPTION</label>
-          <textarea
-            id="description"
-            v-model="formData.description"
-            class="text-field"
-            rows="4"
-            placeholder="Enter a detailed description of your experience"
-          ></textarea>
+          <label for="job_description" class="field-label">JOB DESCRIPTION</label>
+          <textarea id="job_description" v-model="formData.job_description" class="text-field" rows="4"
+            placeholder="Enter a detailed description of your experience"></textarea>
         </div>
 
         <!-- Save/Add button -->
@@ -99,18 +102,11 @@
           <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
             CANCEL
           </button>
-          <button
-            v-if="!deleteError"
-            class="error modal-button"
-            @click="deleteExperience()"
-          >
+          <button v-if="!deleteError" class="error modal-button" @click="deleteExperience()">
             DELETE
           </button>
-          <button
-            v-if="deleteError"
-            @click="() => { deleteError = false; displayDelete = false; }"
-            class="modal-button"
-          >
+          <button v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button">
             Close
           </button>
         </div>
@@ -141,8 +137,11 @@ onMounted(() => {
 
 const showDropdown = ref(true);
 const formData = ref({
-  name: '',
-  description: '',
+  role: '',
+  company: '',
+  start_date: '',
+  end_date: '',
+  job_description: '',
 })
 const displayDelete = ref(false);
 const deleteError = ref(false);
@@ -182,17 +181,19 @@ function deleteExperience() {
 
 function saveChanges() {
   if (route.path.includes('/experience/edit/')) {
-    // Implement save functionality here
-  } else {
+    //save
+  }
+  else {
     experienceServices.createExperience(studentId.value, formData.value)
       .then(() => {
         window.location.reload();
       })
       .catch((error) => {
-        if (error.response && error.response.status === 406) {
+        if (error.response != null && error.response.status == "406") {
           message.value = "Error: " + error.code + ":" + error.message;
           console.log(error);
-        } else {
+        }
+        else {
           console.log(error);
         }
       });
@@ -209,15 +210,14 @@ function goNext() {
 }
 
 const getExperience = () => {
-      experienceServices.getAllExperiences(studentId.value)
-        .then((res) => {
-            experiences.value = res.data;
-            console.log(experiences.value);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
+  experienceServices.getAllExperiences(studentId.value)
+    .then((res) => {
+      experiences.value = res.data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 </script>
 
 <style>

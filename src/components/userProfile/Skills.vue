@@ -181,23 +181,27 @@ function deleteSkill() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/skill/edit/')) {
-    // Implement save functionality here
-  } else {
-    skillServices.createSkill(studentId.value, formData.value)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 406) {
-          message.value = "Error: " + error.code + ":" + error.message;
-          console.log(error);
-        } else {
-          console.log(error);
-        }
-      });
-  }
-}
+      if(route.path.includes('/skills/edit/'))
+      {
+          //save
+      }
+      else {
+        skillServices.createSkill(studentId.value, formData.value)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+            }
+          });
+      }
+    }
 
 // Navigation methods
 function goBack() {
@@ -212,7 +216,6 @@ const getSkill = () => {
       skillServices.getAllSkills(studentId.value)
         .then((res) => {
             skills.value = res.data;
-            console.log(skills.value);
         })
         .catch((err) => {
             console.log(err);

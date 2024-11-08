@@ -81,7 +81,7 @@
           <input
             type="date"
             id="graduation"
-            v-model="formData.graduation"
+            v-model="formData.graduation_date"
             class="text-field"
             required
           />
@@ -239,7 +239,6 @@ const getEducation = () => {
       educationServices.getAllEducations(studentId.value)
         .then((res) => {
             educations.value = res.data;
-            console.log(educations.value);
         })
         .catch((err) => {
             console.log(err);
