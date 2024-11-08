@@ -9,9 +9,9 @@
         <br />
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in educationItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in educations" :key="index" class="dropdown-item">
               <!-- Display each institution's name -->
-              <span class="university-name name">{{ item.name }}</span>
+              <span class="university-name name">{{ item.institution }}</span>
               <div class="icon-buttons">
                 <img
                   src="@/assets/list-elements/edit-list-item.png"
@@ -23,7 +23,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -81,7 +81,7 @@
           <input
             type="date"
             id="graduation"
-            v-model="formData.graduation"
+            v-model="formData.graduation_date"
             class="text-field"
             required
           />
@@ -110,11 +110,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ educationItems[currentEducationIndex].name }}?
+            {{ educationToDelete.institution }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ educationItems[currentEducationIndex].name }}.
+            {{ educationToDelete.institution }}.
           </p>
         </div>
 
@@ -143,65 +143,107 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        degree: '',
-        institution: '',
-        gpa: '',
-        graduation: '',
-      },
-      educationItems: [
-        { name: 'Oklahoma Christian University' },
-        { name: 'Hogwarts' },
-        { name: 'Sky High' },
-        { name: 'Starfleet Academy' },
-        { name: "Xavier's School for Gifted Youngsters" }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentEducationIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD EDUCATION';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      this.$router.push({ path: `/education/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentEducationIndex = index;
-      this.displayDelete = true;
-    },
-    deleteEducation() {
-      try {
-        this.educationItems.splice(this.currentEducationIndex, 1);
-        this.currentEducationIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
-      }
-    },
-    saveChanges() {
-      // Save changes logic
-    },
-    goBack() {
-      this.$router.push('/contact-info');
-    },
-    goNext() {
-      this.$router.push('/experience');
-    },
-  },
-};
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import educationServices from "../../services/educationServices.js";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const educations = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getEducation();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  degree: '',
+  institution: '',
+  gpa: '',
+  graduation_date: ''
+});
+
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const educationToDelete = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD EDUCATION';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/education/edit/` });
+}
+
+function showDeleteConfirmation(item) {
+  educationToDelete.value = item;
+  displayDelete.value = true;
+}
+
+function deleteEducation() {
+  educationServices.deleteEducation(studentId.value, educationToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getEducation();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
+}
+
+function saveChanges() {
+  if (route.path.includes('/education/edit/')) {
+    // Implement save functionality here
+  } else {
+    educationServices.createEducation(studentId.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 406) {
+          message.value = "Error: " + error.code + ":" + error.message;
+          console.log(error);
+        } else {
+          console.log(error);
+        }
+      });
+  }
+}
+
+// Navigation methods
+function goBack() {
+  router.push('/contact-info');
+}
+
+function goNext() {
+  router.push('/experience');
+}
+
+const getEducation = () => {
+      educationServices.getAllEducations(studentId.value)
+        .then((res) => {
+            educations.value = res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 </script>
 
 <style>

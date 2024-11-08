@@ -9,7 +9,7 @@
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in certificationItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in certifications" :key="index" class="dropdown-item">
               <!-- Display each certification's name -->
               <span class="certification-name name">{{ item.name }}</span>
               <div class="icon-buttons">
@@ -25,7 +25,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -39,11 +39,11 @@
       <div class="form">
         <!-- Certification name input field -->
         <div class="text-field-with-title">
-          <label for="certification" class="field-label">CERTIFICATION</label>
+          <label for="name" class="field-label">CERTIFICATION NAME</label>
           <input
             type="text"
-            id="certification"
-            v-model="formData.certification"
+            id="name"
+            v-model="formData.name"
             class="text-field"
             placeholder="Enter certification name"
             required
@@ -67,11 +67,11 @@
 
         <!-- Date acquired input field -->
         <div class="text-field-with-title">
-          <label for="date" class="field-label">DATE ACQUIRED</label>
+          <label for="date_acquired" class="field-label">DATE ACQUIRED</label>
           <input
             type="date"
-            id="date"
-            v-model="formData.date"
+            id="date_acquired"
+            v-model="formData.date_acquired"
             class="text-field"
             required
           />
@@ -101,11 +101,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ certificationItems[currentCertificationIndex].name }}?
+            {{ certificationToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ certificationItems[currentCertificationIndex].name }}.
+            {{ certificationToDelete.name }}.
           </p>
         </div>
 
@@ -134,61 +134,109 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        certification: '',
-        company: '',
-        date: '',
-      },
-      certificationItems: [
-        { name: 'Security+' },
-        { name: 'Cloud+' }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentCertificationIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/certifications/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      this.$router.push({ path: `/certifications/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentCertificationIndex = index;
-      this.displayDelete = true;
-    },
-    deleteCertification() {
-      try {
-        this.certificationItems.splice(this.currentCertificationIndex, 1);
-        this.currentCertificationIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import certificationServices from "../../services/certificationServices.js";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const certifications = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getCertification();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  name: '',
+  company: '',
+  date_acquired: '',
+});
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const certificationToDelete = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/certification/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/certification/edit/` });
+}
+
+function showDeleteConfirmation(item) {
+  certificationToDelete.value = item;
+  displayDelete.value = true;
+}
+
+function deleteCertification() {
+  certificationServices.deleteCertification(studentId.value, certificationToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getCertification();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
+}
+
+function saveChanges() {
+      if(route.path.includes('/certifications/edit/'))
+      {
+          //save
       }
-    },
-    saveChanges() {
-      // Save changes logic
-    },
-    goBack() {
-      this.$router.push('/experience');
-    },
-    goNext() {
-      this.$router.push('/skills');
-    },
-  },
-};
+      else {
+        certificationServices.createCertification(studentId.value, formData.value)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+            }
+          });
+      }
+    }
+
+// Navigation methods
+function goBack() {
+  router.push('/experience');
+}
+
+function goNext() {
+  router.push('/skills');
+}
+
+const getCertification = () => {
+      certificationServices.getAllCertifications(studentId.value)
+        .then((res) => {
+            certifications.value = res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 </script>
 
 <style>
