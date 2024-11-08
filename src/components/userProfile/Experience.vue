@@ -14,19 +14,11 @@
               <span class="experience-name name">{{ item.role }}</span>
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(item)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(item)" />
                 <!-- Delete icon for entry -->
-                <img
-                  src="@/assets/list-elements/delete-list-item.png"
-                  alt="Delete"
-                  class="icon"
-                  @click.stop="showDeleteConfirmation(item)"
-                />
+                <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
+                  @click.stop="showDeleteConfirmation(item)" />
               </div>
             </li>
           </ul>
@@ -110,18 +102,11 @@
           <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
             CANCEL
           </button>
-          <button
-            v-if="!deleteError"
-            class="error modal-button"
-            @click="deleteExperience()"
-          >
+          <button v-if="!deleteError" class="error modal-button" @click="deleteExperience()">
             DELETE
           </button>
-          <button
-            v-if="deleteError"
-            @click="() => { deleteError = false; displayDelete = false; }"
-            class="modal-button"
-          >
+          <button v-if="deleteError" @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button">
             Close
           </button>
         </div>
@@ -233,10 +218,11 @@ function saveChanges() {
         window.location.reload();
       })
       .catch((error) => {
-        if (error.response && error.response.status === 406) {
+        if (error.response != null && error.response.status == "406") {
           message.value = "Error: " + error.code + ":" + error.message;
           console.log(error);
-        } else {
+        }
+        else {
           console.log(error);
         }
       });
@@ -253,14 +239,14 @@ function goNext() {
 }
 
 const getExperience = () => {
-      experienceServices.getAllExperiences(studentId.value)
-        .then((res) => {
-            experiences.value = res.data;
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
+  experienceServices.getAllExperiences(studentId.value)
+    .then((res) => {
+      experiences.value = res.data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 </script>
 
 <style>

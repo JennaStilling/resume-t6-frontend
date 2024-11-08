@@ -188,43 +188,47 @@ function deleteSkill() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/skills/edit/')) {
-    skillServices.updateSkill(studentId.value, currentSkill.value, formData.value)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        if (error.response != null && error.response.status == "406") {
-        for(let obj in errors.value) {
-          errors.value[obj] = '*'
-        }
-        for (let obj of error.response.data) {
-          if (obj.attributeName === undefined) {
-            obj.attributeName = "idNumber";
-          }
-          errors.value[obj.attributeName] = obj.message;
-        }
-      } else {
-        console.log(error);
-        console.log(error);
+      if(route.path.includes('/skills/edit/'))
+      {
+        skillServices.updateSkill(studentId.value, currentSkill.value, formData.value)
+          .then(() => {
+             window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              for(let obj in errors.value) {
+                errors.value[obj] = '*'
+              }
+              for (let obj of error.response.data) {
+                if (obj.attributeName === undefined) {
+                  obj.attributeName = "idNumber";
+                }
+                errors.value[obj.attributeName] = obj.message;
+              }
+            } else {
+              console.log(error);
+              console.log(error);
+            }
+          });
+          router.push('/skills');
       }
-      });
-      router.push('/skills');
-  } else {
-    skillServices.createSkill(studentId.value, formData.value)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 406) {
-          message.value = "Error: " + error.code + ":" + error.message;
-          console.log(error);
-        } else {
-          console.log(error);
-        }
-      });
-  }
-}
+      else {
+        skillServices.createSkill(studentId.value, formData.value)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+            }
+          });
+      }
+    }
 
 // Navigation methods
 function goBack() {

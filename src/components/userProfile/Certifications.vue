@@ -39,10 +39,10 @@
       <div class="form">
         <!-- Certification name input field -->
         <div class="text-field-with-title">
-          <label for="certification" class="field-label">CERTIFICATION</label>
+          <label for="name" class="field-label">CERTIFICATION NAME</label>
           <input
             type="text"
-            id="certification"
+            id="name"
             v-model="formData.name"
             class="text-field"
             placeholder="Enter certification name"
@@ -67,10 +67,10 @@
 
         <!-- Date acquired input field -->
         <div class="text-field-with-title">
-          <label for="date" class="field-label">DATE ACQUIRED</label>
+          <label for="date_acquired" class="field-label">DATE ACQUIRED</label>
           <input
             type="date"
-            id="date"
+            id="date_acquired"
             v-model="formData.date_acquired"
             class="text-field"
             required
@@ -205,43 +205,47 @@ function deleteCertification() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/certifications/edit/')) {
-    certificationServices.updateCertification(studentId.value, currentCertification.value, formData.value)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        if (error.response != null && error.response.status == "406") {
-        for(let obj in errors.value) {
-          errors.value[obj] = '*'
-        }
-        for (let obj of error.response.data) {
-          if (obj.attributeName === undefined) {
-            obj.attributeName = "idNumber";
-          }
-          errors.value[obj.attributeName] = obj.message;
-        }
-      } else {
-        console.log(error);
-        console.log(error);
+      if(route.path.includes('/certifications/edit/'))
+      {
+          certificationServices.updateCertification(studentId.value, currentCertification.value, formData.value)
+            .then(() => {
+              window.location.reload();
+            })
+            .catch((error) => {
+              if (error.response != null && error.response.status == "406") {
+                for(let obj in errors.value) {
+                  errors.value[obj] = '*'
+                }
+                for (let obj of error.response.data) {
+                  if (obj.attributeName === undefined) {
+                    obj.attributeName = "idNumber";
+                  }
+                  errors.value[obj.attributeName] = obj.message;
+                }
+              } else {
+                console.log(error);
+                console.log(error);
+              }
+            });
+            router.push('/certifications');
       }
-      });
-      router.push('/certifications');
-  } else {
-    certificationServices.createCertification(studentId.value, formData.value)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 406) {
-          message.value = "Error: " + error.code + ":" + error.message;
-          console.log(error);
-        } else {
-          console.log(error);
-        }
-      });
-  }
-}
+      else {
+        certificationServices.createCertification(studentId.value, formData.value)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+            }
+          });
+      }
+    }
 
 // Navigation methods
 function goBack() {

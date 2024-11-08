@@ -14,12 +14,8 @@
               <span class="project-name name">{{ item.name }}</span>
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(item)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(item)" />
                 <!-- Delete icon for entry -->
                 <img
                   src="@/assets/list-elements/delete-list-item.png"
@@ -40,27 +36,16 @@
         <!-- Project name input field -->
         <div class="text-field-with-title">
           <label for="projectName" class="field-label">PROJECT NAME</label>
-          <input
-            type="text"
-            id="projectName"
-            v-model="formData.name"
-            class="text-field"
-            placeholder="Enter project name"
-            required
-          />
+          <input type="text" id="projectName" v-model="formData.name" class="text-field"
+            placeholder="Enter project name" required />
           <span class="mandatory">*</span>
         </div>
 
         <!-- Project description input field -->
         <div class="text-field-with-title">
           <label for="projectDescription" class="field-label">DESCRIPTION</label>
-          <textarea
-            id="projectDescription"
-            v-model="formData.description"
-            class="text-field"
-            rows="4"
-            placeholder="Enter a detailed description of the project"
-          ></textarea>
+          <textarea id="projectDescription" v-model="formData.description" class="text-field" rows="4"
+            placeholder="Enter a detailed description of the project"></textarea>
         </div>
 
         <!-- Save changes button -->
