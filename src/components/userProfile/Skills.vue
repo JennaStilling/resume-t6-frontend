@@ -18,7 +18,7 @@
                   src="@/assets/list-elements/edit-list-item.png"
                   alt="Edit"
                   class="icon"
-                  @click.stop="editEntry(index)"
+                  @click.stop="editEntry(item)"
                 />
                 <!-- Delete icon for entry -->
                 <img
@@ -132,6 +132,8 @@ const user = Utils.getStore("user");
 const studentId = ref();
 const skills = ref(null);
 
+const errors = ref({});
+
 onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
@@ -144,13 +146,15 @@ const formData = ref({
   name: '',
   description: '',
 });
+
+const currentSkill = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const skillToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/skill/edit/') ? 'SAVE CHANGES' : 'ADD SKILL';
+  return route.path.includes('/skills/edit/') ? 'SAVE CHANGES' : 'ADD SKILL';
 });
 
 
@@ -158,8 +162,11 @@ function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-function editEntry(index) {
-  router.push({ path: `/skill/edit/` });
+function editEntry(item) {
+  router.push({ path: `/skills/edit/` });
+  currentSkill.value = item.id;
+  formData.value.name = item.name;
+  formData.value.description = item.description;
 }
 
 function showDeleteConfirmation(index) {
@@ -181,8 +188,28 @@ function deleteSkill() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/skill/edit/')) {
-    // Implement save functionality here
+  if (route.path.includes('/skills/edit/')) {
+    skillServices.updateSkill(studentId.value, currentSkill.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response != null && error.response.status == "406") {
+        for(let obj in errors.value) {
+          errors.value[obj] = '*'
+        }
+        for (let obj of error.response.data) {
+          if (obj.attributeName === undefined) {
+            obj.attributeName = "idNumber";
+          }
+          errors.value[obj.attributeName] = obj.message;
+        }
+      } else {
+        console.log(error);
+        console.log(error);
+      }
+      });
+      router.push('/skills');
   } else {
     skillServices.createSkill(studentId.value, formData.value)
       .then(() => {
@@ -212,7 +239,6 @@ const getSkill = () => {
       skillServices.getAllSkills(studentId.value)
         .then((res) => {
             skills.value = res.data;
-            console.log(skills.value);
         })
         .catch((err) => {
             console.log(err);
