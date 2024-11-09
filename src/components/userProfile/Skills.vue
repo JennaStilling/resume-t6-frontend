@@ -9,7 +9,7 @@
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in skillsItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in skills" :key="index" class="dropdown-item">
               <!-- Display each skill's name -->
               <span class="skill-name name">{{ item.name }}</span>
               <div class="icon-buttons">
@@ -25,7 +25,7 @@
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -86,11 +86,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ skillsItems[currentSkillIndex].name }}?
+            {{ skillToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ skillsItems[currentSkillIndex].name }}.
+            {{ skillToDelete.name }}.
           </p>
         </div>
 
@@ -119,60 +119,108 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        name: '',
-        description: '',
-      },
-      skillsItems: [
-        { name: 'JavaScript', description: 'Expert' },
-        { name: 'CSS', description: 'Intermediate' }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentSkillIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/skills/edit/') ? 'SAVE CHANGES' : 'ADD SKILL';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      this.$router.push({ path: `/skills/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentSkillIndex = index;
-      this.displayDelete = true;
-    },
-    deleteSkill() {
-      try {
-        this.skillsItems.splice(this.currentSkillIndex, 1);
-        this.currentSkillIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import skillServices from "../../services/skillServices.js";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const skills = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getSkill();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  name: '',
+  description: '',
+});
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const skillToDelete = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/skill/edit/') ? 'SAVE CHANGES' : 'ADD SKILL';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/skill/edit/` });
+}
+
+function showDeleteConfirmation(index) {
+  skillToDelete.value = index;
+  displayDelete.value = true;
+}
+
+function deleteSkill() {
+  skillServices.deleteSkill(studentId.value, skillToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getSkill();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
+}
+
+function saveChanges() {
+      if(route.path.includes('/skills/edit/'))
+      {
+          //save
       }
-    },
-    saveChanges() {
-      // Save logic for specific entry
-    },
-    goBack() {
-      this.$router.push('/certifications');
-    },
-    goNext() {
-      this.$router.push('/project');
+      else {
+        skillServices.createSkill(studentId.value, formData.value)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+            }
+          });
+      }
     }
-  },
-};
+
+// Navigation methods
+function goBack() {
+  router.push('/certifications');
+}
+
+function goNext() {
+  router.push('/project');
+}
+
+const getSkill = () => {
+      skillServices.getAllSkills(studentId.value)
+        .then((res) => {
+            skills.value = res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 </script>
 
 <style>

@@ -9,23 +9,19 @@
         <br>
         <div v-if="showDropdown" class="dropdown">
           <ul>
-            <li v-for="(item, index) in projectItems" :key="index" class="dropdown-item">
+            <li v-for="(item, index) in projects" :key="index" class="dropdown-item">
               <!-- Display each project's name -->
               <span class="project-name name">{{ item.name }}</span>
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(index)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(index)" />
                 <!-- Delete icon for entry -->
                 <img
                   src="@/assets/list-elements/delete-list-item.png"
                   alt="Delete"
                   class="icon"
-                  @click.stop="showDeleteConfirmation(index)"
+                  @click.stop="showDeleteConfirmation(item)"
                 />
               </div>
             </li>
@@ -40,27 +36,16 @@
         <!-- Project name input field -->
         <div class="text-field-with-title">
           <label for="projectName" class="field-label">PROJECT NAME</label>
-          <input
-            type="text"
-            id="projectName"
-            v-model="formData.name"
-            class="text-field"
-            placeholder="Enter project name"
-            required
-          />
+          <input type="text" id="projectName" v-model="formData.name" class="text-field"
+            placeholder="Enter project name" required />
           <span class="mandatory">*</span>
         </div>
 
         <!-- Project description input field -->
         <div class="text-field-with-title">
           <label for="projectDescription" class="field-label">DESCRIPTION</label>
-          <textarea
-            id="projectDescription"
-            v-model="formData.description"
-            class="text-field"
-            rows="4"
-            placeholder="Enter a detailed description of the project"
-          ></textarea>
+          <textarea id="projectDescription" v-model="formData.description" class="text-field" rows="4"
+            placeholder="Enter a detailed description of the project"></textarea>
         </div>
 
         <!-- Save changes button -->
@@ -86,11 +71,11 @@
           <hr />
           <p v-if="!deleteError">
             Are you sure you want to delete <br />
-            {{ projectItems[currentProjectIndex].name }}?
+            {{ projectToDelete.name }}?
           </p>
           <p v-if="deleteError">
             Error deleting<br />
-            {{ projectItems[currentProjectIndex].name }}.
+            {{ projectToDelete.name }}.
           </p>
         </div>
 
@@ -102,7 +87,7 @@
           <button
             v-if="!deleteError"
             class="error modal-button"
-            @click="deleteCourse()"
+            @click="deleteProject()"
           >
             DELETE
           </button>
@@ -112,61 +97,104 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showDropdown: true,
-      formData: {
-        name: '',
-        description: '',
-      },
-      projectItems: [
-        { name: 'Course Listing App' },
-        { name: 'Calculator' }
-      ],
-      displayDelete: false,
-      deleteError: false,
-      currentProjectIndex: null,
-    };
-  },
-  computed: {
-    buttonLabel() {
-      return this.$route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD PROJECT';
-    },
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    editEntry(index) {
-      const projectName = this.projectItems[index].name;
-      this.$router.push({ path: `/project/edit/` });
-    },
-    showDeleteConfirmation(index) {
-      this.currentProjectIndex = index;
-      this.displayDelete = true;
-    },
-    deleteCourse() {
-      try {
-        this.projectItems.splice(this.currentProjectIndex, 1);
-        this.currentProjectIndex = null;
-        this.displayDelete = false;
-      } catch (error) {
-        this.deleteError = true;
-      }
-    },
-    saveChanges() {
-      // Save logic for specific entry
-    },
-    goBack() {
-      this.$router.push('/skills');
-    },
-    goNext() {
-      this.$router.push('/');
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import projectServices from "../../services/projectServices.js";
+import Utils from "../../config/utils.js";
+
+const router = useRouter();
+const route = useRoute();
+
+const user = Utils.getStore("user");
+const studentId = ref();
+const projects = ref(null);
+
+onMounted(() => {
+  Utils.getUser(user).then(value => {
+    studentId.value = value.studentId;
+    getProject();
+  });
+});
+
+const showDropdown = ref(true);
+const formData = ref({
+  name: '',
+  description: '',
+});
+const displayDelete = ref(false);
+const deleteError = ref(false);
+const projectToDelete = ref(null);
+const message = ref('');
+
+const buttonLabel = computed(() => {
+  return route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD PROJECT';
+});
+
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function editEntry(index) {
+  router.push({ path: `/project/edit/` });
+}
+
+function showDeleteConfirmation(index) {
+  projectToDelete.value = index;
+  displayDelete.value = true;
+}
+
+function deleteProject() {
+  projectServices.deleteProject(studentId.value, projectToDelete.value.id)
+    .then(() => {
+      displayDelete.value = false;
+      deleteError.value = false;
+      getProject();
+    })
+    .catch((error) => {
+      console.log(error);
+      deleteError.value = true;
+    });
+}
+
+function saveChanges() {
+  if (route.path.includes('/project/edit/')) {
+    // Implement save functionality here
+  } else {
+    projectServices.createProject(studentId.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 406) {
+          message.value = "Error: " + error.code + ":" + error.message;
+          console.log(error);
+        } else {
+          console.log(error);
+        }
+      });
+  }
+}
+
+// Navigation methods
+function goBack() {
+  router.push('/skills');
+}
+
+function goNext() {
+  router.push('/');
+}
+
+const getProject = () => {
+      projectServices.getAllProjects(studentId.value)
+        .then((res) => {
+            projects.value = res.data;
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     }
-  },
-};
 </script>
 
 <style>

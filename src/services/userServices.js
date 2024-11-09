@@ -1,6 +1,5 @@
 import apiClient from "./services.js";
 
-
 // Instead of having 11 API requests, would it be better to add an if statement 
 //  somehow that checks to see if the user that is making the request is a student or not?
 export default {
