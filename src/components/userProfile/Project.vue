@@ -14,12 +14,8 @@
               <span class="project-name name">{{ item.name }}</span>
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
-                <img
-                  src="@/assets/list-elements/edit-list-item.png"
-                  alt="Edit"
-                  class="icon"
-                  @click.stop="editEntry(index)"
-                />
+                <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
+                  @click.stop="editEntry(item)" />
                 <!-- Delete icon for entry -->
                 <img
                   src="@/assets/list-elements/delete-list-item.png"
@@ -40,27 +36,16 @@
         <!-- Project name input field -->
         <div class="text-field-with-title">
           <label for="projectName" class="field-label">PROJECT NAME</label>
-          <input
-            type="text"
-            id="projectName"
-            v-model="formData.name"
-            class="text-field"
-            placeholder="Enter project name"
-            required
-          />
+          <input type="text" id="projectName" v-model="formData.name" class="text-field"
+            placeholder="Enter project name" required />
           <span class="mandatory">*</span>
         </div>
 
         <!-- Project description input field -->
         <div class="text-field-with-title">
           <label for="projectDescription" class="field-label">DESCRIPTION</label>
-          <textarea
-            id="projectDescription"
-            v-model="formData.description"
-            class="text-field"
-            rows="4"
-            placeholder="Enter a detailed description of the project"
-          ></textarea>
+          <textarea id="projectDescription" v-model="formData.description" class="text-field" rows="4"
+            placeholder="Enter a detailed description of the project"></textarea>
         </div>
 
         <!-- Save changes button -->
@@ -125,6 +110,8 @@ const user = Utils.getStore("user");
 const studentId = ref();
 const projects = ref(null);
 
+const errors = ref({});
+
 onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
@@ -137,6 +124,8 @@ const formData = ref({
   name: '',
   description: '',
 });
+
+const currentProject = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const projectToDelete = ref(null);
@@ -151,8 +140,11 @@ function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-function editEntry(index) {
+function editEntry(item) {
   router.push({ path: `/project/edit/` });
+  currentProject.value = item.id;
+  formData.value.name = item.name;
+  formData.value.description = item.description;
 }
 
 function showDeleteConfirmation(index) {
@@ -175,7 +167,27 @@ function deleteProject() {
 
 function saveChanges() {
   if (route.path.includes('/project/edit/')) {
-    // Implement save functionality here
+    projectServices.updateProject(studentId.value, currentProject.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response != null && error.response.status == "406") {
+        for(let obj in errors.value) {
+          errors.value[obj] = '*'
+        }
+        for (let obj of error.response.data) {
+          if (obj.attributeName === undefined) {
+            obj.attributeName = "idNumber";
+          }
+          errors.value[obj.attributeName] = obj.message;
+        }
+      } else {
+        console.log(error);
+        console.log(error);
+      }
+      });
+      router.push('/project');
   } else {
     projectServices.createProject(studentId.value, formData.value)
       .then(() => {
@@ -205,7 +217,6 @@ const getProject = () => {
       projectServices.getAllProjects(studentId.value)
         .then((res) => {
             projects.value = res.data;
-            console.log(projects.value);
         })
         .catch((err) => {
             console.log(err);

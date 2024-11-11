@@ -18,7 +18,7 @@
                   src="@/assets/list-elements/edit-list-item.png"
                   alt="Edit"
                   class="icon"
-                  @click.stop="editEntry(index)"
+                  @click.stop="editEntry(item)"
                 />
                 <!-- Delete icon for entry -->
                 <img
@@ -39,11 +39,11 @@
       <div class="form">
         <!-- Certification name input field -->
         <div class="text-field-with-title">
-          <label for="certification" class="field-label">CERTIFICATION</label>
+          <label for="name" class="field-label">CERTIFICATION NAME</label>
           <input
             type="text"
-            id="certification"
-            v-model="formData.certification"
+            id="name"
+            v-model="formData.name"
             class="text-field"
             placeholder="Enter certification name"
             required
@@ -67,11 +67,11 @@
 
         <!-- Date acquired input field -->
         <div class="text-field-with-title">
-          <label for="date" class="field-label">DATE ACQUIRED</label>
+          <label for="date_acquired" class="field-label">DATE ACQUIRED</label>
           <input
             type="date"
-            id="date"
-            v-model="formData.date"
+            id="date_acquired"
+            v-model="formData.date_acquired"
             class="text-field"
             required
           />
@@ -147,6 +147,8 @@ const user = Utils.getStore("user");
 const studentId = ref();
 const certifications = ref(null);
 
+const errors = ref({});
+
 onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
@@ -156,17 +158,19 @@ onMounted(() => {
 
 const showDropdown = ref(true);
 const formData = ref({
-  certification: '',
+  name: '',
   company: '',
-  date: '',
+  date_acquired: '',
 });
+
+const currentCertification = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const certificationToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/certification/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
+  return route.path.includes('/certifications/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
 });
 
 
@@ -174,8 +178,12 @@ function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-function editEntry(index) {
-  router.push({ path: `/certification/edit/` });
+function editEntry(item) {
+  router.push({ path: `/certifications/edit/` });
+  currentCertification.value = item.id;
+  formData.value.name = item.name;
+  formData.value.company = item.company;
+  formData.value.date_acquired = item.date_acquired;
 }
 
 function showDeleteConfirmation(item) {
@@ -197,23 +205,47 @@ function deleteCertification() {
 }
 
 function saveChanges() {
-  if (route.path.includes('/certification/edit/')) {
-    // Implement save functionality here
-  } else {
-    certificationServices.createCertification(studentId.value, formData.value)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 406) {
-          message.value = "Error: " + error.code + ":" + error.message;
-          console.log(error);
-        } else {
-          console.log(error);
-        }
-      });
-  }
-}
+      if(route.path.includes('/certifications/edit/'))
+      {
+          certificationServices.updateCertification(studentId.value, currentCertification.value, formData.value)
+            .then(() => {
+              window.location.reload();
+            })
+            .catch((error) => {
+              if (error.response != null && error.response.status == "406") {
+                for(let obj in errors.value) {
+                  errors.value[obj] = '*'
+                }
+                for (let obj of error.response.data) {
+                  if (obj.attributeName === undefined) {
+                    obj.attributeName = "idNumber";
+                  }
+                  errors.value[obj.attributeName] = obj.message;
+                }
+              } else {
+                console.log(error);
+                console.log(error);
+              }
+            });
+            router.push('/certifications');
+      }
+      else {
+        certificationServices.createCertification(studentId.value, formData.value)
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            if (error.response != null && error.response.status == "406") {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            }
+            else
+            {
+              console.log(error);
+            }
+          });
+      }
+    }
 
 // Navigation methods
 function goBack() {
@@ -228,7 +260,6 @@ const getCertification = () => {
       certificationServices.getAllCertifications(studentId.value)
         .then((res) => {
             certifications.value = res.data;
-            console.log(certifications.value);
         })
         .catch((err) => {
             console.log(err);

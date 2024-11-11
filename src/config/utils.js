@@ -28,7 +28,6 @@ export default class Utils {
     static getUser = (user) => {
       return userServices.getUser(user.userId)
         .then((response) => {
-          console.log("In utils: " + response.data);
           return response.data;
         })
         .catch((error) => {
