@@ -45,7 +45,7 @@ const routes = [
   { path: '/edit/:id', name: 'editResume', component: EditResume, props: true },
   { path: '/profile', name: 'profile', component: ViewProfile },
 
-  {path: '/adminHome', name:'admin-home', component: AdminHomePage}
+  {path: '/adminHome', name:'adminHome', component: AdminHomePage}
 ];
 
 const router = createRouter({
