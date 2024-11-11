@@ -41,7 +41,6 @@ if (user.value) {
   initials.value = user.value.fName[0] + user.value.lName[0];
   name.value = user.value.fName + " " + user.value.lName;
 }
-console.log(user.value);
 
 // Toggle the user menu display
 const toggleMenu = () => {
