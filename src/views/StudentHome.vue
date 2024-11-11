@@ -1,14 +1,14 @@
 <template>
     <div>
-
+        <StudentHomeSideNav />
     </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { ref, onMounted } from "vue";
 import Utils from '@/config/utils.js';
+import StudentHomeSideNav from '@/components/StudentHomeSideNav.vue';
 
 const user = Utils.getStore("user");
 const studentId = ref();
