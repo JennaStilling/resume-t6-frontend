@@ -2,7 +2,7 @@
 import Utils from "../../config/utils.js";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import from ResumeReviewServices from "../../services/resumeReviewServices"
+import ResumeReviewServices from "../../services/resumeReviewServices"
 
 const router = useRouter();
 // const tutorials = ref([]);

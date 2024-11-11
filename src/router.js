@@ -16,8 +16,8 @@ import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
 
-import AdminHomePage from './views/admin/AdminHome.vue';
-import ViewStudentResume from './views/admin/ViewStudentResume.vue';
+import AdminHomePage from './views/reviewer/AdminHome.vue';
+import ViewStudentResume from './views/reviewer/ViewStudentResume.vue';
 
 // Define routes
 const routes = [
