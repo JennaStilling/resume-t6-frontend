@@ -85,6 +85,8 @@ import projectServices from '../services/projectServices.js';
 import Utils from '../config/utils';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import html2pdf from 'html2pdf.js';
 
  // Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
@@ -166,52 +168,55 @@ export default {
 
 
     const generatePDFContent = () => {
-      // Include the user's first name, last name, and email
+      const styles = `
+      .content { font-family: Arial, sans-serif; }
+      h1 { color: gray; }
+    `;
       let content = `
         <html>
+        <head>
+          <style>${styles}</style>
+        </head>
           <body>
-            <div class="content">
+            <div id="pdf-content" class="content">
               <h1>${user.fName} ${user.lName}'s Resume</h1>
               <p>Email: ${user.email}</p>
       `;
 
-
-      // Add selected education items
+      // Add Education section
       const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
       if (selectedEducation.length) {
         content += '<h2>Education</h2><ul>';
         selectedEducation.forEach(item => {
-            const gpaText = Number.isInteger(item.gpa) ? `${item.gpa}.0` : item.gpa;
-            const formattedDate = item.graduation_date ? new Date(item.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-            content += `<li>${item.degree}, ${item.institution}, ${gpaText}${formattedDate ? `, ${formattedDate}` : ''}</li>`;
+          const gpaText = Number.isInteger(item.gpa) ? `${item.gpa}.0` : item.gpa;
+          const formattedDate = item.graduation_date ? new Date(item.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+          content += `<li>${item.degree}, ${item.institution}, GPA: ${gpaText}, ${formattedDate}</li>`;
         });
         content += '</ul>';
       }
 
-
-      // Add selected experience items
+      // Add Experience section
       const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
       if (selectedExperience.length) {
         content += '<h2>Experience</h2><ul>';
         selectedExperience.forEach(item => {
-          content += `<li>${item.role}, ${item.company}</li>`;
+          const formattedDate = item.start_date ? new Date(item.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+          content += `<li>${item.role}, ${item.company}, ${formattedDate}</li>`;
         });
         content += '</ul>';
       }
 
-
-      // Add selected certification items
+      // Add Certifications section
       const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
       if (selectedCertifications.length) {
         content += '<h2>Certifications</h2><ul>';
         selectedCertifications.forEach(item => {
-          content += `<li>${item.name}, ${item.company}</li>`;
+          content += `<li>${item.name}, ${item.company}, ${item.date_acquired}</li>`;
         });
         content += '</ul>';
       }
 
-
-      // Add selected skill items
+      // Add Skills section
       const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
       if (selectedSkills.length) {
         content += '<h2>Skills</h2><ul>';
@@ -221,18 +226,15 @@ export default {
         content += '</ul>';
       }
 
-
-      // Add selected project items
+      // Add Projects section
       const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
       if (selectedProjects.length) {
         content += '<h2>Projects</h2><ul>';
         selectedProjects.forEach(item => {
-          content += `<li>${item.name}</li>`;
+          content += `<li>${item.name}, ${item.description}</li>`;
         });
         content += '</ul>';
       }
-
-
       content += `
             </div>
           </body>
@@ -322,39 +324,34 @@ export default {
       updatePDFPreview(); // Update PDF preview when an item is selected/deselected
     };
 
-
-    const generatePDF = () => {
-      const doc = new jsPDF();
-
-      // Set title for the PDF
-      doc.setFontSize(18);
-      doc.setFont('Times-Roman');
-      doc.text(`${user.fName} ${user.lName}'s Resume`, 10, 10);
-      doc.setFontSize(14);
-      doc.text(`Email: ${user.email}`, 10, 20);
-
-      // Add selected education items
-      const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
-      if (selectedEducation.length) {
-        doc.setFontSize(16);
-        doc.setFont('Times-Bold');
-        doc.text("Education", 10, 30);
-        doc.setFontSize(12);
-      selectedEducation.forEach((item, index) => {
-        const gpaText = Number.isInteger(item.gpa) ? `${item.gpa}.0` : item.gpa;
-        const formattedDate = item.graduation_date ? new Date(item.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-        doc.text(`${item.degree}, ${item.institution}, ${gpaText}${formattedDate ? `, ${formattedDate}` : ''}`, 10, 40 + (index * 10));
-      });
-      }
-
-      return doc;
-  };
-
     const downloadPDF = () => {
-      const doc = generatePDF();
-      doc.save((resumeTitle.value || 'resume') + '.pdf');
+      // Create a temporary container for the HTML content
+      const content = generatePDFContent();
+      const container = document.createElement('div');
+      container.innerHTML = content;
+
+      // Append the container to the body temporarily
+      document.body.appendChild(container);
+
+      // Use html2pdf to generate and download the PDF
+      html2pdf()
+        .set({
+          margin: 1,
+          filename: resumeTitle.value || `${user.fName}_${user.lName}_Resume.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        })
+        .from(container)
+        .save()
+        .then(() => {
+          document.body.removeChild(container);
+        });
     };
 
+    const formatDate = (date) => {
+      return date ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+    };
 
     return {
       studentId,
@@ -378,7 +375,6 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
-
 
 .pdf-preview {
   margin-left: 70px;
