@@ -83,9 +83,6 @@ import certificationServices from '../services/certificationServices.js';
 import skillServices from '../services/skillServices.js';
 import projectServices from '../services/projectServices.js';
 import Utils from '../config/utils';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import html2pdf from 'html2pdf.js';
 
  // Icons

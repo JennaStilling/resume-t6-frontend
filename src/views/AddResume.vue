@@ -12,6 +12,9 @@
           class="title-input"
           placeholder="First Resume"
         />
+        <button @click="saveResume">
+            <img :src="saveIcon" alt="save"/>
+          </button>
         <button @click="downloadPDF">
             <img :src="downloadIcon" alt="download"/>
           </button>
@@ -83,14 +86,18 @@ import certificationServices from '../services/certificationServices.js';
 import skillServices from '../services/skillServices.js';
 import projectServices from '../services/projectServices.js';
 import Utils from '../config/utils';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import html2pdf from 'html2pdf.js';
+import resumeServices from '../services/resumeServices.js'
+import resumeEducationServices from '../services/resumeEducationServices.js';
+import resumeExperienceServices from '../services/resumeExperienceServices.js';
+import resumeCertificationServices from '../services/resumeCertificationServices.js';
+import resumeSkillServices from '../services/resumeSkillServices.js';
+import resumeProjectServices from '../services/resumeProjectServices.js';
 
  // Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
 import downloadIcon from '@/assets/build-icons/download.png';
+import saveIcon from '@/assets/build-icons/saveIcon.png';
 import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
 import dropDownIcon from '@/assets/build-icons/drop-down.png';
 import educationIcon from '@/assets/build-icons/education.png';
@@ -105,6 +112,11 @@ export default {
     const user = Utils.getStore('user');
     const studentId = ref(null);
     const resumeTitle = ref('');
+    const resume = ref({
+      name: null,
+      template_type: null
+    });
+    const resumeId = ref(null);
     const isDropdownOpen = ref({
       education: false,
       experience: false,
@@ -353,6 +365,110 @@ export default {
       return date ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
     };
 
+
+    function saveResume() {
+      resume.value.name = resumeTitle;
+      resume.value.template_type = 1;
+
+      resumeServices.createResume(studentId.value, resume.value)
+        .then((res) => {
+          resumeId.value = res.data.id;
+          addResumeInfo();
+          // Should reroute to student homepage
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 406) {
+            message.value = "Error: " + error.code + ":" + error.message;
+            console.log(error);
+          } else {
+            console.log(error);
+          }
+        });
+    }
+
+    function addResumeInfo() {
+      const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
+      const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
+      const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
+      const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
+      const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
+
+      selectedEducation.forEach(item => {
+          resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Education added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+        });
+
+        selectedExperience.forEach(item => {
+          resumeExperienceServices.createResumeExperience(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Experience added to resume successfully");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }              
+            });
+        });
+
+        selectedCertifications.forEach(item => {
+          resumeCertificationServices.createResumeCertification(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Certification added successfully to resume");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
+            })
+        })
+
+        selectedSkills.forEach(item => {
+          resumeSkillServices.createResumeSkill(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Skill added to resume successfully");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
+            });
+        });
+
+        selectedProjects.forEach(item => {
+          resumeProjectServices.createResumeProject(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Project added to resume successfully");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
+            });
+        });
+    }
+
     return {
       studentId,
       isDropdownOpen,
@@ -364,8 +480,10 @@ export default {
       dropDownUpIcon,
       dropDownIcon,
       downloadIcon,
+      saveIcon,
       getSectionIcon,
       downloadPDF,
+      saveResume,
       resumeTitle
     };
   }
