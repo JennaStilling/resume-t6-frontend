@@ -7,6 +7,7 @@
       <div class="start-button" @click="login">Login Page Idea</div>
       <div class="start-button" @click="list">Testing Login Features</div>
       <div class="start-button" @click="start">START A NEW RESUME</div>
+      <div class="start-button" @click="cohere">Cohere Test</div>
     </div>
   </template>
   
@@ -22,6 +23,9 @@
         },
         list(){
           this.$router.push('/profile-app');
+        },
+        cohere(){
+          this.$router.push('/cohere-test');
         }
     }
 
