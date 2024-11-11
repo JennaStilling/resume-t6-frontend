@@ -16,14 +16,14 @@ import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
 
-import AdminHomePage from './views/reviewer/AdminHome.vue';
+import ReviewerHomePage from './views/reviewer/ReviewerHome.vue';
 import ViewStudentResume from './views/reviewer/ViewStudentResume.vue';
 
 // Define routes
 const routes = [
   // Home Pages:
   { path: '/', component: HomePage },
-  { path: '/admin-home', name: 'admin-home', component: AdminHomePage },
+  { path: '/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
 
   // Profile Paths:
   { path: '/contact-info', component: ContactInfo },
