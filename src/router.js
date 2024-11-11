@@ -16,6 +16,8 @@ import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
 
+import AdminHomePage from './views/admin/AdminHome.vue';
+
 // Define routes
 const routes = [
   { path: '/', component: HomePage },
@@ -41,7 +43,9 @@ const routes = [
   { path: '/resume/:id', name: 'resume', component: ViewResume, props: true },
   { path: '/add', name: 'addResume', component: AddResume },
   { path: '/edit/:id', name: 'editResume', component: EditResume, props: true },
-  { path: '/profile', name: 'profile', component: ViewProfile }
+  { path: '/profile', name: 'profile', component: ViewProfile },
+
+  {path: '/adminHome', name:'admin-home', component: AdminHomePage}
 ];
 
 const router = createRouter({
