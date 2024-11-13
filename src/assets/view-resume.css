@@ -7,6 +7,7 @@
   padding-top: 20px;
   padding-left: 30px;
   color: #ffffff;
+  flex: 1;
 }
 
 .title-section {
@@ -142,4 +143,93 @@
   background-image: url('@/assets/build-icons/checkmark.png');
   background-position: center;
   background-size: cover;
+}
+
+.pdf-preview {
+  margin-left: 70px;
+  padding: 30px;
+  background-color: #f3f3f3;
+  max-width: 100%;
+  height: 100vh;
+  overflow: auto;
+  text-align: center;
+}
+
+.pdf-preview iframe {
+  display: block;
+  border: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin: 3;
+}
+
+.save-button{
+  width: 40px;
+  height: 40px;
+  top: -8px;
+  right: -3px;
+}
+
+.main-content {
+  flex: 3;
+  padding: 20px;
+}
+
+
+.template-list {
+  margin-left: 70px;
+  display: grid;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  background-color: #f3f3f3;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; 
+  padding: 10px;
+  max-height: 500px; 
+  overflow-y: auto; 
+  background-color: #f0f4f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.template-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 2px solid transparent;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.template-item.active,
+.template-item:hover {
+  border: 2px solid #0e74a0;
+  background-color: #e7f1f8;
+}
+
+.template-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+}
+
+.preview-button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #0e74a0;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.preview-button:hover {
+  background-color: #084565;
 }

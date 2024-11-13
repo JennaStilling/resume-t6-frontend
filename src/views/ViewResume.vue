@@ -12,6 +12,9 @@
           class="title-input"
           placeholder="First Resume"
         />
+        <button @click="saveResume">
+            <img :src="saveIcon" alt="save"/>
+          </button>
         <button @click="downloadPDF">
             <img :src="downloadIcon" alt="download"/>
           </button>
@@ -84,10 +87,17 @@ import skillServices from '../services/skillServices.js';
 import projectServices from '../services/projectServices.js';
 import Utils from '../config/utils';
 import html2pdf from 'html2pdf.js';
+import resumeServices from '../services/resumeServices.js'
+import resumeEducationServices from '../services/resumeEducationServices.js';
+import resumeExperienceServices from '../services/resumeExperienceServices.js';
+import resumeCertificationServices from '../services/resumeCertificationServices.js';
+import resumeSkillServices from '../services/resumeSkillServices.js';
+import resumeProjectServices from '../services/resumeProjectServices.js';
 
  // Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
 import downloadIcon from '@/assets/build-icons/download.png';
+import saveIcon from '@/assets/build-icons/saveIcon.png';
 import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
 import dropDownIcon from '@/assets/build-icons/drop-down.png';
 import educationIcon from '@/assets/build-icons/education.png';
@@ -102,6 +112,11 @@ export default {
     const user = Utils.getStore('user');
     const studentId = ref(null);
     const resumeTitle = ref('');
+    const resume = ref({
+      name: null,
+      template_type: null
+    });
+    const resumeId = ref(null);
     const isDropdownOpen = ref({
       education: false,
       experience: false,
@@ -165,8 +180,15 @@ export default {
 
 
     const generatePDFContent = () => {
+      const styles = `
+      .content { font-family: Arial, sans-serif; }
+      h1 { color: gray; }
+    `;
       let content = `
         <html>
+        <head>
+          <style>${styles}</style>
+        </head>
           <body>
             <div id="pdf-content" class="content">
               <h1>${user.fName} ${user.lName}'s Resume</h1>
@@ -225,13 +247,11 @@ export default {
         });
         content += '</ul>';
       }
-
       content += `
             </div>
           </body>
         </html>
       `;
-      
       return content;
     };
 
@@ -316,107 +336,6 @@ export default {
       updatePDFPreview(); // Update PDF preview when an item is selected/deselected
     };
 
-
-    const generatePDF = async () => {
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage([600, 800]);
-      const { width, height } = page.getSize();
-      const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-      const timesRomanBoldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-
-      let yPosition = height - 50;
-
-      // Add selected experience items
-      const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
-      if (selectedExperience.length) {
-        page.drawText('Experience', {
-          x: 50,
-          y: yPosition,
-          size: 16,
-          font: timesRomanBoldFont,
-          color: rgb(0, 0, 0),
-        });
-        yPosition -= 20;
-
-        selectedExperience.forEach((item, index) => {
-          const formattedStartDate = formatDate(item.start_date);
-          const formattedEndDate = formatDate(item.end_date);
-          page.drawText(`${item.role}, ${item.company}, ${formattedStartDate} - ${formattedEndDate}`, {
-            x: 50,
-            y: yPosition,
-            size: 12,
-            font: timesRomanFont,
-            color: rgb(0, 0, 0),
-          });
-          yPosition -= 20;
-          page.drawText(`${item.job_description}`, {
-            x: 50,
-            y: yPosition,
-            size: 12,
-            font: timesRomanFont,
-            color: rgb(0, 0, 0),
-          });
-          yPosition -= 20;
-        });
-      }
-
-      // Add selected certification items
-      const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
-      if (selectedCertifications.length) {
-        page.drawText('Certifications', {
-          x: 50,
-          y: yPosition,
-          size: 16,
-          font: timesRomanBoldFont,
-          color: rgb(0, 0, 0),
-        });
-        yPosition -= 20;
-
-        selectedCertifications.forEach((item, index) => {
-          const formattedDate = formatDate(item.date_acquired);
-          page.drawText(`${item.name}, ${item.company}: ${formattedDate}`, {
-            x: 50,
-            y: yPosition,
-            size: 12,
-            font: timesRomanFont,
-            color: rgb(0, 0, 0),
-          });
-          yPosition -= 20;
-        });
-      }
-
-      // Add selected skill items
-      const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
-      if (selectedSkills.length) {
-        page.drawText('Skills', {
-          x: 50,
-          y: yPosition,
-          size: 16,
-          font: timesRomanBoldFont,
-          color: rgb(0, 0, 0),
-        });
-        yPosition -= 20;
-
-        selectedSkills.forEach((item, index) => {
-          page.drawText(`${item.name}, ${item.description}`, {
-            x: 50,
-            y: yPosition,
-            size: 12,
-            font: timesRomanFont,
-            color: rgb(0, 0, 0),
-          });
-          yPosition -= 20;
-        });
-      }
-
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'resume.pdf';
-      link.click();
-    };
-
     const downloadPDF = () => {
       // Create a temporary container for the HTML content
       const content = generatePDFContent();
@@ -438,7 +357,6 @@ export default {
         .from(container)
         .save()
         .then(() => {
-          // Remove the container after download
           document.body.removeChild(container);
         });
     };
@@ -446,6 +364,110 @@ export default {
     const formatDate = (date) => {
       return date ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
     };
+
+
+    function saveResume() {
+      resume.value.name = resumeTitle;
+      resume.value.template_type = 1;
+
+      resumeServices.createResume(studentId.value, resume.value)
+        .then((res) => {
+          resumeId.value = res.data.id;
+          addResumeInfo();
+          // Should reroute to student homepage
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 406) {
+            message.value = "Error: " + error.code + ":" + error.message;
+            console.log(error);
+          } else {
+            console.log(error);
+          }
+        });
+    }
+
+    function addResumeInfo() {
+      const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
+      const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
+      const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
+      const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
+      const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
+
+      selectedEducation.forEach(item => {
+          resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Education added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+        });
+
+        selectedExperience.forEach(item => {
+          resumeExperienceServices.createResumeExperience(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Experience added to resume successfully");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }              
+            });
+        });
+
+        selectedCertifications.forEach(item => {
+          resumeCertificationServices.createResumeCertification(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Certification added successfully to resume");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
+            })
+        })
+
+        selectedSkills.forEach(item => {
+          resumeSkillServices.createResumeSkill(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Skill added to resume successfully");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
+            });
+        });
+
+        selectedProjects.forEach(item => {
+          resumeProjectServices.createResumeProject(resumeId.value, item.id, {})
+            .then(() => {
+              console.log("Project added to resume successfully");
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
+            });
+        });
+    }
 
     return {
       studentId,
@@ -458,8 +480,10 @@ export default {
       dropDownUpIcon,
       dropDownIcon,
       downloadIcon,
+      saveIcon,
       getSectionIcon,
       downloadPDF,
+      saveResume,
       resumeTitle
     };
   }
@@ -469,7 +493,6 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
-
 
 .pdf-preview {
   margin-left: 70px;
