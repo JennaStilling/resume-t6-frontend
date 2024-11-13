@@ -283,7 +283,7 @@ export default {
 
     const toggleCheckbox = (item) => {
       item.isSelected = !item.isSelected;
-      console.log("Item selected in toggle checkbox:", item);
+      //console.log("Item selected in toggle checkbox:", item);
       updatePDFPreview(); 
     };
 
@@ -313,7 +313,7 @@ export default {
 
     function saveResume() {
       resume.value.name = resumeTitle;
-      resume.value.template_type = 1;
+      //resume.value.template_type = 1;
 
       resumeServices.createResume(studentId.value, resume.value)
         .then((res) => {
@@ -444,62 +444,4 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
-
-.template-list {
-  margin-left: 70px;
-  display: grid;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  background-color: #f3f3f3;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px; 
-  padding: 10px;
-  max-height: 500px; 
-  overflow-y: auto; 
-  background-color: #f0f4f8;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.template-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px;
-  border-radius: 6px;
-  background-color: #ffffff;
-  border: 2px solid transparent;
-  transition: border-color 0.3s, background-color 0.3s;
-}
-
-.template-item.active,
-.template-item:hover {
-  border: 2px solid #0e74a0;
-  background-color: #e7f1f8;
-}
-
-.template-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #333333;
-  margin: 0;
-}
-
-.preview-button {
-  margin-top: 10px;
-  padding: 5px 10px;
-  border: none;
-  background-color: #0e74a0;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.preview-button:hover {
-  background-color: #084565;
-}
-
 </style>
