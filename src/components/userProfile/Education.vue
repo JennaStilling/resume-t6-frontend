@@ -17,7 +17,7 @@
                   src="@/assets/list-elements/edit-list-item.png"
                   alt="Edit"
                   class="icon"
-                  @click.stop="editEntry(index)"
+                  @click.stop="editEntry(item)"
                 />
                 <img
                   src="@/assets/list-elements/delete-list-item.png"
@@ -156,6 +156,8 @@ const user = Utils.getStore("user");
 const studentId = ref();
 const educations = ref(null);
 
+const errors = ref({});
+
 onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
@@ -171,6 +173,7 @@ const formData = ref({
   graduation_date: ''
 });
 
+const currentEducation = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const educationToDelete = ref(null);
@@ -185,8 +188,13 @@ function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-function editEntry(index) {
+function editEntry(item) {
   router.push({ path: `/education/edit/` });
+  currentEducation.value = item.id;
+  formData.value.degree = item.degree;
+  formData.value.institution = item.institution;
+  formData.value.gpa = item.gpa;
+  formData.value.graduation_date = item.graduation_date;
 }
 
 function showDeleteConfirmation(item) {
@@ -209,7 +217,27 @@ function deleteEducation() {
 
 function saveChanges() {
   if (route.path.includes('/education/edit/')) {
-    // Implement save functionality here
+    educationServices.updateEducation(studentId.value, currentEducation.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response != null && error.response.status == "406") {
+        for(let obj in errors.value) {
+          errors.value[obj] = '*'
+        }
+        for (let obj of error.response.data) {
+          if (obj.attributeName === undefined) {
+            obj.attributeName = "idNumber";
+          }
+          errors.value[obj.attributeName] = obj.message;
+        }
+      } else {
+        console.log(error);
+        console.log(error);
+      }
+      });
+      router.push('/education');
   } else {
     educationServices.createEducation(studentId.value, formData.value)
       .then(() => {

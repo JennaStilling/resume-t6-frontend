@@ -15,7 +15,7 @@
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
                 <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
-                  @click.stop="editEntry(index)" />
+                  @click.stop="editEntry(item)" />
                 <!-- Delete icon for entry -->
                 <img
                   src="@/assets/list-elements/delete-list-item.png"
@@ -110,6 +110,8 @@ const user = Utils.getStore("user");
 const studentId = ref();
 const projects = ref(null);
 
+const errors = ref({});
+
 onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
@@ -122,6 +124,8 @@ const formData = ref({
   name: '',
   description: '',
 });
+
+const currentProject = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const projectToDelete = ref(null);
@@ -136,8 +140,11 @@ function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-function editEntry(index) {
+function editEntry(item) {
   router.push({ path: `/project/edit/` });
+  currentProject.value = item.id;
+  formData.value.name = item.name;
+  formData.value.description = item.description;
 }
 
 function showDeleteConfirmation(index) {
@@ -160,7 +167,27 @@ function deleteProject() {
 
 function saveChanges() {
   if (route.path.includes('/project/edit/')) {
-    // Implement save functionality here
+    projectServices.updateProject(studentId.value, currentProject.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response != null && error.response.status == "406") {
+        for(let obj in errors.value) {
+          errors.value[obj] = '*'
+        }
+        for (let obj of error.response.data) {
+          if (obj.attributeName === undefined) {
+            obj.attributeName = "idNumber";
+          }
+          errors.value[obj.attributeName] = obj.message;
+        }
+      } else {
+        console.log(error);
+        console.log(error);
+      }
+      });
+      router.push('/project');
   } else {
     projectServices.createProject(studentId.value, formData.value)
       .then(() => {
