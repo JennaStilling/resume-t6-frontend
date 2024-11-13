@@ -87,6 +87,13 @@ const getAllStudents = () => {
             console.log(err);
         });
 };
+
+const hasReviewerAccess = ref(false);
+
+const handleReviewerChange = () => {
+    console.log("Reviewer access toggled:", hasReviewerAccess.value);
+}
+
 getAllStudents();
 getUsers();
 </script>
@@ -94,24 +101,30 @@ getUsers();
 <template>
     <div class="modified-width">
         <v-card title="Edit Users">
+
             <v-row>
                 <v-col cols="6">
                     <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify"
-                        variant="outlined" hide-details single-line></v-text-field>
+                        variant="outlined" hide-details single-line>
+                    </v-text-field>
                 </v-col>
 
                 <v-col cols="6">
                     <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined
-                        hide-details></v-select>
+                        hide-details>
+                    </v-select>
                 </v-col>
             </v-row>
-            <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1">
+
+            <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
+                :items-per-page="filteredUsers.length" hide-default-footer>
                 <template #item.name="{ item }">
                     <span @click="userDataDisplay(item)">
                         {{ item.fName + " " + item.lName }}
                     </span>
                 </template>
             </v-data-table>
+
         </v-card>
     </div>
 
@@ -132,8 +145,8 @@ getUsers();
                             <strong>Email:</strong> {{ user.email }}
                         </v-col>
                         <v-col cols="12">
-                            <v-checkbox v-model="user.hasReviewerAccess" label="Has Reviewer Access?"
-                                hide-details></v-checkbox>
+                            <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
+                                @change="handleReviewerChange"></v-checkbox>
                         </v-col>
                     </v-row>
                 </div>
@@ -216,6 +229,6 @@ getUsers();
 }
 
 .justify-right {
-    padding-right:10px
+    padding-right: 10px
 }
 </style>
