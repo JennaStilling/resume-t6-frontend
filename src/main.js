@@ -9,5 +9,5 @@ import router from "./router";
 import vuetify from "./plugins/vuetify.js";
 
 createApp(App)
-.provide('cohereClient', new CohereClient({ token: "IzGMIHeC1TA9JpqCxW9WCLWLngwPw44fwwcO7Hfr" }))
+.provide('cohereClient', new CohereClient({ token: import.meta.env.VITE_APP_COHERE_API_KEY }))
 .use(router).use(createPinia()).use(vuetify).use(store).mount('#app');
