@@ -56,7 +56,7 @@
                 <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
                 <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
                 <label class="custom-checkbox">
-                <input type="checkbox" v-model="item.isSelected" @click.stop />
+                <input type="checkbox" v-model="item.isSelected" />
                 <span class="checkmark"></span>
                 </label>
               </div>
@@ -283,6 +283,7 @@ export default {
 
     const toggleCheckbox = (item) => {
       item.isSelected = !item.isSelected;
+      console.log("Item selected in toggle checkbox:", item);
       updatePDFPreview(); 
     };
 
