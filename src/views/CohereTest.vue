@@ -11,10 +11,10 @@
       </div>
     </div>
 
-    <div class="result">
+    <div>
       <div class="text-field-with-title">
         <label for="degree" class="field-label">Result</label>
-        <input type="text" id="degree" v-model="result" class="text-field" placeholder="Enter your degree" required />
+        <textarea v-model="result" rows="25" cols="40" class="text-field" readonly></textarea>
         <span class="mandatory">*</span>
       </div>
     </div>
@@ -36,20 +36,16 @@ const resume = "John Smith\n123 Main Street\nSpringfield, IL 62701\n(555) 123-45
 
 onMounted(async () => {
   try {
-    console.log('Start');
     const response = await cohereClient.chat({
       message: resume,
       model: "command-r-08-2024",
       preamble: "You are an AI-assistant chatbot. You are trained to assist users by analyzing their resume. You will provide a concise list of recommendations to improve their resumes."
     });
-    console.log('Done');
-    console.log(response.text);
     result.value = response.text;
   } catch (err) {
     error.value = err.message;
   } finally {
     loading.value = false;
-    console.log('finally :?');
   }
 });
 </script>
