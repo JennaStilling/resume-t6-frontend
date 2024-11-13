@@ -1,13 +1,7 @@
 <script setup>
-import Utils from "../../config/utils.js";
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
 import UserServices from "../../services/userServices";
-import UserRoleServices from "../../services/userRoleServices";
 import StudentServices from "../../services/studentServices";
-import RoleServices from "../../services/roleServices";
-
-const router = useRouter();
 
 const users = ref([]);
 const user = ref(null);
@@ -17,9 +11,11 @@ const message = ref("test value");
 const showUserInfo = ref(false);
 const search = ref("");
 const students = ref([]);
-const roles = ref([])
-const userRoles = ref([])
-var userSpecificRole = ref("")
+const filterOptions = ["Reviewers", "Students", "All"];
+const filterType = ref("Reviewers");
+const headers = [
+    { text: "Name", value: "name", align: "start" },
+];
 
 const getUsers = () => {
     UserServices.getAllUsers()
@@ -67,9 +63,17 @@ const userDataDisplay = (item) => {
 
 const filteredUsers = computed(() => {
     const searchTerm = search.value.toLowerCase();
-    return users.value.filter(user =>
+    let filtered = users.value.filter(user =>
         `${user.fName} ${user.lName}`.toLowerCase().includes(searchTerm)
     );
+
+    if (filterType.value === "Students") {
+        filtered = filtered.filter(user => students.value.some(tempUser => tempUser.id === user.id));
+    } else if (filterType.value === "Reviewers") {
+        filtered = filtered.filter(user => !students.value.some(tempUser => tempUser.id === user.id));
+    }
+
+    return filtered;
 });
 
 const getAllStudents = () => {
@@ -83,84 +87,31 @@ const getAllStudents = () => {
             console.log(err);
         });
 };
-
-const getAllRoles = () => {
-    RoleServices.getAllRoles()
-        .then((res) => {
-            roles.value = res.data;
-            message.value = "";
-        })
-        .catch((err) => {
-            message.value = "Error: " + err.code + ":" + err.message;
-            console.log(err);
-        });
-}
-
-const getAllUserRoles = (uId, rId) => {
-    UserRoleServices.getAllUserRoles(uId, rId)
-        .then((res) => {
-            userSpecificRole = res.data;
-            message.value = "";
-        })
-        .catch((err) => {
-            message.value = "Error: " + err.code + ":" + err.message;
-            console.log(err);
-        });
-}
-
-
-const getUserRoles = (userId) => {
-    var roleList = "";
-//var userSpecificRole = ""
-    if (students.value.some(obj => obj.id === userId)) {
-        roleList += "Student,"
-    }
-
-    roles.value.forEach(role => {
-        getAllUserRoles(userId, role.id)
-                //console.log(res.data.length)
-                message.value = "";
-                if (userSpecificRole.length > 0) {
-
-                    if (role.id === userSpecificRole[0].roleId && role.role_type !== "student") {
-                        console.log(role.role_type)
-                        roleList += " " + role.role_type + ",";
-                    }
-                }
-    })
-
-    if (roleList[roleList.length - 1] === ',')
-        roleList = roleList.substring(0, roleList.length - 1)
-    return roleList;
-};
-
-
-console.log(getAllRoles());
 getAllStudents();
 getUsers();
-//console.log(StudentServices.getAllStudents())
 </script>
 
 <template>
     <div class="modified-width">
         <v-card title="Edit Users">
-            <v-text-field v-model="search" label="Search" prepend-inner-icon="mdi-magnify" variant="outlined"
-                hide-details single-line></v-text-field>
+            <v-row>
+                <v-col cols="6">
+                    <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify"
+                        variant="outlined" hide-details single-line></v-text-field>
+                </v-col>
 
-            <v-table>
-                <thead>
-                    <tr>
-                        <th class="text-left">Name</th>
-                        <th class="text-left">Roles</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item) in filteredUsers" :key="item.lName">
-                        <td @click="userDataDisplay(item)">{{ item.fName + " " + item.lName }}</td>
-                        <td>{{ getUserRoles(item.id) }}</td>
-                    </tr>
-                </tbody>
-            </v-table>
+                <v-col cols="6">
+                    <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined
+                        hide-details></v-select>
+                </v-col>
+            </v-row>
+            <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1">
+                <template #item.name="{ item }">
+                    <span @click="userDataDisplay(item)">
+                        {{ item.fName + " " + item.lName }}
+                    </span>
+                </template>
+            </v-data-table>
         </v-card>
     </div>
 
@@ -168,21 +119,27 @@ getUsers();
         <div class="modal-content">
             <div class="modal-header">
                 <span @click="showUserInfo = false" class="close">&times;</span>
-                User Data
+                <h3>User Data</h3>
             </div>
-            <v-card class="mx-auto">
+
+            <v-card class="mx-auto pa-4">
                 <div class="modal-body">
-                    Name: {{ user.fName + " " + user.lName }}
-                    <v-spacer></v-spacer>
-                    Email: {{ user.email }}
-                    <v-spacer></v-spacer>
-                    <v-checkbox label="Has Reviewer Access?"></v-checkbox>
-                    <v-spacer></v-spacer>
-                    <div>
-                        <button v-if="!deleteError" @click="showUserInfo = false">Close</button>
-                        <button v-if="deleteError" @click="showUserInfo = false">Close</button>
-                    </div>
+                    <v-row>
+                        <v-col cols="12">
+                            <strong>Name:</strong> {{ user.fName + " " + user.lName }}
+                        </v-col>
+                        <v-col cols="12">
+                            <strong>Email:</strong> {{ user.email }}
+                        </v-col>
+                        <v-col cols="12">
+                            <v-checkbox v-model="user.hasReviewerAccess" label="Has Reviewer Access?"
+                                hide-details></v-checkbox>
+                        </v-col>
+                    </v-row>
                 </div>
+                <v-row class="justify-end pt-2 justify-right">
+                    <v-btn @click="showUserInfo = false" color="red">Close</v-btn>
+                </v-row>
             </v-card>
         </div>
     </div>
@@ -256,5 +213,9 @@ getUsers();
     width: 70%;
     margin: 0 auto;
     padding-top: 15px;
+}
+
+.justify-right {
+    padding-right:10px
 }
 </style>
