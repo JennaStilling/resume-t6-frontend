@@ -45,7 +45,6 @@
               class="student-contact-info"
               @click="toggleCheckbox(item)"
             >
-            <!-- EXAMPLE: CS, Oklahoma Christian University [✓] -->
               <div class="student-contact-info-inner">
               <div
                 class="group-child"
@@ -74,6 +73,16 @@
             <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
           </div>
           <div v-if="activeTab === 'template'">      
+            <div class="template-list" width="100%" height="100%">
+              <div 
+                v-for="(template, index) in templates" 
+                :key="index" 
+                class="template-item" 
+                :class="{ active: template.name === selectedTemplate }">
+                <p class="template-name">{{ template.name }}</p>
+                <button @click="previewTemplate(template)" class="preview-button">Preview</button>
+              </div>
+            </div>
           </div>
       </div>
     </div>
@@ -98,7 +107,7 @@ import resumeCertificationServices from '../services/resumeCertificationServices
 import resumeSkillServices from '../services/resumeSkillServices.js';
 import resumeProjectServices from '../services/resumeProjectServices.js';
 
- // Icons
+// Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
 import downloadIcon from '@/assets/build-icons/download.png';
 import saveIcon from '@/assets/build-icons/saveIcon.png';
@@ -110,6 +119,8 @@ import certsIcon from '@/assets/build-icons/certs.png';
 import skillsIcon from '@/assets/build-icons/skills.png';
 import projectIcon from '@/assets/build-icons/project.png';
 
+import { loadTemplateOne } from '@/services/templates/templateOne.js';
+import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
 
 export default {
   components: {
@@ -121,8 +132,11 @@ export default {
     const resumeTitle = ref('');
     const resume = ref({
       name: null,
-      template_type: null
+      template_type: 1
     });
+    const changeTemplateType = (type) => {
+      resume.value.template_type = type;
+    };
     const resumeId = ref(null);
     const isDropdownOpen = ref({
       education: false,
@@ -150,6 +164,25 @@ export default {
       return sectionIcons[sectionKey] || '';
     };
 
+    const templates = ref([
+      { name: '01: Default', type: 1 },
+      { name: '02: Teal Template', type: 2 },
+      { name: '03: ', type: 3 },
+    ]);
+
+    const selectedTemplate = ref(templates.value[0].name);
+
+    const selectTemplate = (template) => {
+      selectedTemplate.value = template.name;
+    };
+
+    const previewTemplate = (template) => {
+      selectTemplate(template);
+      changeTemplateType(template.type);
+      // Switch back to the 'preview' tab
+      handleTabChange('preview');      
+    };
+
     onMounted(() => {
       Utils.getUser(Utils.getStore('user')).then(user => {
         studentId.value = user.studentId;
@@ -164,7 +197,7 @@ export default {
           iframe.addEventListener('load', () => {
             updatePDFPreview();
           });
-          updatePDFPreview(); 
+          updatePDFPreview();
         } else {
           console.error('Iframe not found');
         }
@@ -175,7 +208,6 @@ export default {
 
     function handleTabChange(tab) {
       console.log('Tab changed to:', tab);
-      console.log(dropdownSections.value);
       activeTab.value = tab;
       if (tab === 'preview') {
         setTimeout(() => {
@@ -185,7 +217,7 @@ export default {
           } else {
             console.error('Iframe not found for PDF preview when handling tab change');
           }
-        }, 0); // Delay for Document Object Model (DOM) to update, had error where iframe wasn't found
+        }, 0); // Delay for Document Object Model (DOM) to update
       }
     }
 
@@ -206,136 +238,24 @@ export default {
       }
     };
 
-
     const generatePDFContent = () => {
-      const styles = `
-      .content { font-family: 'Times New Roman', Times, serif; }
-      h1 {
-        color: black;
-        text-align: center;
-      }
-      h2{
-        margin-left: 0;
-        margin-right: 0;
-        padding-left: 0;
-        padding-right: 0;
-      }
-      h4{
-        text-align: center;
-        font-weight: normal;
-      }
-      ul {
-       list-style-type: none;
-      }
-      ol {
-        list-style-type: decimal;
-      }
-    `;
-    let content = `
-        <html>
-        <head>
-          <style>${styles}</style>
-        </head>
-          <body>
-            <div id="pdf-content" class="content">
-              <h1>${user.fName} ${user.lName}</h1>
-              <h4>${user.email}</h4>
-      `;
+      const user = Utils.getStore('user');
+      const sections = dropdownSections.value;
 
-      // Add Education section
-      const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
-      if (selectedEducation.length) {
-        content += '<h2>Education</h2><hr><ul>';
-        selectedEducation.forEach(item => {
-          const gpaText = Number.isInteger(item.gpa) ? `${item.gpa}.0` : item.gpa;
-          const formattedDate = item.graduation_date ? new Date(item.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-          content += `<li style="display: flex; justify-content: space-between;">
-              <strong>${item.institution}</strong>
-              <span>Graduation:</span>
-            </li>`;
-          content += `<li style="display: flex; justify-content: space-between;">
-              <em>${item.degree}</em>
-              <span>${formattedDate}   </span>
-            </li>`;
-          content += `<li>GPA: ${gpaText}</li>`;
-          content += `<div style="height: 5px;"></div>`;
-        });
-        content += '</ul>';
+      switch (resume.value.template_type) {
+      case 1:
+        //console.log("Template 1");
+        return loadTemplateOne(user, sections);
+        break;
+      case 2:
+        //console.log("Template 2");
+        return loadTemplateTwo(user, sections);
+        break;
+      default:
+        //console.log("Default");
+        return loadTemplateOne(user, sections);
       }
-
-        // Add Experience section
-        const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
-      if (selectedExperience.length) {
-        content += '<h2>Experience</h2><hr><ul>';
-        selectedExperience.forEach(item => {
-          const startDate = item.start_date ? new Date(item.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '';
-          const endDate = item.end_date ? new Date(item.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '';
-          const roleCompany =`${item.role}, ${item.company}`;
-         
-          content += `<li style="display: flex; justify-content: space-between;">
-              <strong>${roleCompany}</strong>
-              <span> ${startDate} - ${endDate}</span>
-            </li>`;
-          content += `<li> • ${item.job_description}</li>`;
-        });
-        content += '</ul>';
-      }
-
-      // Add Certifications section
-      const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
-      if (selectedCertifications.length) {
-        content += '<h2>Certifications</h2><hr><ul>';
-        selectedCertifications.forEach(item => {
-          const formattedDate = item.date_acquired ? new Date(item.date_acquired).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : '';
-          content += `<li style="display: flex; justify-content: space-between;">
-          <strong>${item.name}</strong>
-          <span>Date Acquired:</span>
-        </li>`;
-          content += `<li style="display: flex; justify-content: space-between;">
-          <em>${item.company}</em> 
-          <span>${formattedDate}</span>
-          </li>`; 
-          content += `<div style="height: 5px;"></div>`;
-        });
-        content += '</ul>';
-      }
-
-      // Add Skills section
-      const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
-      if (selectedSkills.length) {
-        content += '<h2>Skills</h2><hr><ol>';
-        selectedSkills.forEach(item => {
-          content += `<li><b>${item.name}</b>`;
-          if (item.description) {
-        content += `: ${item.description}`;
-          }
-          content += `</li>`;
-        });
-        content += '</ol>';
-        content += `<div style="height: 5px;"></div>`;
-      }
-
-    // Add Projects section
-    const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
-    if (selectedProjects.length) {
-      content += '<h2>Projects</h2><hr><ol>';
-      selectedProjects.forEach(item => {
-        content += `<li><b>${item.name}</b>`;
-        if (item.description) {
-          content += `: ${item.description}`;
-        }
-        content += `</li>`;
-      });
-      content += '</ol>';
-      content += `<div style="height: 5px;"></div>`;
-    }
-    content += `
-          </div>
-        </body>
-      </html>
-    `;
-    return content;
-  };
+    };
 
     // Loads all the section data
     const loadData = (service, sectionKey) => {
@@ -511,7 +431,11 @@ export default {
       saveResume,
       resumeTitle,
       activeTab,
-      handleTabChange
+      handleTabChange,
+      templates,
+      selectedTemplate,
+      selectTemplate,
+      previewTemplate
     };
   }
 };
@@ -520,4 +444,62 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
+
+.template-list {
+  margin-left: 70px;
+  display: grid;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  background-color: #f3f3f3;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; 
+  padding: 10px;
+  max-height: 500px; 
+  overflow-y: auto; 
+  background-color: #f0f4f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.template-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 2px solid transparent;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.template-item.active,
+.template-item:hover {
+  border: 2px solid #0e74a0;
+  background-color: #e7f1f8;
+}
+
+.template-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+}
+
+.preview-button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #0e74a0;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.preview-button:hover {
+  background-color: #084565;
+}
+
 </style>
