@@ -1,11 +1,14 @@
 export const loadTemplateTwo = (user, dropdownSections) => {
     const styles = `
-      .content { font-family: Arial, Helvetica, sans-serif; }
+      .content { 
+        font-family: Arial, Helvetica, sans-serif; 
+        padding: 10px;
+      }
       h1 {
         color: white;
         text-align: left;
         background-color: #247284;
-        padding: 10px;
+        padding: 11px;
       }
       h2{
         margin-left: 0;
@@ -21,6 +24,7 @@ export const loadTemplateTwo = (user, dropdownSections) => {
       }
       ul {
         list-style-type: none;
+        padding: 5px;
       }
       ol {
         list-style-type: decimal;
@@ -36,6 +40,7 @@ export const loadTemplateTwo = (user, dropdownSections) => {
           <h1><br>${user.fName} ${user.lName} <br> <div style="font-size: 16px; font-weight: light;">${user.email}</div></h1>
     `;
   
+    content += '<div style="height: 10px;"></div>';
     // Add Education section
     const selectedEducation = dropdownSections.education.items.filter(item => item.isSelected);
     if (selectedEducation.length) {
@@ -94,17 +99,6 @@ export const loadTemplateTwo = (user, dropdownSections) => {
       content += '</ul>';
     }
   
-    // Add Skills section
-    const selectedSkills = dropdownSections.skills.items.filter(item => item.isSelected);
-    if (selectedSkills.length) {
-      content += '<h2>Skills</h2><hr><div style="height: 5px;"></div><div style="display: flex; flex-wrap: wrap; gap: 10px;">';
-      selectedSkills.forEach(item => {
-        content += `<div style="background-color: #247284; color: white; padding: 5px 10px; border-radius: 5px; margin: 5px;">${item.name}</div>`;
-      });
-      content += '</div>';
-      content += `<div style="height: 5px;"></div>`;
-    }
-  
     // Add Projects section
     const selectedProjects = dropdownSections.projects.items.filter(item => item.isSelected);
     if (selectedProjects.length) {
@@ -119,6 +113,18 @@ export const loadTemplateTwo = (user, dropdownSections) => {
       content += '</ol>';
       content += `<div style="height: 5px;"></div>`;
     }
+
+    // Add Skills section
+    const selectedSkills = dropdownSections.skills.items.filter(item => item.isSelected);
+    if (selectedSkills.length) {
+      content += '<h2>Skills</h2><hr><div style="height: 5px;"></div><div style="display: flex; flex-wrap: wrap; gap: 10px;">';
+      selectedSkills.forEach(item => {
+        content += `<div style="background-color: #247284; color: white; padding: 5px 10px; border-radius: 5px; margin: 5px;">${item.name}</div>`;
+      });
+      content += '</div>';
+      content += `<div style="height: 5px;"></div>`;
+    }
+    
     content += `
           </div>
         </body>

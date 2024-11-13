@@ -299,11 +299,10 @@ export default {
       // Use html2pdf to generate and download the PDF
       html2pdf()
         .set({
-          margin: 1,
+          margin: 3,
           filename: resumeTitle.value || `${user.fName}_${user.lName}_Resume.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+          jsPDF: { orientation: 'portrait' }
         })
         .from(container)
         .save()
