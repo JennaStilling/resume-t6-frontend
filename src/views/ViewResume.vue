@@ -1,5 +1,4 @@
 <template>
-  <!-- This is the left side of the screen where you can select resume items to add on pdf -->
   <div class="resume-builder">
     <div class="resume-sidebar">
 
@@ -13,11 +12,11 @@
           placeholder="First Resume"
         />
         <button @click="saveResume">
-            <img :src="saveIcon" alt="save"/>
-          </button>
+            <img :src="saveIcon" alt="save" class="save-button"/>
+        </button>
         <button @click="downloadPDF">
             <img :src="downloadIcon" alt="download"/>
-          </button>
+        </button>
       </div>
 
       <!-- Dropdown Sections -->
@@ -46,7 +45,6 @@
               class="student-contact-info"
               @click="toggleCheckbox(item)"
             >
-            <!-- EXAMPLE: CS, Oklahoma Christian University [✓] -->
               <div class="student-contact-info-inner">
               <div
                 class="group-child"
@@ -58,7 +56,7 @@
                 <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
                 <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
                 <label class="custom-checkbox">
-                <input type="checkbox" v-model="item.isSelected" @click.stop />
+                <input type="checkbox" v-model="item.isSelected" />
                 <span class="checkmark"></span>
                 </label>
               </div>
@@ -69,16 +67,30 @@
           </div>
           </div>
         </div>
-    <!-- PDF Preview section -->
-    <div class="pdf-preview">
-        <iframe id="pdfPreview" ref="pdfPreview" width="700" height="100%"></iframe>
+        <div class="main-content">
+          <PreviewBar @tab-change="handleTabChange" />
+          <div class="pdf-preview" v-if="activeTab === 'preview'">
+            <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
+          </div>
+          <div v-if="activeTab === 'template'">      
+            <div class="template-list" width="100%" height="100%">
+              <div 
+                v-for="(template, index) in templates" 
+                :key="index" 
+                class="template-item" 
+                :class="{ active: template.name === selectedTemplate }">
+                <p class="template-name">{{ template.name }}</p>
+                <button @click="previewTemplate(template)" class="preview-button">Preview</button>
+              </div>
+            </div>
+          </div>
+      </div>
     </div>
-  </div>
 </template>
 
 
 <script>
-  // Services, etc...
+// Services, etc...
 import { ref, onMounted } from 'vue';
 import educationServices from '../services/educationServices.js';
 import experienceServices from '../services/experienceServices.js';
@@ -87,6 +99,7 @@ import skillServices from '../services/skillServices.js';
 import projectServices from '../services/projectServices.js';
 import Utils from '../config/utils';
 import html2pdf from 'html2pdf.js';
+import PreviewBar from '@/components/PreviewBar.vue';
 import resumeServices from '../services/resumeServices.js'
 import resumeEducationServices from '../services/resumeEducationServices.js';
 import resumeExperienceServices from '../services/resumeExperienceServices.js';
@@ -94,7 +107,7 @@ import resumeCertificationServices from '../services/resumeCertificationServices
 import resumeSkillServices from '../services/resumeSkillServices.js';
 import resumeProjectServices from '../services/resumeProjectServices.js';
 
- // Icons
+// Icons
 import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
 import downloadIcon from '@/assets/build-icons/download.png';
 import saveIcon from '@/assets/build-icons/saveIcon.png';
@@ -106,9 +119,19 @@ import certsIcon from '@/assets/build-icons/certs.png';
 import skillsIcon from '@/assets/build-icons/skills.png';
 import projectIcon from '@/assets/build-icons/project.png';
 
+import { loadTemplateOne } from '@/services/templates/templateOne.js';
+import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
 
 export default {
+  components: {
+    PreviewBar,
+  },
   setup() {
+    // const props = defineProps({
+    //   id: {
+    //     required: true,
+    //   },
+    // });
     const user = Utils.getStore('user');
     const studentId = ref(null);
     const resumeTitle = ref('');
@@ -116,7 +139,14 @@ export default {
       name: null,
       template_type: null
     });
-    const resumeId = ref(null);
+    const changeTemplateType = (type) => {
+      resume.value.template_type = type;
+    };
+    // Will be changed to props once student homepage is done
+    const path = window.location.pathname;
+    const match = path.match(/\/resume\/(\d+)$/);
+    const resumeId = ref(match ? Number(match[1]) : null);
+
     const isDropdownOpen = ref({
       education: false,
       experience: false,
@@ -143,9 +173,29 @@ export default {
       return sectionIcons[sectionKey] || '';
     };
 
+    const templates = ref([
+      { name: '01: Default', type: 1 },
+      { name: '02: Teal Template', type: 2 },
+      { name: '03: ', type: 3 },
+    ]);
+
+    const selectedTemplate = ref(templates.value[0].name);
+
+    const selectTemplate = (template) => {
+      selectedTemplate.value = template.name;
+    };
+
+    const previewTemplate = (template) => {
+      selectTemplate(template);
+      changeTemplateType(template.type);
+      // Switch back to the 'preview' tab
+      handleTabChange('preview');      
+    };
+
     onMounted(() => {
       Utils.getUser(Utils.getStore('user')).then(user => {
         studentId.value = user.studentId;
+        getResume();
         loadEducationData();
         loadExperienceData();
         loadCertificationData();
@@ -157,183 +207,125 @@ export default {
           iframe.addEventListener('load', () => {
             updatePDFPreview();
           });
-          updatePDFPreview(); 
+          updatePDFPreview();
         } else {
           console.error('Iframe not found');
         }
       });
     });
 
+    const activeTab = ref('preview');
+
+    function handleTabChange(tab) {
+      console.log('Tab changed to:', tab);
+      activeTab.value = tab;
+      if (tab === 'preview') {
+        setTimeout(() => {
+          const iframe = document.querySelector("iframe");
+          if (iframe) {
+            updatePDFPreview();
+          } else {
+            console.error('Iframe not found for PDF preview when handling tab change');
+          }
+        }, 0); // Delay for Document Object Model (DOM) to update
+      }
+    }
 
     const updatePDFPreview = () => {
       const iframe = document.querySelector("iframe");
       if (iframe) {
         let doc = iframe.contentWindow || iframe.contentDocument;
         if (doc.document) doc = doc.document;
-        doc.open();
-        doc.write(generatePDFContent());
-        doc.close();
+        try {
+          doc.open();
+          doc.write(generatePDFContent());
+          doc.close();
+        } catch (error) {
+          console.error('Error updating PDF preview:', error);
+        }
       } else {
-        console.error('updatePDFPreview does not work');
+        console.error('Iframe not found when updating');
       }
     };
-
 
     const generatePDFContent = () => {
-      const styles = `
-      .content { font-family: Arial, sans-serif; }
-      h1 { color: gray; }
-    `;
-      let content = `
-        <html>
-        <head>
-          <style>${styles}</style>
-        </head>
-          <body>
-            <div id="pdf-content" class="content">
-              <h1>${user.fName} ${user.lName}'s Resume</h1>
-              <p>Email: ${user.email}</p>
-      `;
+      const user = Utils.getStore('user');
+      const sections = dropdownSections.value;
 
-      // Add Education section
-      const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
-      if (selectedEducation.length) {
-        content += '<h2>Education</h2><ul>';
-        selectedEducation.forEach(item => {
-          const gpaText = Number.isInteger(item.gpa) ? `${item.gpa}.0` : item.gpa;
-          const formattedDate = item.graduation_date ? new Date(item.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-          content += `<li>${item.degree}, ${item.institution}, GPA: ${gpaText}, ${formattedDate}</li>`;
-        });
-        content += '</ul>';
+      switch (resume.value.template_type) {
+      case 1:
+        //console.log("Template 1");
+        return loadTemplateOne(user, sections);
+        break;
+      case 2:
+        //console.log("Template 2");
+        return loadTemplateTwo(user, sections);
+        break;
+      default:
+        //console.log("Default");
+        return loadTemplateOne(user, sections);
       }
-
-      // Add Experience section
-      const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
-      if (selectedExperience.length) {
-        content += '<h2>Experience</h2><ul>';
-        selectedExperience.forEach(item => {
-          const formattedDate = item.start_date ? new Date(item.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-          content += `<li>${item.role}, ${item.company}, ${formattedDate}</li>`;
-        });
-        content += '</ul>';
-      }
-
-      // Add Certifications section
-      const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
-      if (selectedCertifications.length) {
-        content += '<h2>Certifications</h2><ul>';
-        selectedCertifications.forEach(item => {
-          content += `<li>${item.name}, ${item.company}, ${item.date_acquired}</li>`;
-        });
-        content += '</ul>';
-      }
-
-      // Add Skills section
-      const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
-      if (selectedSkills.length) {
-        content += '<h2>Skills</h2><ul>';
-        selectedSkills.forEach(item => {
-          content += `<li>${item.name}</li>`;
-        });
-        content += '</ul>';
-      }
-
-      // Add Projects section
-      const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
-      if (selectedProjects.length) {
-        content += '<h2>Projects</h2><ul>';
-        selectedProjects.forEach(item => {
-          content += `<li>${item.name}, ${item.description}</li>`;
-        });
-        content += '</ul>';
-      }
-      content += `
-            </div>
-          </body>
-        </html>
-      `;
-      return content;
     };
 
-
-    const loadEducationData = () => {
-      educationServices.getAllEducations(studentId.value)
-        .then(response => {
-          dropdownSections.value.education.items = response.data.map(item => ({
-            ...item,
-            isSelected: false
-          }));
+    const getResume = () => {
+      resumeServices.getResume(studentId.value, resumeId.value)
+        .then((response) => {
+          resume.value = response.data;
         })
-        .catch(error => {
-          console.error("Failed to fetch education data:", error);
-        });
-    };
-
-
-    const loadExperienceData = () => {
-      experienceServices.getAllExperiences(studentId.value)
-        .then(response => {
-          dropdownSections.value.experience.items = response.data.map(item => ({
-            ...item,
-            isSelected: false
-          }));
+        .catch((error) => {
+          console.log("Could not retrieve resume: " + error);
         })
-        .catch(error => {
-          console.error("Failed to fetch experience data:", error);
-        });
+    }
+
+    // Loads all the section data
+    const loadData = (service, sectionKey, resumeService) => {
+      service(studentId.value)
+      .then(response => {
+        dropdownSections.value[sectionKey].items = response.data.map(item => ({
+        ...item,
+        isSelected: false
+        }));
+        resumeService(resumeId.value)
+          .then((response) => {
+            response.data.forEach(item => {
+              dropdownSections.value[sectionKey].items.forEach(obj => {
+                if (sectionKey === "education") if(obj.id === item.educationId) obj.isSelected = true;
+                if (sectionKey === "experience") if(obj.id === item.experienceId) obj.isSelected = true;
+                if (sectionKey === "certifications") if(obj.id === item.certificationId) obj.isSelected = true;
+                if (sectionKey === "skills") if(obj.id === item.skillId) obj.isSelected = true;
+                if (sectionKey === "projects") if(obj.id === item.projectId) obj.isSelected = true;
+              })
+            });
+            updatePDFPreview();
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      })
+      .catch(error => {
+        console.error(`Failed to fetch ${sectionKey} data:`, error);
+      });
     };
 
-
-    const loadCertificationData = () => {
-      certificationServices.getAllCertifications(studentId.value)
-        .then(response => {
-          dropdownSections.value.certifications.items = response.data.map(item => ({
-            ...item,
-            isSelected: false
-          }));
-        })
-        .catch(error => {
-          console.error("Failed to fetch certification data:", error);
-        });
-    };
-
-
-    const loadSkillData = () => {
-      skillServices.getAllSkills(studentId.value)
-        .then(response => {
-          dropdownSections.value.skills.items = response.data.map(item => ({
-            ...item,
-            isSelected: false
-          }));
-        })
-        .catch(error => {
-          console.error("Failed to fetch skills data:", error);
-        });
-    };
-
-
-    const loadProjectData = () => {
-      projectServices.getAllProjects(studentId.value)
-        .then(response => {
-          dropdownSections.value.projects.items = response.data.map(item => ({
-            ...item,
-            isSelected: false
-          }));
-        })
-        .catch(error => {
-          console.error("Failed to fetch project data:", error);
-        });
-    };
-
+    const loadEducationData = () => loadData(educationServices.getAllEducations, 'education', resumeEducationServices.getAllResumeEducations);
+    const loadExperienceData = () => loadData(experienceServices.getAllExperiences, 'experience', resumeExperienceServices.getAllResumeExperiences);
+    const loadCertificationData = () => loadData(certificationServices.getAllCertifications, 'certifications', resumeCertificationServices.getAllResumeCertifications);
+    const loadSkillData = () => loadData(skillServices.getAllSkills, 'skills', resumeSkillServices.getAllResumeSkills);
+    const loadProjectData = () => loadData(projectServices.getAllProjects, 'projects', resumeProjectServices.getAllResumeProjects);
 
     const toggleDropdown = (sectionKey) => {
       isDropdownOpen.value[sectionKey] = !isDropdownOpen.value[sectionKey];
     };
 
-
     const toggleCheckbox = (item) => {
       item.isSelected = !item.isSelected;
-      updatePDFPreview(); // Update PDF preview when an item is selected/deselected
+      //console.log("Item selected in toggle checkbox:", item);
+      updatePDFPreview(); 
     };
 
     const downloadPDF = () => {
@@ -348,11 +340,10 @@ export default {
       // Use html2pdf to generate and download the PDF
       html2pdf()
         .set({
-          margin: 1,
+          margin: 3,
           filename: resumeTitle.value || `${user.fName}_${user.lName}_Resume.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+          jsPDF: { orientation: 'portrait' }
         })
         .from(container)
         .save()
@@ -361,19 +352,14 @@ export default {
         });
     };
 
-    const formatDate = (date) => {
-      return date ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-    };
-
-
     function saveResume() {
       resume.value.name = resumeTitle;
-      resume.value.template_type = 1;
+      //resume.value.template_type = 1;
 
-      resumeServices.createResume(studentId.value, resume.value)
+      resumeServices.updateResume(studentId.value, resumeId.value, resume.value)
         .then((res) => {
           resumeId.value = res.data.id;
-          addResumeInfo();
+          updateResumeInfo();
           // Should reroute to student homepage
         })
         .catch((error) => {
@@ -386,12 +372,19 @@ export default {
         });
     }
 
-    function addResumeInfo() {
+    function updateResumeInfo() {
       const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
       const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
       const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
       const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
       const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
+
+      deleteResumeData(resumeEducationServices.deleteAllResumeEducations);
+      deleteResumeData(resumeExperienceServices.deleteAllResumeExperiences);
+      deleteResumeData(resumeCertificationServices.deleteAllResumeCertifications);
+      deleteResumeData(resumeSkillServices.deleteAllResumeSkills);
+      deleteResumeData(resumeProjectServices.deleteAllResumeProjects);
+
 
       selectedEducation.forEach(item => {
           resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
@@ -469,6 +462,15 @@ export default {
         });
     }
 
+    const deleteResumeData = (service) => {
+      service(resumeId.value)
+        .then(() => {
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+
     return {
       studentId,
       isDropdownOpen,
@@ -484,7 +486,13 @@ export default {
       getSectionIcon,
       downloadPDF,
       saveResume,
-      resumeTitle
+      resumeTitle,
+      activeTab,
+      handleTabChange,
+      templates,
+      selectedTemplate,
+      selectTemplate,
+      previewTemplate
     };
   }
 };
@@ -493,16 +501,4 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
-
-.pdf-preview {
-  margin-left: 70px;
-  padding: 10px;
-  background-color: #f3f3f3;
-  max-width: 100%;
-  height: 100vh;
-  overflow: auto;
-  border: 1px solid #ccc;
-  font-size: 20px;
-  margin-top: 20px;
-}
 </style>
