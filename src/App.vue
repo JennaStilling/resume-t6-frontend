@@ -1,47 +1,65 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div id="app">
+    <Header />
+    <!-- Show NavBar only if the current route should have it -->
+    <NavBar v-if="showNavBar" :currentTab="currentTab" />
+    <router-view></router-view>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script>
+import Header from './components/Header.vue';
+import NavBar from './components/NavBar.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+export default {
+  components: {
+    Header,
+    NavBar,
+  },
+  setup() {
+    const route = useRoute();
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+    // Define a mapping of specific base paths to tab names
+    const routeToTabName = {
+      '/contact-info': 'Contact Info',
+      '/education': 'Education',
+      '/experience': 'Experience',
+      '/certifications': 'Certifications',
+      '/skills': 'Skills',
+      '/project': 'Project'
+    };
+    
+    // Check if the current route is the root home page
+    const isHomePage = computed(() => route.path === '/');
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+    // Determine the current tab based on route path
+    const currentTab = computed(() => {
+      const basePath = Object.keys(routeToTabName).find(path => route.path.startsWith(path));
+      return routeToTabName[basePath] || ''; 
+    });
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+    // Determine if the NavBar should be shown
+    const showNavBar = computed(() => {
+      return currentTab.value !== '';
+    });
+
+    return {
+      isHomePage,
+      currentTab,
+      showNavBar
+    };
+  },
+};
+</script>
+
+<style>
+#app {
+  font-family: 'Helvetica', sans-serif;
+  flex-direction: column;
+  height: min-content;
+  background-color: #021E2C;
+  overflow: hidden;
 }
 </style>
