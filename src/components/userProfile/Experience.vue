@@ -15,7 +15,7 @@
               <div class="icon-buttons">
                 <!-- Edit icon for entry -->
                 <img src="@/assets/list-elements/edit-list-item.png" alt="Edit" class="icon"
-                  @click.stop="editEntry(index)" />
+                  @click.stop="editEntry(item)" />
                 <!-- Delete icon for entry -->
                 <img src="@/assets/list-elements/delete-list-item.png" alt="Delete" class="icon"
                   @click.stop="showDeleteConfirmation(item)" />
@@ -45,14 +45,14 @@
           <span class="mandatory">*</span>
         </div>
 
-        <!-- Graduation date input field -->
+        <!-- Start date input field -->
         <div class="text-field-with-title">
           <label for="start_date" class="field-label">START DATE</label>
           <input type="date" id="start_date" v-model="formData.start_date" class="text-field" required />
           <span class="mandatory">*</span>
         </div>
 
-        <!-- Graduation date input field -->
+        <!-- End date input field -->
         <div class="text-field-with-title">
           <label for="end_date" class="field-label">END DATE</label>
           <input type="date" id="end_date" v-model="formData.end_date" class="text-field" required />
@@ -128,6 +128,8 @@ const user = Utils.getStore("user");
 const studentId = ref();
 const experiences = ref(null);
 
+const errors = ref({});
+
 onMounted(() => {
   Utils.getUser(user).then(value => {
     studentId.value = value.studentId;
@@ -141,8 +143,10 @@ const formData = ref({
   company: '',
   start_date: '',
   end_date: '',
-  job_description: '',
+  job_description: ''
 })
+
+const currentExperience = ref(null);
 const displayDelete = ref(false);
 const deleteError = ref(false);
 const experienceToDelete = ref(null);
@@ -157,8 +161,14 @@ function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
-function editEntry(index) {
+function editEntry(item) {
   router.push({ path: `/experience/edit/` });
+  currentExperience.value = item.id;
+  formData.value.role = item.role;
+  formData.value.company = item.company;
+  formData.value.start_date = item.start_date;
+  formData.value.end_date = item.end_date;
+  formData.value.job_description = item.job_description;
 }
 
 function showDeleteConfirmation(item) {
@@ -181,9 +191,28 @@ function deleteExperience() {
 
 function saveChanges() {
   if (route.path.includes('/experience/edit/')) {
-    //save
-  }
-  else {
+    experienceServices.updateExperience(studentId.value, currentExperience.value, formData.value)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        if (error.response != null && error.response.status == "406") {
+        for(let obj in errors.value) {
+          errors.value[obj] = '*'
+        }
+        for (let obj of error.response.data) {
+          if (obj.attributeName === undefined) {
+            obj.attributeName = "idNumber";
+          }
+          errors.value[obj.attributeName] = obj.message;
+        }
+      } else {
+        console.log(error);
+        console.log(error);
+      }
+      });
+      router.push('/experience');
+  } else {
     experienceServices.createExperience(studentId.value, formData.value)
       .then(() => {
         window.location.reload();
