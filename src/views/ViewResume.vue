@@ -143,7 +143,10 @@ export default {
       resume.value.template_type = type;
     };
     // Will be changed to props once student homepage is done
-    const resumeId = ref(1);
+    const path = window.location.pathname;
+    const match = path.match(/\/resume\/(\d+)$/);
+    const resumeId = ref(match ? Number(match[1]) : null);
+
     const isDropdownOpen = ref({
       education: false,
       experience: false,
@@ -282,7 +285,7 @@ export default {
         ...item,
         isSelected: false
         }));
-        resumeService(1)
+        resumeService(resumeId.value)
           .then((response) => {
             response.data.forEach(item => {
               dropdownSections.value[sectionKey].items.forEach(obj => {
