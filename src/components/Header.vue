@@ -6,13 +6,20 @@
       </router-link>
       <div class="title">Your AI resume builder</div>
     </div>
+
+    <div class="nav-menu">
+      <img src="/src/assets/down-arrow.png" alt="drop-down icon" class="user-icon" @click="toggleNav" />
+      <div v-if="navOpen" class="dropdown-menu-nav">
+        <ul>
+          <li @click="updateHomePage('Student')">Student Home</li>
+          <li @click="updateHomePage('Reviewer')">Reviewer Home</li>
+          <li @click="updateHomePage('Admin')">Faculty Home</li>
+        </ul>
+      </div>
+    </div>
+
     <div class="user-menu">
-      <img
-        src="/src/assets/userIcon.png"
-        alt="User"
-        class="user-icon"
-        @click="toggleMenu"
-      />
+      <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleMenu" />
       <div v-if="menuOpen" class="dropdown-menu">
         <ul>
           <li @click="updateProfile">Update Profile</li>
@@ -34,6 +41,7 @@ const initials = ref("");
 const name = ref("");
 const menuOpen = ref(false);
 const router = useRouter();
+const navOpen = ref(false);
 
 // Load user data if available
 user.value = Utils.getStore("user");
@@ -48,11 +56,31 @@ const toggleMenu = () => {
   menuOpen.value = !menuOpen.value;
 };
 
+const toggleNav = () => {
+  navOpen.value = !navOpen.value;
+  console.log(navOpen.value)
+}
+
 // Navigate to the profile update page
 const updateProfile = () => {
   router.push("/contact-info");
   menuOpen.value = false;
 };
+
+const updateHomePage = (loc) => {
+  if (loc === 'Student') {
+    console.log("Student");
+    router.push({ name: "studentHome" });
+  }
+  else if (loc === 'Reviewer') {
+    console.log("Reiviwer")
+    router.push({ name: "reviewerHome" });
+  }
+  else if (loc === 'Admin') {
+    console.log("Admin")
+    router.push({ name: "adminHome" });
+  }
+}
 
 // Log out the current user
 const signOut = () => {
@@ -100,6 +128,10 @@ const signOut = () => {
   position: relative;
 }
 
+.nav-menu {
+  position: relative;
+}
+
 .user-icon {
   width: 50px;
   height: auto;
@@ -131,6 +163,33 @@ const signOut = () => {
 }
 
 .dropdown-menu li:hover {
+  background-color: #8f042d;
+}
+
+.dropdown-nav-menu {
+  position: absolute;
+  right: 0;
+  background-color: #65001F;
+  z-index: 1000;
+  color: white;
+  border: 1px solid #53011a;
+  box-shadow: 0 8px 16px rgba(182, 8, 8, 0.2);
+  width: 150px;
+}
+
+.dropdown-nav-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-nav-menu li {
+  padding: 10px;
+  border-bottom: 1px solid #53011a;
+  cursor: pointer;
+}
+
+.dropdown-nav-menu li:hover {
   background-color: #8f042d;
 }
 </style>
