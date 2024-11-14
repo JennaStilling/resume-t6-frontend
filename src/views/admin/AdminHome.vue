@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import UserServices from "../../services/userServices";
+import UserRoleServices from "../../services/userRoleServices";
 import StudentServices from "../../services/studentServices";
+import RoleServices from "../../services/roleServices";
 
 const users = ref([]);
 const user = ref(null);
@@ -16,6 +18,22 @@ const filterType = ref("Reviewers");
 const headers = [
     { text: "Name", value: "name", align: "start" },
 ];
+const roles = ref([])
+const userRoles = ref([])
+var userSpecificRole = ref("")
+
+const getAllRoles = () => {
+    RoleServices.getAllRoles()
+        .then((res) => {
+            roles.value = res.data;
+            message.value = "";
+        })
+        .catch((err) => {
+            message.value = "Error: " + err.code + ":" + err.message;
+            console.log(err);
+        });
+}
+getAllRoles();
 
 const getUsers = () => {
     UserServices.getAllUsers()
@@ -56,10 +74,12 @@ const deleteDisplay = (item) => {
     showDeleteItem.value = true;
 };
 
-const userDataDisplay = (item) => {
+const userDataDisplay = async (item) => {
     user.value = item;
     showUserInfo.value = true;
+    await getUserRoles(item.id);
 };
+
 
 const filteredUsers = computed(() => {
     const searchTerm = search.value.toLowerCase();
@@ -94,6 +114,43 @@ const handleReviewerChange = () => {
     console.log("Reviewer access toggled:", hasReviewerAccess.value);
 }
 
+const determineReviewerStatus = (item) => {
+    var v = getUserRoles(item.id);
+    console.log(v);
+   // console.log("Has reviewer: " + v.includes('reviewer'));
+}
+
+const getAllUserRoles = async (uId, r) => {
+        const res = await UserRoleServices.getAllUserRoles(uId, r.id);
+        const userSpecificRole = res.data;
+        if (userSpecificRole[0] && r.id === userSpecificRole[0].roleId) {
+            return r.role_type;
+        }
+        return null;
+};
+
+const getUserRoles = async (userId) => {
+    let roleList = '';
+    const rolePromises = roles.value.map(async (role) => {
+        const roleType = await getAllUserRoles(userId, role);
+        return roleType;
+    });
+
+    const roleTypes = await Promise.all(rolePromises);
+    const filteredRoles = roleTypes.filter((roleType) => 
+        roleType !== null);
+    roleList = filteredRoles.join(', ');
+
+    return roleList;
+};
+
+onMounted(async () => {
+    // if (user.value.id) {
+    //     const userRoles = await getUserRoles(user.value.id);
+    // }
+});
+
+
 getAllStudents();
 getUsers();
 </script>
@@ -119,7 +176,7 @@ getUsers();
             <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
                 :items-per-page="filteredUsers.length" hide-default-footer>
                 <template #item.name="{ item }">
-                    <span @click="userDataDisplay(item)">
+                    <span @click="userDataDisplay(item); determineReviewerStatus(item)">
                         {{ item.fName + " " + item.lName }}
                     </span>
                 </template>
@@ -143,6 +200,9 @@ getUsers();
                         </v-col>
                         <v-col cols="12">
                             <strong>Email:</strong> {{ user.email }}
+                        </v-col>
+                        <v-col cols="12">
+                            <strong>Roles:</strong> {{ getUserRoles(user.id) || 'Loading roles...' }}
                         </v-col>
                         <v-col cols="12">
                             <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
