@@ -7,34 +7,47 @@
               {{ navItems[0].name }}
             </button>
           </li>
-          <li v-for="item in navItems.slice(1)" :key="item.id" @click="selectItem(item)">
+          <li v-for="item in navItems.slice(1)" :key="item.name" @click="selectItem(item)">
             {{ item.name }}
           </li>
         </ul>
       </nav>
-      <div class="content">
-        <h2>Selected Item: {{ selectedItem?.name }}</h2>
-      </div>
     </div>
 </template>
   
 <script>
+  import { ref } from "vue";
+  import { useRouter } from 'vue-router';
+  // import Utils from '@/config/utils.js';
+
   export default {
-    data() {
+    setup() {
+      const router = useRouter();
+
+      const navItems = [
+        { name: 'Start a New Resume' },
+        { name: 'My Home' },
+        { name: 'Start a New Resume' }, // Duplicate item
+        { name: 'Request Resume Review' },
+        { name: 'Resume Templates' }
+    ]
+
+      const selectItem = (item) => {
+        if (item.name === "Start a New Resume") {
+          router.push({ name: 'addResume' })
+        } else if (item.name === 'My Home') {
+          router.push('/')
+        } else if (item.name === 'Request Resume Review') {
+          router.push({ name: 'reviewResume' })
+        } else if (item.name === 'Resume Templates') {
+          router.push({ name: 'resumeTemplates' })
+        }
+      }
+
       return {
-        navItems: [
-          { id: 1, name: 'Start a New Resume' },
-          { id: 2, name: 'My Dashboard' },
-          { id: 3, name: 'Request Resume Review' },
-          { id: 4, name: 'Resume Templates' },
-        ],
-        selectedItem: null,
-      };
-    },
-    methods: {
-      selectItem(item) {
-        this.selectedItem = item;
-      },
+        navItems,
+        selectItem
+      }
     },
   };
 </script>

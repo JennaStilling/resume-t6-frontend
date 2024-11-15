@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@syncfusion/ej2-vue-dropdowns": "^27.1.58",
     "axios": "^1.7.7",
     "cross-env": "^7.0.3",
     "pinia": "^2.2.4",
+    "v-dropdown": "^3.0.0",
     "vite-plugin-vuetify": "^2.0.4",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5",
