@@ -34,21 +34,6 @@
                 <img src="/src/assets/add-icon.png" alt="Start Resume" 
                   :class="{ 'cursor-pointer': isActive }" style="display: block; margin: auto;" @click="createResume"/>
             </div>
-<!--   
-            <div v-if="selectedItem?.name === 'My Home'">
-                Other dashboard content can go here
-            </div>
-  
-            <div v-if="selectedItem?.name === 'Request Resume Review'">
-                Resume review content here
-                 Is going to be a modal for whenever you click on a resume on the home page
-            </div>
-
-            <div v-if="selectedItem?.name === 'Resume Templates'">
-                Resume review content here
-                 Will take you to see page that shows the resume templates available
-            </div> 
--->
         </div>
     </div>
   </template>

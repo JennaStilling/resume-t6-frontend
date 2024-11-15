@@ -7,7 +7,7 @@
               {{ navItems[0].name }}
             </button>
           </li>
-          <li v-for="item in navItems.slice(1)" :key="item.name" @click="selectItem(item)">
+          <li v-for="item in navItems.slice(1)" :key="item.name" @click="selectItem(item)" :class="{ 'cursor-pointer': isActive }">
             {{ item.name }}
           </li>
         </ul>
@@ -15,41 +15,33 @@
     </div>
 </template>
   
-<script>
+<script setup>
   import { ref } from "vue";
   import { useRouter } from 'vue-router';
   // import Utils from '@/config/utils.js';
 
-  export default {
-    setup() {
-      const router = useRouter();
+  const router = useRouter();
+  const isActive = ref(true);
 
-      const navItems = [
-        { name: 'Start a New Resume' },
-        { name: 'My Home' },
-        { name: 'Start a New Resume' }, // Duplicate item
-        { name: 'Request Resume Review' },
-        { name: 'Resume Templates' }
-    ]
+  const navItems = [
+    { name: 'Start a New Resume' },
+    { name: 'My Home' },
+    { name: 'Request Resume Review' },
+    { name: 'Resume Templates' }
+  ]
 
-      const selectItem = (item) => {
-        if (item.name === "Start a New Resume") {
-          router.push({ name: 'addResume' })
-        } else if (item.name === 'My Home') {
-          router.push('/')
-        } else if (item.name === 'Request Resume Review') {
-          router.push({ name: 'reviewResume' })
-        } else if (item.name === 'Resume Templates') {
-          router.push({ name: 'resumeTemplates' })
-        }
-      }
-
-      return {
-        navItems,
-        selectItem
-      }
-    },
-  };
+  const selectItem = (item) => {
+    if (item.name === "Start a New Resume") {
+      router.push({ name: 'addResume' });
+    } else if (item.name === 'My Home') {
+      router.push('/');
+      // This needs to be changed for taking into account Student Roles and going to StudentHome
+    } else if (item.name === 'Request Resume Review') {
+      router.push({ name: 'reviewResume' });
+    } else if (item.name === 'Resume Templates') {
+      router.push({ name: 'resumeTemplates' });
+    }
+  }
 </script>
   
 <style scoped>
@@ -95,5 +87,9 @@
   .content {
     padding: 20px; /* Padding for the content area */
     flex-grow: 1; /* Take up remaining space */
+  }
+
+  .cursor-pointer {
+  cursor: pointer;
   }
 </style>
