@@ -24,16 +24,12 @@
 
 <script setup>
 import { ref, inject, onMounted } from 'vue';
-import resumeServices from '../services/resumeServices.js';
 import Utils from '../config/utils';
 
 const cohereClient = inject('cohereClient');
 
-const data = ref(null);
 const user = Utils.getStore("user");
 const studentId = ref();
-
-const resumeData = ref(null);
 
 const result = ref(null);
 const loading = ref(false);
@@ -51,7 +47,6 @@ onMounted(
 async function cohereRequest() {
   try {
     loading.value = true;
-    getFirstResumes();
     const response = await cohereClient.chat({
       message: resume,
       model: "command-r-08-2024",
@@ -63,27 +58,6 @@ async function cohereRequest() {
   } finally {
     loading.value = false;
   }
-}
-
-const getFirstResumes = () => {
-  resumeServices.getResume(studentId.value, 1)
-    .then((res) => {
-      resumeData.value = res.data;
-      console.log(resumeData.value);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
-
-const getResumes = () => {
-  resumeServices.getAllResumes(studentId.value)
-    .then((res) => {
-      resumeData.value = res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 }
 </script>
 
