@@ -7,7 +7,7 @@
       <div class="title">OC resume builder</div>
     </div>
 
-    <div class="nav-menu">
+    <!-- <div class="nav-menu">
       <img src="/src/assets/down-arrow.png" alt="drop-down icon" class="user-icon" @click="toggleNav" />
       <div v-if="navOpen" class="dropdown-menu-nav">
         <ul>
@@ -16,7 +16,17 @@
           <li @click="updateHomePage('Admin')">Faculty Home</li>
         </ul>
       </div>
+    </div> -->
+    <div class="nav-menu">
+      <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleNav" />
+      <div v-if="menuOpen" class="dropdown-menu">
+        <ul>
+          <li @click="updateProfile">Update Profile</li>
+          <li @click="signOut">Sign Out</li>
+        </ul>
+      </div>
     </div>
+
 
     <div class="user-menu">
       <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleMenu" />

@@ -18,7 +18,6 @@ import Logout from './views/LogoutTest.vue';
 import AdminHomePage from './views/admin/AdminHome.vue';
 import ReviewerHomePage from './views/reviewer/ReviewerHome.vue';
 import StudentHome from './views/StudentHome.vue'
-import StudentHome from './views/StudentHome.vue'
 import Cohere from './views/CohereTest.vue';
 
 // Define routes
