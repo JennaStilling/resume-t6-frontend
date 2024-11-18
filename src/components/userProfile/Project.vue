@@ -58,7 +58,7 @@
       <!-- Navigation buttons -->
       <div class="navigation-buttons">
         <button class="nav-button" @click="goBack">BACK</button>
-        <button class="nav-button" @click="goNext">NEXT?</button>
+        <button class="create-resume-button" @click="goNext">CREATE RESUME</button>
       </div>
     </div>
 
@@ -210,7 +210,7 @@ function goBack() {
 }
 
 function goNext() {
-  router.push('/');
+  router.push('/add');
 }
 
 const getProject = () => {
@@ -226,4 +226,26 @@ const getProject = () => {
 
 <style>
 @import '@/assets/dark-mode.css';
+
+.create-resume-button {
+  background-color: #118acb;
+  width: 320px;
+  height: 73px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold; 
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.25); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: none; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
+.create-resume-button:hover {
+  background-color: #28a745;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); 
+}
 </style>
