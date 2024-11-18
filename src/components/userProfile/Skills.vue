@@ -154,7 +154,7 @@ const skillToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/skills/edit/') ? 'SAVE CHANGES' : 'ADD SKILL';
+  return route.path.includes('/skills/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
