@@ -55,7 +55,7 @@ export default {
   display: flex;
   justify-content: space-around;
   padding: 10px;
-  width: 70%;
+  width: 100%;
   position: relative;
   font-size: 3px;
 }

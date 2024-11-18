@@ -35,11 +35,26 @@
   <style scoped>
   .menu {
     list-style-type: none;
-    padding: 0;
+    padding: 2;
   }
   
   .menu-item {
-    margin: 10px 0;
+    margin: 10px 2%;
+    font-size: 50px;
+  }
+  
+  .menu-item a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .menu-item a:hover {
+    text-decoration: underline;
+  }
+  
+  .menu-item .router-link-active {
+    font-weight: bold;
+    text-decoration: underline;
   }
   
   .header {
@@ -47,4 +62,4 @@
     font-weight: bold;
     font-size: 1.2em;
   }
-  </style>  
+  </style>

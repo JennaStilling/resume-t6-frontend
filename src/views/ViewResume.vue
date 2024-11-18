@@ -5,93 +5,88 @@
       <!-- Title Section -->
       <div class="title-section">
         <label for="resumeTitle" class="title-label">Title:</label>
-        <input
-          v-model="resumeTitle"
-          id="resumeTitle"
-          class="title-input"
-          placeholder="First Resume"
-        />
+        <input v-model="resumeTitle" id="resumeTitle" class="title-input" placeholder="First Resume" />
         <button @click="saveResume">
-            <img :src="saveIcon" alt="save" class="save-button"/>
+          <img :src="saveIcon" alt="save" class="save-button" />
         </button>
         <button @click="downloadPDF">
-            <img :src="downloadIcon" alt="download"/>
+          <img :src="downloadIcon" alt="download" />
         </button>
       </div>
 
       <!-- Dropdown Sections -->
       <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
         <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
-          <img
-            class="section-icon"
-            :src="getSectionIcon(sectionKey)"
-            :alt="`${section.label} Icon`"
-          />
+          <img class="section-icon" :src="getSectionIcon(sectionKey)" :alt="`${section.label} Icon`" />
           <span style="text-transform: capitalize;">{{ sectionKey }}</span>
-          <img
-            class="arrow-icon"
-            :src="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon"
-            alt="arrow"
-          />
+          <img class="arrow-icon" :src="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon" alt="arrow" />
         </div>
 
         <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
 
-            <!-- Gets all the Section info -->
-            <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
-            <div
-              v-for="(item, index) in dropdownSections[sectionKey].items"
-              :key="index"
-              class="student-contact-info"
-              @click="toggleCheckbox(item)"
-            >
+          <!-- Gets all the Section info -->
+          <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
+            <div v-for="(item, index) in dropdownSections[sectionKey].items" :key="index" class="student-contact-info"
+              @click="toggleCheckbox(item)">
               <div class="student-contact-info-inner">
-              <div
-                class="group-child"
-                :class="{ 'selected': item.isSelected }"
-              >
-                <p v-if="sectionKey === 'education'">{{ item.degree }}, {{ item.institution }}</p>
-                <p v-else-if="sectionKey === 'experience'">{{ item.role }}, {{ item.company }}</p>
-                <p v-else-if="sectionKey === 'certifications'">{{ item.name }}, {{ item.company }}</p>
-                <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
-                <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
-                <label class="custom-checkbox">
-                <input type="checkbox" v-model="item.isSelected" />
-                <span class="checkmark"></span>
-                </label>
-              </div>
+                <div class="group-child" :class="{ 'selected': item.isSelected }">
+                  <p v-if="sectionKey === 'education'">{{ item.degree }}, {{ item.institution }}</p>
+                  <p v-else-if="sectionKey === 'experience'">{{ item.role }}, {{ item.company }}</p>
+                  <p v-else-if="sectionKey === 'certifications'">{{ item.name }}, {{ item.company }}</p>
+                  <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
+                  <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" v-model="item.isSelected" />
+                    <span class="checkmark"></span>
+                  </label>
+                </div>
               </div>
             </div>
-            </div>
-            <p v-else>No {{ sectionKey }} data available.</p>
           </div>
-          </div>
+          <p v-else>No {{ sectionKey }} data available.</p>
         </div>
-        <div class="main-content">
-          <PreviewBar @tab-change="handleTabChange" />
-          <div class="pdf-preview" v-if="activeTab === 'preview'">
-            <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
-          </div>
-          <div v-if="activeTab === 'template'">      
-            <div class="template-list" width="100%" height="100%">
-              <div 
-                v-for="(template, index) in templates" 
-                :key="index" 
-                class="template-item" 
-                :class="{ active: template.name === selectedTemplate }">
-                <p class="template-name">{{ template.name }}</p>
-                <button @click="previewTemplate(template)" class="preview-button">Preview</button>
-              </div>
-            </div>
-          </div>
       </div>
     </div>
+    <div class="main-content">
+      <EditBar @tab-change="handleTabChange" />
+      <div class="pdf-preview" v-if="activeTab === 'preview'">
+        <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
+      </div>
+      <div v-if="activeTab === 'template'">
+        <div class="template-list" width="100%" height="100%">
+          <div v-for="(template, index) in templates" :key="index" class="template-item"
+            :class="{ active: template.name === selectedTemplate }">
+            <p class="template-name">{{ template.name }}</p>
+            <button @click="previewTemplate(template)" class="preview-button">Preview</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-tab" width="100%" height="100%" v-if="activeTab === 'ai'">
+        <div>
+          Job Description
+          <div class="text-field-with-title">
+            <label for="degree" class="field-label">Job Description</label>
+            <textarea v-model="jobDescription" rows="3" class="text-field"></textarea>
+            <span class="mandatory">*</span>
+          </div>
+          <div>
+            <div class="text-field-with-title">
+              <label for="degree" class="field-label">Suggestion</label>
+              <textarea v-model="result" rows="20" class="text-field" readonly></textarea>
+              <span class="mandatory">*</span>
+            </div>
+          </div>
+          <div @click="cohereRequest()" class="nav-button">Cohere</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 
 <script>
 // Services, etc...
-import { ref, onMounted } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import educationServices from '../services/educationServices.js';
 import experienceServices from '../services/experienceServices.js';
 import certificationServices from '../services/certificationServices.js';
@@ -121,10 +116,11 @@ import projectIcon from '@/assets/build-icons/project.png';
 
 import { loadTemplateOne } from '@/services/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
+import EditBar from '@/components/EditBar.vue';
 
 export default {
   components: {
-    PreviewBar,
+    EditBar,
   },
   setup() {
     // const props = defineProps({
@@ -189,7 +185,7 @@ export default {
       selectTemplate(template);
       changeTemplateType(template.type);
       // Switch back to the 'preview' tab
-      handleTabChange('preview');      
+      handleTabChange('preview');
     };
 
     onMounted(() => {
@@ -253,17 +249,17 @@ export default {
       const sections = dropdownSections.value;
 
       switch (resume.value.template_type) {
-      case 1:
-        //console.log("Template 1");
-        return loadTemplateOne(user, sections);
-        break;
-      case 2:
-        //console.log("Template 2");
-        return loadTemplateTwo(user, sections);
-        break;
-      default:
-        //console.log("Default");
-        return loadTemplateOne(user, sections);
+        case 1:
+          //console.log("Template 1");
+          return loadTemplateOne(user, sections);
+          break;
+        case 2:
+          //console.log("Template 2");
+          return loadTemplateTwo(user, sections);
+          break;
+        default:
+          //console.log("Default");
+          return loadTemplateOne(user, sections);
       }
     };
 
@@ -280,36 +276,36 @@ export default {
     // Loads all the section data
     const loadData = (service, sectionKey, resumeService) => {
       service(studentId.value)
-      .then(response => {
-        dropdownSections.value[sectionKey].items = response.data.map(item => ({
-        ...item,
-        isSelected: false
-        }));
-        resumeService(resumeId.value)
-          .then((response) => {
-            response.data.forEach(item => {
-              dropdownSections.value[sectionKey].items.forEach(obj => {
-                if (sectionKey === "education") if(obj.id === item.educationId) obj.isSelected = true;
-                if (sectionKey === "experience") if(obj.id === item.experienceId) obj.isSelected = true;
-                if (sectionKey === "certifications") if(obj.id === item.certificationId) obj.isSelected = true;
-                if (sectionKey === "skills") if(obj.id === item.skillId) obj.isSelected = true;
-                if (sectionKey === "projects") if(obj.id === item.projectId) obj.isSelected = true;
-              })
+        .then(response => {
+          dropdownSections.value[sectionKey].items = response.data.map(item => ({
+            ...item,
+            isSelected: false
+          }));
+          resumeService(resumeId.value)
+            .then((response) => {
+              response.data.forEach(item => {
+                dropdownSections.value[sectionKey].items.forEach(obj => {
+                  if (sectionKey === "education") if (obj.id === item.educationId) obj.isSelected = true;
+                  if (sectionKey === "experience") if (obj.id === item.experienceId) obj.isSelected = true;
+                  if (sectionKey === "certifications") if (obj.id === item.certificationId) obj.isSelected = true;
+                  if (sectionKey === "skills") if (obj.id === item.skillId) obj.isSelected = true;
+                  if (sectionKey === "projects") if (obj.id === item.projectId) obj.isSelected = true;
+                })
+              });
+              updatePDFPreview();
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
             });
-            updatePDFPreview();
-          })
-          .catch((error) => {
-            if (error.response && error.response.status === 406) {
-              message.value = "Error: " + error.code + ":" + error.message;
-              console.log(error);
-            } else {
-              console.log(error);
-            }
-          });
-      })
-      .catch(error => {
-        console.error(`Failed to fetch ${sectionKey} data:`, error);
-      });
+        })
+        .catch(error => {
+          console.error(`Failed to fetch ${sectionKey} data:`, error);
+        });
     };
 
     const loadEducationData = () => loadData(educationServices.getAllEducations, 'education', resumeEducationServices.getAllResumeEducations);
@@ -325,7 +321,7 @@ export default {
     const toggleCheckbox = (item) => {
       item.isSelected = !item.isSelected;
       //console.log("Item selected in toggle checkbox:", item);
-      updatePDFPreview(); 
+      updatePDFPreview();
     };
 
     const downloadPDF = () => {
@@ -370,6 +366,31 @@ export default {
             console.log(error);
           }
         });
+
+    }
+    const cohereClient = inject('cohereClient');
+
+    const loading = ref(false);
+
+    const jobDescription = ref(null);
+    const result = ref(null);
+
+    async function cohereRequest() {
+      try {
+        loading.value = true;
+
+        const response = await cohereClient.chat({
+          message: generatePDFContent(),
+          model: "command-r-08-2024",
+          //preamble: "You are an AI-assistant chatbot. You are trained to assist users by analyzing their resume. You will provide a concise list of recommendations to improve their resumes. Users will send their resumes in html."
+          preamble: "can you give me the resume information in the html"
+        });
+        result.value = response.text;
+      } catch (error) {
+        console.log(error)
+      } finally {
+        loading.value = false;
+      }
     }
 
     function updateResumeInfo() {
@@ -387,7 +408,7 @@ export default {
 
 
       selectedEducation.forEach(item => {
-          resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
+        resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
           .then(() => {
             console.log("Education added to resume successfully");
           })
@@ -399,67 +420,67 @@ export default {
               console.log(error);
             }
           });
-        });
+      });
 
-        selectedExperience.forEach(item => {
-          resumeExperienceServices.createResumeExperience(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Experience added to resume successfully");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }              
-            });
-        });
+      selectedExperience.forEach(item => {
+        resumeExperienceServices.createResumeExperience(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Experience added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      });
 
-        selectedCertifications.forEach(item => {
-          resumeCertificationServices.createResumeCertification(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Certification added successfully to resume");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }
-            })
-        })
+      selectedCertifications.forEach(item => {
+        resumeCertificationServices.createResumeCertification(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Certification added successfully to resume");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          })
+      })
 
-        selectedSkills.forEach(item => {
-          resumeSkillServices.createResumeSkill(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Skill added to resume successfully");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }
-            });
-        });
+      selectedSkills.forEach(item => {
+        resumeSkillServices.createResumeSkill(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Skill added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      });
 
-        selectedProjects.forEach(item => {
-          resumeProjectServices.createResumeProject(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Project added to resume successfully");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }
-            });
-        });
+      selectedProjects.forEach(item => {
+        resumeProjectServices.createResumeProject(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Project added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      });
     }
 
     const deleteResumeData = (service) => {
@@ -492,7 +513,10 @@ export default {
       templates,
       selectedTemplate,
       selectTemplate,
-      previewTemplate
+      previewTemplate,
+      cohereRequest,
+      result,
+      jobDescription
     };
   }
 };
