@@ -4,8 +4,8 @@ export default {
     createResumeProject(resumeId, projectId, data) {
       return apiClient.post(`resume/${resumeId}/project/${projectId}/resumeProject/`, data);
     },
-    getAllResumeProjects(resumeId, projectId) {
-      return apiClient.get(`resume/${resumeId}/project/${projectId}/resumeProject/`);
+    getAllResumeProjects(resumeId) {
+      return apiClient.get(`resume/${resumeId}/resumeProject/`);
     },
     getResumeProject(resumeId, projectId, id) {
       return apiClient.get(`resume/${resumeId}/project/${projectId}/resumeProject/${id}`);
@@ -16,7 +16,7 @@ export default {
     deleteResumeProject(resumeId, projectId, id) {
       return apiClient.delete(`resume/${resumeId}/project/${projectId}/resumeProject/${id}`);
     },
-    deleteAllResumeProjects(resumeId, projectId) {
-      return apiClient.delete(`resume/${resumeId}/project/${projectId}/resumeProject/`);
+    deleteAllResumeProjects(resumeId) {
+      return apiClient.delete(`resume/${resumeId}/resumeProject/`);
     },
 };

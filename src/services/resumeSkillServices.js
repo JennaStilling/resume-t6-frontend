@@ -4,8 +4,8 @@ export default {
     createResumeSkill(resumeId, skillId, data) {
       return apiClient.post(`resume/${resumeId}/skill/${skillId}/resumeSkill/`, data);
     },
-    getAllResumeSkills(resumeId, skillId) {
-      return apiClient.get(`resume/${resumeId}/skill/${skillId}/resumeSkill/`);
+    getAllResumeSkills(resumeId) {
+      return apiClient.get(`resume/${resumeId}/resumeSkill/`);
     },
     getResumeSkill(resumeId, skillId, id) {
       return apiClient.get(`resume/${resumeId}/skill/${skillId}/resumeSkill/${id}`);
@@ -16,7 +16,7 @@ export default {
     deleteResumeSkill(resumeId, skillId, id) {
       return apiClient.delete(`resume/${resumeId}/skill/${skillId}/resumeSkill/${id}`);
     },
-    deleteAllResumeSkills(resumeId, skillId) {
-      return apiClient.delete(`resume/${resumeId}/skill/${skillId}/resumeSkill/`);
+    deleteAllResumeSkills(resumeId) {
+      return apiClient.delete(`resume/${resumeId}/resumeSkill/`);
     },
 };

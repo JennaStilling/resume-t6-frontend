@@ -1,325 +1,528 @@
 <template>
-    <!--This is the left side of the screen where you can select resume items to add on pdf -->
-    <div class="resume-builder">
-      <div class="resume-sidebar">
-        <div class="title-section">
-          <label for="resumeTitle" class="title-label">Title:</label>
-          <input
-            v-model="resumeTitle"
-            id="resumeTitle"
-            class="title-input"
-            placeholder="First Resume"
-          />
-          <img
-            :src="editPencilIcon"
-            alt="edit"
-            class="edit-icon"
-          />
+  <div class="resume-builder">
+    <div class="resume-sidebar">
+
+      <!-- Title Section -->
+      <div class="title-section">
+        <label for="resumeTitle" class="title-label">Title:</label>
+        <input v-model="resumeTitle" id="resumeTitle" class="title-input" placeholder="First Resume" />
+        <button @click="saveResume">
+          <img :src="saveIcon" alt="save" class="save-button" />
+        </button>
+        <button @click="downloadPDF">
+          <img :src="downloadIcon" alt="download" />
+        </button>
+      </div>
+
+      <!-- Dropdown Sections -->
+      <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
+        <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
+          <img class="section-icon" :src="getSectionIcon(sectionKey)" :alt="`${section.label} Icon`" />
+          <span style="text-transform: capitalize;">{{ sectionKey }}</span>
+          <img class="arrow-icon" :src="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon" alt="arrow" />
         </div>
-  
-        <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
-          <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
-            <img
-              class="section-icon"
-              :src="section.icon"
-              :alt="`${section.label} Icon`"
-            />
-            <span>{{ section.label }}</span>
-            <img
-              class="arrow-icon"
-              :src="isDropdownOpen[sectionKey] ? dropDownUpIcon : dropDownIcon"
-              alt="arrow"
-            />
+
+        <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
+
+          <!-- Gets all the Section info -->
+          <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
+            <div v-for="(item, index) in dropdownSections[sectionKey].items" :key="index" class="student-contact-info"
+              @click="toggleCheckbox(item)">
+              <div class="student-contact-info-inner">
+                <div class="group-child" :class="{ 'selected': item.isSelected }">
+                  <p v-if="sectionKey === 'education'">{{ item.degree }}, {{ item.institution }}</p>
+                  <p v-else-if="sectionKey === 'experience'">{{ item.role }}, {{ item.company }}</p>
+                  <p v-else-if="sectionKey === 'certifications'">{{ item.name }}, {{ item.company }}</p>
+                  <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
+                  <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" v-model="item.isSelected" />
+                    <span class="checkmark"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
-  
-          <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
-  
-            <!-- Education Section -->
-            <div v-if="sectionKey === 'education' && dropdownSections.education.items.length" class="education-list">
-              <div
-                v-for="(education, index) in dropdownSections.education.items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(education)"
-              >
-                <div class="student-contact-info-inner">
-                  <div
-                    class="group-child"
-                    :class="{ 'selected': education.isSelected }"
-                  >
-                    <p>{{ education.degree }}, {{ education.institution }}</p>
-                    <label class="custom-checkbox">
-                      <input type="checkbox" v-model="education.isSelected" @click.stop />
-                      <span class="checkmark"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p v-else-if="sectionKey === 'education'">No education data available.</p>
-  
-            <!-- Experience Section -->
-            <div v-if="sectionKey === 'experience' && dropdownSections.experience.items.length" class="experience-list">
-              <div
-                v-for="(experience, index) in dropdownSections.experience.items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(experience)"
-              >
-                <div class="student-contact-info-inner">
-                  <div
-                    class="group-child"
-                    :class="{ 'selected': experience.isSelected }"
-                  >
-                    <p>{{ experience.role }}, {{ experience.company }}</p>
-                    <label class="custom-checkbox">
-                      <input type="checkbox" v-model="experience.isSelected" @click.stop />
-                      <span class="checkmark"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p v-else-if="sectionKey === 'experience'">No experience data available.</p>
-  
-            <!-- Certification Section -->
-            <div v-if="sectionKey === 'certifications' && dropdownSections.certifications.items.length" class="certification-list">
-              <div
-                v-for="(certification, index) in dropdownSections.certifications.items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(certification)"
-              >
-                <div class="student-contact-info-inner">
-                  <div
-                    class="group-child"
-                    :class="{ 'selected': certification.isSelected }"
-                  >
-                    <p>{{ certification.name }}, {{ certification.company }}</p>
-                    <label class="custom-checkbox">
-                      <input type="checkbox" v-model="certification.isSelected" @click.stop />
-                      <span class="checkmark"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p v-else-if="sectionKey === 'certifications'">No certification data available.</p>
-  
-            <!-- Skills Section -->
-            <div v-if="sectionKey === 'skills' && dropdownSections.skills.items.length" class="skills-list">
-              <div
-                v-for="(skill, index) in dropdownSections.skills.items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(skill)"
-              >
-                <div class="student-contact-info-inner">
-                  <div
-                    class="group-child"
-                    :class="{ 'selected': skill.isSelected }"
-                  >
-                    <p>{{ skill.name }}</p>
-                    <label class="custom-checkbox">
-                      <input type="checkbox" v-model="skill.isSelected" @click.stop />
-                      <span class="checkmark"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p v-else-if="sectionKey === 'skills'">No skills data available.</p>
-  
-            <!-- Projects Section -->
-            <div v-if="sectionKey === 'projects' && dropdownSections.projects.items.length" class="projects-list">
-              <div
-                v-for="(project, index) in dropdownSections.projects.items"
-                :key="index"
-                class="student-contact-info"
-                @click="toggleCheckbox(project)"
-              >
-                <div class="student-contact-info-inner">
-                  <div
-                    class="group-child"
-                    :class="{ 'selected': project.isSelected }"
-                  >
-                    <p>{{ project.name }}</p>
-                    <label class="custom-checkbox">
-                      <input type="checkbox" v-model="project.isSelected" @click.stop />
-                      <span class="checkmark"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p v-else-if="sectionKey === 'projects'">No project data available.</p>
-  
-          </div>
+          <p v-else>No {{ sectionKey }} data available.</p>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  // Services, etc...
-  import { ref, onMounted } from 'vue';
-  import educationServices from '../services/educationServices.js';
-  import experienceServices from '../services/experienceServices.js';
-  import certificationServices from '../services/certificationServices.js';
-  import skillServices from '../services/skillServices.js';
-  import projectServices from '../services/projectServices.js';
-  import Utils from '../config/utils';
-  
-  // Icons
-  import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
-  import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
-  import dropDownIcon from '@/assets/build-icons/drop-down.png';
-  import educationIcon from '@/assets/build-icons/education.png';
-  import experienceIcon from '@/assets/build-icons/experience.png';
-  import certsIcon from '@/assets/build-icons/certs.png';
-  import skillsIcon from '@/assets/build-icons/skills.png';
-  import projectIcon from '@/assets/build-icons/project.png';
-  
-  export default {
-    name: 'ViewResume',
-    setup() {
-      const resumeTitle = ref('');
-      const studentId = ref('');
-      const isDropdownOpen = ref({
-        education: false,
-        experience: false,
-        certifications: false,
-        skills: false,
-        projects: false,
-      });
-  
-      const dropdownSections = ref({
-        education: {
-          label: 'Education',
-          icon: educationIcon,
-          items: []
-        },
-        experience: {
-          label: 'Experience',
-          icon: experienceIcon,
-          items: []
-        },
-        certifications: {
-          label: 'Certifications',
-          icon: certsIcon,
-          items: []
-        },
-        skills: {
-          label: 'Skills',
-          icon: skillsIcon,
-          items: []
-        },
-        projects: {
-          label: 'Projects',
-          icon: projectIcon,
-          items: []
+    <div class="main-content">
+      <EditBar @tab-change="handleTabChange" />
+      <div class="pdf-preview" v-if="activeTab === 'preview'">
+        <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
+      </div>
+      <div v-if="activeTab === 'template'">
+        <div class="template-list" width="100%" height="100%">
+          <div v-for="(template, index) in templates" :key="index" class="template-item"
+            :class="{ active: template.name === selectedTemplate }">
+            <p class="template-name">{{ template.name }}</p>
+            <button @click="previewTemplate(template)" class="preview-button">Preview</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-tab" width="100%" height="100%" v-if="activeTab === 'ai'">
+        <div>
+          Job Description
+          <div class="text-field-with-title">
+            <label for="degree" class="field-label">Job Description</label>
+            <textarea v-model="jobDescription" rows="3" class="text-field"></textarea>
+            <span class="mandatory">*</span>
+          </div>
+          <div>
+            <div class="text-field-with-title">
+              <label for="degree" class="field-label">Suggestion</label>
+              <textarea v-model="result" rows="20" class="text-field" readonly></textarea>
+              <span class="mandatory">*</span>
+            </div>
+          </div>
+          <div @click="cohereRequest()" class="nav-button">Cohere</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+
+<script>
+// Services, etc...
+import { ref, inject, onMounted } from 'vue';
+import educationServices from '../services/educationServices.js';
+import experienceServices from '../services/experienceServices.js';
+import certificationServices from '../services/certificationServices.js';
+import skillServices from '../services/skillServices.js';
+import projectServices from '../services/projectServices.js';
+import Utils from '../config/utils';
+import html2pdf from 'html2pdf.js';
+import PreviewBar from '@/components/PreviewBar.vue';
+import resumeServices from '../services/resumeServices.js'
+import resumeEducationServices from '../services/resumeEducationServices.js';
+import resumeExperienceServices from '../services/resumeExperienceServices.js';
+import resumeCertificationServices from '../services/resumeCertificationServices.js';
+import resumeSkillServices from '../services/resumeSkillServices.js';
+import resumeProjectServices from '../services/resumeProjectServices.js';
+
+// Icons
+import editPencilIcon from '@/assets/build-icons/edit-pencil.png';
+import downloadIcon from '@/assets/build-icons/download.png';
+import saveIcon from '@/assets/build-icons/saveIcon.png';
+import dropDownUpIcon from '@/assets/build-icons/drop-down-up.png';
+import dropDownIcon from '@/assets/build-icons/drop-down.png';
+import educationIcon from '@/assets/build-icons/education.png';
+import experienceIcon from '@/assets/build-icons/experience.png';
+import certsIcon from '@/assets/build-icons/certs.png';
+import skillsIcon from '@/assets/build-icons/skills.png';
+import projectIcon from '@/assets/build-icons/project.png';
+
+import { loadTemplateOne } from '@/services/templates/templateOne.js';
+import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
+import EditBar from '@/components/EditBar.vue';
+
+export default {
+  components: {
+    EditBar,
+  },
+  setup() {
+    // const props = defineProps({
+    //   id: {
+    //     required: true,
+    //   },
+    // });
+    const user = Utils.getStore('user');
+    const studentId = ref(null);
+    const resumeTitle = ref('');
+    const resume = ref({
+      name: null,
+      template_type: null
+    });
+    const changeTemplateType = (type) => {
+      resume.value.template_type = type;
+    };
+    // Will be changed to props once student homepage is done
+    const path = window.location.pathname;
+    const match = path.match(/\/resume\/(\d+)$/);
+    const resumeId = ref(match ? Number(match[1]) : null);
+
+    const isDropdownOpen = ref({
+      education: false,
+      experience: false,
+      certifications: false,
+      skills: false,
+      projects: false,
+    });
+    const dropdownSections = ref({
+      education: { items: [] },
+      experience: { items: [] },
+      certifications: { items: [] },
+      skills: { items: [] },
+      projects: { items: [] },
+    });
+    const sectionIcons = {
+      education: educationIcon,
+      experience: experienceIcon,
+      certifications: certsIcon,
+      skills: skillsIcon,
+      projects: projectIcon,
+    };
+
+    const getSectionIcon = (sectionKey) => {
+      return sectionIcons[sectionKey] || '';
+    };
+
+    const templates = ref([
+      { name: '01: Default', type: 1 },
+      { name: '02: Teal Template', type: 2 },
+      { name: '03: ', type: 3 },
+    ]);
+
+    const selectedTemplate = ref(templates.value[0].name);
+
+    const selectTemplate = (template) => {
+      selectedTemplate.value = template.name;
+    };
+
+    const previewTemplate = (template) => {
+      selectTemplate(template);
+      changeTemplateType(template.type);
+      // Switch back to the 'preview' tab
+      handleTabChange('preview');
+    };
+
+    onMounted(() => {
+      Utils.getUser(Utils.getStore('user')).then(user => {
+        studentId.value = user.studentId;
+        getResume();
+        loadEducationData();
+        loadExperienceData();
+        loadCertificationData();
+        loadSkillData();
+        loadProjectData();
+        // Load the initial PDF content in the iframe
+        const iframe = document.querySelector("iframe");
+        if (iframe) {
+          iframe.addEventListener('load', () => {
+            updatePDFPreview();
+          });
+          updatePDFPreview();
+        } else {
+          console.error('Iframe not found');
         }
       });
-  
-      onMounted(() => {
-        Utils.getUser(Utils.getStore('user')).then(user => {
-          studentId.value = user.studentId;
-          loadEducationData();
-          loadExperienceData();
-          loadCertificationData();
-          loadSkillData();
-          loadProjectData();
-        });
-      });
-  
-      // Load all data by calling the services
-      const loadEducationData = () => {
-        educationServices.getAllEducations(studentId.value)
-          .then(response => {
-            dropdownSections.value.education.items = response.data.map(item => ({
-              ...item,
-              isSelected: false
-            }));
-          })
-          .catch(error => {
-            console.error("Failed to fetch education data:", error);
-          });
-      };
-  
-      const loadExperienceData = () => {
-        experienceServices.getAllExperiences(studentId.value)
-          .then(response => {
-            dropdownSections.value.experience.items = response.data.map(item => ({
-              ...item,
-              isSelected: false
-            }));
-          })
-          .catch(error => {
-            console.error("Failed to fetch experience data:", error);
-          });
-      };
-  
-      const loadCertificationData = () => {
-        certificationServices.getAllCertifications(studentId.value)
-          .then(response => {
-            dropdownSections.value.certifications.items = response.data.map(item => ({
-              ...item,
-              isSelected: false
-            }));
-          })
-          .catch(error => {
-            console.error("Failed to fetch certification data:", error);
-          });
-      };
-  
-      const loadSkillData = () => {
-        skillServices.getAllSkills(studentId.value)
-          .then(response => {
-            dropdownSections.value.skills.items = response.data.map(item => ({
-              ...item,
-              isSelected: false
-            }));
-          })
-          .catch(error => {
-            console.error("Failed to fetch skills data:", error);
-          });
-      };
-      
-      const loadProjectData = () => {
-        projectServices.getAllProjects(studentId.value)
-          .then(response => {
-            dropdownSections.value.projects.items = response.data.map(item => ({
-              ...item,
-              isSelected: false
-            }));
-          })
-          .catch(error => {
-            console.error("Failed to fetch project data:", error);
-          });
-      };
-  
-      const toggleDropdown = (sectionKey) => {
-        isDropdownOpen.value[sectionKey] = !isDropdownOpen.value[sectionKey];
-      };
-  
-      const toggleCheckbox = (item) => {
-        item.isSelected = !item.isSelected;
-      };
-  
-      return {
-        resumeTitle,
-        editPencilIcon,
-        dropDownUpIcon,
-        dropDownIcon,
-        isDropdownOpen,
-        dropdownSections,
-        toggleDropdown,
-        toggleCheckbox
-      };
+    });
+
+    const activeTab = ref('preview');
+
+    function handleTabChange(tab) {
+      console.log('Tab changed to:', tab);
+      activeTab.value = tab;
+      if (tab === 'preview') {
+        setTimeout(() => {
+          const iframe = document.querySelector("iframe");
+          if (iframe) {
+            updatePDFPreview();
+          } else {
+            console.error('Iframe not found for PDF preview when handling tab change');
+          }
+        }, 0); // Delay for Document Object Model (DOM) to update
+      }
     }
-  };
-  </script>
-  
-  <style scoped>
-  @import '@/assets/view-resume.css';
-  </style>  
+
+    const updatePDFPreview = () => {
+      const iframe = document.querySelector("iframe");
+      if (iframe) {
+        let doc = iframe.contentWindow || iframe.contentDocument;
+        if (doc.document) doc = doc.document;
+        try {
+          doc.open();
+          doc.write(generatePDFContent());
+          doc.close();
+        } catch (error) {
+          console.error('Error updating PDF preview:', error);
+        }
+      } else {
+        console.error('Iframe not found when updating');
+      }
+    };
+
+    const generatePDFContent = () => {
+      const user = Utils.getStore('user');
+      const sections = dropdownSections.value;
+
+      switch (resume.value.template_type) {
+        case 1:
+          //console.log("Template 1");
+          return loadTemplateOne(user, sections);
+          break;
+        case 2:
+          //console.log("Template 2");
+          return loadTemplateTwo(user, sections);
+          break;
+        default:
+          //console.log("Default");
+          return loadTemplateOne(user, sections);
+      }
+    };
+
+    const getResume = () => {
+      resumeServices.getResume(studentId.value, resumeId.value)
+        .then((response) => {
+          resume.value = response.data;
+        })
+        .catch((error) => {
+          console.log("Could not retrieve resume: " + error);
+        })
+    }
+
+    // Loads all the section data
+    const loadData = (service, sectionKey, resumeService) => {
+      service(studentId.value)
+        .then(response => {
+          dropdownSections.value[sectionKey].items = response.data.map(item => ({
+            ...item,
+            isSelected: false
+          }));
+          resumeService(resumeId.value)
+            .then((response) => {
+              response.data.forEach(item => {
+                dropdownSections.value[sectionKey].items.forEach(obj => {
+                  if (sectionKey === "education") if (obj.id === item.educationId) obj.isSelected = true;
+                  if (sectionKey === "experience") if (obj.id === item.experienceId) obj.isSelected = true;
+                  if (sectionKey === "certifications") if (obj.id === item.certificationId) obj.isSelected = true;
+                  if (sectionKey === "skills") if (obj.id === item.skillId) obj.isSelected = true;
+                  if (sectionKey === "projects") if (obj.id === item.projectId) obj.isSelected = true;
+                })
+              });
+              updatePDFPreview();
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 406) {
+                message.value = "Error: " + error.code + ":" + error.message;
+                console.log(error);
+              } else {
+                console.log(error);
+              }
+            });
+        })
+        .catch(error => {
+          console.error(`Failed to fetch ${sectionKey} data:`, error);
+        });
+    };
+
+    const loadEducationData = () => loadData(educationServices.getAllEducations, 'education', resumeEducationServices.getAllResumeEducations);
+    const loadExperienceData = () => loadData(experienceServices.getAllExperiences, 'experience', resumeExperienceServices.getAllResumeExperiences);
+    const loadCertificationData = () => loadData(certificationServices.getAllCertifications, 'certifications', resumeCertificationServices.getAllResumeCertifications);
+    const loadSkillData = () => loadData(skillServices.getAllSkills, 'skills', resumeSkillServices.getAllResumeSkills);
+    const loadProjectData = () => loadData(projectServices.getAllProjects, 'projects', resumeProjectServices.getAllResumeProjects);
+
+    const toggleDropdown = (sectionKey) => {
+      isDropdownOpen.value[sectionKey] = !isDropdownOpen.value[sectionKey];
+    };
+
+    const toggleCheckbox = (item) => {
+      item.isSelected = !item.isSelected;
+      //console.log("Item selected in toggle checkbox:", item);
+      updatePDFPreview();
+    };
+
+    const downloadPDF = () => {
+      // Create a temporary container for the HTML content
+      const content = generatePDFContent();
+      const container = document.createElement('div');
+      container.innerHTML = content;
+
+      // Append the container to the body temporarily
+      document.body.appendChild(container);
+
+      // Use html2pdf to generate and download the PDF
+      html2pdf()
+        .set({
+          margin: 3,
+          filename: resumeTitle.value || `${user.fName}_${user.lName}_Resume.pdf`,
+          html2canvas: { scale: 2 },
+          jsPDF: { orientation: 'portrait' }
+        })
+        .from(container)
+        .save()
+        .then(() => {
+          document.body.removeChild(container);
+        });
+    };
+
+    function saveResume() {
+      resume.value.name = resumeTitle;
+      //resume.value.template_type = 1;
+
+      resumeServices.updateResume(studentId.value, resumeId.value, resume.value)
+        .then((res) => {
+          resumeId.value = res.data.id;
+          updateResumeInfo();
+          // Should reroute to student homepage
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 406) {
+            message.value = "Error: " + error.code + ":" + error.message;
+            console.log(error);
+          } else {
+            console.log(error);
+          }
+        });
+
+    }
+    const cohereClient = inject('cohereClient');
+
+    const loading = ref(false);
+
+    const jobDescription = ref(null);
+    const result = ref(null);
+
+    async function cohereRequest() {
+      try {
+        loading.value = true;
+
+        const response = await cohereClient.chat({
+          message: generatePDFContent(),
+          model: "command-r-08-2024",
+          //preamble: "You are an AI-assistant chatbot. You are trained to assist users by analyzing their resume. You will provide a concise list of recommendations to improve their resumes. Users will send their resumes in html."
+          preamble: "can you give me the resume information in the html"
+        });
+        result.value = response.text;
+      } catch (error) {
+        console.log(error)
+      } finally {
+        loading.value = false;
+      }
+    }
+
+    function updateResumeInfo() {
+      const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
+      const selectedExperience = dropdownSections.value.experience.items.filter(item => item.isSelected);
+      const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
+      const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
+      const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
+
+      deleteResumeData(resumeEducationServices.deleteAllResumeEducations);
+      deleteResumeData(resumeExperienceServices.deleteAllResumeExperiences);
+      deleteResumeData(resumeCertificationServices.deleteAllResumeCertifications);
+      deleteResumeData(resumeSkillServices.deleteAllResumeSkills);
+      deleteResumeData(resumeProjectServices.deleteAllResumeProjects);
+
+
+      selectedEducation.forEach(item => {
+        resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Education added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      });
+
+      selectedExperience.forEach(item => {
+        resumeExperienceServices.createResumeExperience(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Experience added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      });
+
+      selectedCertifications.forEach(item => {
+        resumeCertificationServices.createResumeCertification(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Certification added successfully to resume");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          })
+      })
+
+      selectedSkills.forEach(item => {
+        resumeSkillServices.createResumeSkill(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Skill added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      });
+
+      selectedProjects.forEach(item => {
+        resumeProjectServices.createResumeProject(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Project added to resume successfully");
+          })
+          .catch((error) => {
+            if (error.response && error.response.status === 406) {
+              message.value = "Error: " + error.code + ":" + error.message;
+              console.log(error);
+            } else {
+              console.log(error);
+            }
+          });
+      });
+    }
+
+    const deleteResumeData = (service) => {
+      service(resumeId.value)
+        .then(() => {
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+
+    return {
+      studentId,
+      isDropdownOpen,
+      dropdownSections,
+      toggleDropdown,
+      toggleCheckbox,
+      updatePDFPreview,
+      editPencilIcon,
+      dropDownUpIcon,
+      dropDownIcon,
+      downloadIcon,
+      saveIcon,
+      getSectionIcon,
+      downloadPDF,
+      saveResume,
+      resumeTitle,
+      activeTab,
+      handleTabChange,
+      templates,
+      selectedTemplate,
+      selectTemplate,
+      previewTemplate,
+      cohereRequest,
+      result,
+      jobDescription
+    };
+  }
+};
+</script>
+
+
+<style scoped>
+@import '@/assets/view-resume.css';
+</style>
