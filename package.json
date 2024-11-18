@@ -12,7 +12,9 @@
   "dependencies": {
     "@syncfusion/ej2-vue-dropdowns": "^27.1.58",
     "axios": "^1.7.7",
+    "canvg": "^4.0.2",
     "cross-env": "^7.0.3",
+    "html2pdf.js": "^0.10.2",
     "pinia": "^2.2.4",
     "v-dropdown": "^3.0.0",
     "vite-plugin-vuetify": "^2.0.4",

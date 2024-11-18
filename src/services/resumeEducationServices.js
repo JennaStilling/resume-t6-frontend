@@ -4,8 +4,8 @@ export default {
     createResumeEducation(resumeId, educationId, data) {
       return apiClient.post(`resume/${resumeId}/education/${educationId}/resumeEducation/`, data);
     },
-    getAllResumeEducations(resumeId, educationId) {
-      return apiClient.get(`resume/${resumeId}/education/${educationId}/resumeEducation/`);
+    getAllResumeEducations(resumeId) {
+      return apiClient.get(`resume/${resumeId}/resumeEducation/`);
     },
     getResumeEducation(resumeId, educationId, id) {
       return apiClient.get(`resume/${resumeId}/education/${educationId}/resumeEducation/${id}`);
@@ -16,7 +16,7 @@ export default {
     deleteResumeEducation(resumeId, educationId, id) {
       return apiClient.delete(`resume/${resumeId}/education/${educationId}/resumeEducation/${id}`);
     },
-    deleteAllResumeEducations(resumeId, educationId) {
-      return apiClient.delete(`resume/${resumeId}/education/${educationId}/resumeEducation/`);
+    deleteAllResumeEducations(resumeId) {
+      return apiClient.delete(`resume/${resumeId}/resumeEducation/`);
     },
 };
