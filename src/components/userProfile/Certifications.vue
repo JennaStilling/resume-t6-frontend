@@ -170,7 +170,7 @@ const certificationToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/certifications/edit/') ? 'SAVE CHANGES' : 'ADD CERTIFICATION';
+  return route.path.includes('/certifications/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 

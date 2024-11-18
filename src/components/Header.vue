@@ -4,7 +4,7 @@
       <router-link to="/">
         <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
       </router-link>
-      <div class="title">Your AI resume builder</div>
+      <div class="title">OC resume builder</div>
     </div>
     <div class="user-menu">
       <img
@@ -75,23 +75,24 @@ const signOut = () => {
 .header {
   background-color: #65001F;
   color: #FFF;
-  padding: 3px;
+  padding-top: 5px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.234);
 }
 
 .logo-title {
   display: flex;
   align-items: center;
   text-indent: 10px;
-  font-size: 18px;
+  font-size: 17px;
   overflow: hidden;
 }
 
 .logo {
-  width: 70px;
+  width: 50px;
   height: auto;
   cursor: pointer;
 }

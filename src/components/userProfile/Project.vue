@@ -132,7 +132,7 @@ const projectToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD PROJECT';
+  return route.path.includes('/project/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
