@@ -15,6 +15,7 @@ import EditResume from './views/EditResume.vue';
 import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
+import Cohere from './views/CohereTest.vue';
 
 // Define routes
 const routes = [
@@ -41,7 +42,9 @@ const routes = [
   { path: '/resume/:id', name: 'resume', component: ViewResume, props: true },
   { path: '/add', name: 'addResume', component: AddResume },
   { path: '/edit/:id', name: 'editResume', component: EditResume, props: true },
-  { path: '/profile', name: 'profile', component: ViewProfile }
+  { path: '/profile', name: 'profile', component: ViewProfile },
+
+  { path: '/cohere-test', name: 'cohere', component: Cohere }
 ];
 
 const router = createRouter({
