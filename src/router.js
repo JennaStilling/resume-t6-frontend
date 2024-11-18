@@ -18,6 +18,7 @@ import Logout from './views/LogoutTest.vue';
 import AdminHomePage from './views/admin/AdminHome.vue';
 import ReviewerHomePage from './views/reviewer/ReviewerHome.vue';
 import StudentHome from './views/StudentHome.vue'
+import StudentHome from './views/StudentHome.vue'
 import Cohere from './views/CohereTest.vue';
 
 // Define routes
@@ -41,6 +42,7 @@ const routes = [
   { path: '/profile-app', name: 'profile-app', component: ProfileApp},
   { path: '/login', name: 'login', component: Login },
   { path: '/logout', name: 'logout', component: Logout },
+  { path: '/studentHome', name: 'studentHome', component: StudentHome },
   { path: '/list', name: 'resumes', component: ListResume },
   { path: '/resume/:id', name: 'resume', component: ViewResume, props: true },
   { path: '/add', name: 'addResume', component: AddResume },
