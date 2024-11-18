@@ -4,8 +4,8 @@ export default {
     createResumeInterest(resumeId, interestId, data) {
       return apiClient.post(`resume/${resumeId}/interest/${interestId}/resumeInterest/`, data);
     },
-    getAllResumeInterests(resumeId, interestId) {
-      return apiClient.get(`resume/${resumeId}/interest/${interestId}/resumeInterest/`);
+    getAllResumeInterests(resumeId) {
+      return apiClient.get(`resume/${resumeId}/resumeInterest/`);
     },
     getResumeInterest(resumeId, interestId, id) {
       return apiClient.get(`resume/${resumeId}/interest/${interestId}/resumeInterest/${id}`);
@@ -16,7 +16,7 @@ export default {
     deleteResumeInterest(resumeId, interestId, id) {
       return apiClient.delete(`resume/${resumeId}/interest/${interestId}/resumeInterest/${id}`);
     },
-    deleteAllResumeInterests(resumeId, interestId) {
-      return apiClient.delete(`resume/${resumeId}/interest/${interestId}/resumeInterest/`);
+    deleteAllResumeInterests(resumeId) {
+      return apiClient.delete(`resume/${resumeId}/resumeInterest/`);
     },
 };
