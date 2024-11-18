@@ -15,6 +15,7 @@ import EditResume from './views/EditResume.vue';
 import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
+import StudentHome from './views/StudentHome.vue'
 
 // Define routes
 const routes = [
@@ -37,6 +38,7 @@ const routes = [
   { path: '/profile-app', name: 'profile-app', component: ProfileApp},
   { path: '/login', name: 'login', component: Login },
   { path: '/logout', name: 'logout', component: Logout },
+  { path: '/studentHome', name: 'studentHome', component: StudentHome },
   { path: '/list', name: 'resumes', component: ListResume },
   { path: '/resume/:id', name: 'resume', component: ViewResume, props: true },
   { path: '/add', name: 'addResume', component: AddResume },
