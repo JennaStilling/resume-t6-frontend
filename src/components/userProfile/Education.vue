@@ -180,7 +180,7 @@ const educationToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD EDUCATION';
+  return route.path.includes('/education/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 

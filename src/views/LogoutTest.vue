@@ -35,6 +35,6 @@ const logout = () => {
 
 <template>
   <br>
-  <p>Logged IN</p>
+  <p style="color:white;"> - Logged IN</p>
   <v-btn depressed rounded text @click="logout"> Logout </v-btn>
 </template>

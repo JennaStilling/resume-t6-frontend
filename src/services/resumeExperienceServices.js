@@ -4,8 +4,8 @@ export default {
     createResumeExperience(resumeId, experienceId, data) {
       return apiClient.post(`resume/${resumeId}/experience/${experienceId}/resumeExperience/`, data);
     },
-    getAllResumeExperiences(resumeId, experienceId) {
-      return apiClient.get(`resume/${resumeId}/experience/${experienceId}/resumeExperience/`);
+    getAllResumeExperiences(resumeId) {
+      return apiClient.get(`resume/${resumeId}/resumeExperience/`);
     },
     getResumeExperience(resumeId, experienceId, id) {
       return apiClient.get(`resume/${resumeId}/experience/${experienceId}/resumeExperience/${id}`);
@@ -16,7 +16,7 @@ export default {
     deleteResumeExperience(resumeId, experienceId, id) {
       return apiClient.delete(`resume/${resumeId}/experience/${experienceId}/resumeExperience/${id}`);
     },
-    deleteAllResumeExperiences(resumeId, experienceId) {
-      return apiClient.delete(`resume/${resumeId}/experience/${experienceId}/resumeExperience/`);
+    deleteAllResumeExperiences(resumeId) {
+      return apiClient.delete(`resume/${resumeId}/resumeExperience/`);
     },
 };
