@@ -117,6 +117,7 @@ const signOut = () => {
   border: 1px solid #53011a;
   box-shadow: 0 8px 16px rgba(182, 8, 8, 0.2);
   width: 150px;
+  z-index: 1000;
 }
 
 .dropdown-menu ul {
