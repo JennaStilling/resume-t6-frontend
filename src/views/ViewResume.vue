@@ -379,11 +379,13 @@ export default {
       try {
         loading.value = true;
 
+        console.log(generatePDFContent())
+
         const response = await cohereClient.chat({
-          message: generatePDFContent(),
+          message: `Job Descrption:${jobDescription.value} Resume:${generatePDFContent()}`,
           model: "command-r-08-2024",
           //preamble: "You are an AI-assistant chatbot. You are trained to assist users by analyzing their resume. You will provide a concise list of recommendations to improve their resumes. Users will send their resumes in html."
-          preamble: "can you give me the resume information in the html"
+          preamble: "can you give me the resume information in the html and the job description sent before it"
         });
         result.value = response.text;
       } catch (error) {
