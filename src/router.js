@@ -17,6 +17,9 @@ import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
 import StudentHome from './views/StudentHome.vue'
 import Cohere from './views/CohereTest.vue';
+import ReviewInbox from './components/reviewerPages/ReviewInbox.vue';
+import ReviewResume from './components/reviewerPages/ReviewResume.vue';
+//import path from 'path';
 
 // Define routes
 const routes = [
@@ -46,6 +49,11 @@ const routes = [
   { path: '/edit/:id', name: 'editResume', component: EditResume, props: true },
   { path: '/profile', name: 'profile', component: ViewProfile },
 
+  // Reviewer:
+  { path: '/review-inbox', name: 'reviewInbox', component: ReviewInbox },
+  { path: '/review-resume/:id', name: 'reviewResume', component: ReviewResume, props: true },
+
+  // Other:
   { path: '/cohere-test', name: 'cohere', component: Cohere }
 ];
 

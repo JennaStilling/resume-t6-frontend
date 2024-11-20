@@ -178,6 +178,7 @@ const getResumes = () => {
 
 // Submit the request
 const submitReview = () => {
+    console.log(selectedReviewer.value.id);
     if (selectedReviewer.value === null && selectedResume.value === null) {
         error.value = "No Reviewer or Resume was selected";
     }
@@ -189,7 +190,7 @@ const submitReview = () => {
     }
     else {
         // Create resumeReview
-        resumeReviewServices.createResumeReview(studentId.value, {suggesstion: "", notes: reviewNotes.value})
+        resumeReviewServices.createResumeReview(studentId.value, {suggestion: "", notes: reviewNotes.value})
             .then((res) => {
                 console.log("Resume Review Created");
                 console.log(res.data);
@@ -224,9 +225,10 @@ const assignReview = () => {
 
 // Create a userResumeReview with the chosen Reviewer(user table) and the resumeReview created earlier
 const createUserResumeReview = () => {
-    userResumeReviewServices.createUserResumeReview(user.userId, resumeReviewId.value, {})
+    userResumeReviewServices.createUserResumeReview(selectedReviewer.value.id, resumeReviewId.value, {})
         .then((res) => {
-            console.log("Created userResumeReview")
+            console.log("Created userResumeReview: ")
+            console.log(res.data);
         })
         .catch((err) => {
             console.log(err);
