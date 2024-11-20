@@ -11,10 +11,10 @@
       </div>
     </div>
 
-    <div class="result">
+    <div>
       <div class="text-field-with-title">
         <label for="degree" class="field-label">Result</label>
-        <input type="text" id="degree" v-model="result" class="text-field" placeholder="Enter your degree" required />
+        <textarea v-model="result" rows="25" cols="40" class="text-field" readonly></textarea>
         <span class="mandatory">*</span>
       </div>
     </div>
