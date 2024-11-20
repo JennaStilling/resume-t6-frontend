@@ -10,7 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@programic/vue3-tooltip": "^1.0.0",
     "@syncfusion/ej2-vue-dropdowns": "^27.1.58",
+    "@vueuse/components": "^11.2.0",
+    "@vueuse/core": "^11.2.0",
     "axios": "^1.7.7",
     "canvg": "^4.0.2",
     "cross-env": "^7.0.3",
