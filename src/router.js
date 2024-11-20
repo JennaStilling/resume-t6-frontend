@@ -19,10 +19,12 @@ import AdminHomePage from './views/admin/AdminHome.vue';
 import ReviewerHomePage from './views/reviewer/ReviewerHome.vue';
 import StudentHome from './views/StudentHome.vue'
 import Cohere from './views/CohereTest.vue';
+import HomePageRouter from './views/HomePageRouter.vue';
 
 // Define routes
 const routes = [
   { path: '/', component: HomePage },
+  { path: '/home', name: 'home', component: HomePageRouter },
 
   // Profile paths:
   { path: '/contact-info', component: ContactInfo },

@@ -1,22 +1,22 @@
 import apiClient from "./services.js";
 
 export default {
-    createStudent(data) {
+    createReviewer(data) {
       return apiClient.post(`reviewerRole/`, data);
     },
-    getAllStudents() {
+    getAllReviewers() {
       return apiClient.get(`reviewerRole/`);
     },
-    getStudent(id) {
+    getReviewer(id) {
       return apiClient.get(`reviewerRole/${id}`);
     },
-    updateStudent(id, data) {
+    updateReviewer(id, data) {
       return apiClient.put(`reviewerRole/${id}`, data);
     },
-    deleteStudent(id) {
+    deleteReviewer(id) {
       return apiClient.delete(`reviewerRole/${id}`);
     },
-    deleteAllStudents() {
+    deleteAllReviewers() {
       return apiClient.delete(`reviewerRole/`);
     },
 };

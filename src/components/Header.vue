@@ -4,29 +4,20 @@
       <router-link to="/">
         <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
       </router-link>
-      <div class="title">OC resume builder</div>
+      <div class="title">OC Resume Builder</div>
     </div>
 
-    <!-- <div class="nav-menu">
-      <img src="/src/assets/down-arrow.png" alt="drop-down icon" class="user-icon" @click="toggleNav" />
-      <div v-if="navOpen" class="dropdown-menu-nav">
+    <div class="nav-menu">
+      Home Page
+      <img src="/src/assets/userIcon.png" alt="Menu" class="menu-icon" @click="toggleNav" />
+      <div v-if="navOpen" class="dropdown-nav-menu">
         <ul>
           <li @click="updateHomePage('Student')">Student Home</li>
           <li @click="updateHomePage('Reviewer')">Reviewer Home</li>
-          <li @click="updateHomePage('Admin')">Faculty Home</li>
-        </ul>
-      </div>
-    </div> -->
-    <div class="nav-menu">
-      <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleNav" />
-      <div v-if="menuOpen" class="dropdown-menu">
-        <ul>
-          <li @click="updateProfile">Update Profile</li>
-          <li @click="signOut">Sign Out</li>
+          <li @click="updateHomePage('Admin')">Admin Home</li>
         </ul>
       </div>
     </div>
-
 
     <div class="user-menu">
       <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleMenu" />
@@ -39,6 +30,7 @@
     </div>
   </header>
 </template>
+
 
 <script setup>
 import { ref } from "vue";
@@ -79,15 +71,15 @@ const updateProfile = () => {
 
 const updateHomePage = (loc) => {
   if (loc === 'Student') {
-    console.log("Student");
+    navOpen.value = false;
     router.push({ name: "studentHome" });
   }
   else if (loc === 'Reviewer') {
-    console.log("Reiviwer")
+    navOpen.value = false;
     router.push({ name: "reviewerHome" });
   }
   else if (loc === 'Admin') {
-    console.log("Admin")
+    navOpen.value = false;
     router.push({ name: "adminHome" });
   }
 }
@@ -110,6 +102,45 @@ const signOut = () => {
 </script>
 
 <style scoped>
+.nav-menu {
+  position: relative;
+  margin-right: 20px; /* Spacing between nav-menu and user-menu */
+}
+
+.menu-icon {
+  width: 50px;
+  height: auto;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.dropdown-nav-menu {
+  position: absolute;
+  right: 0;
+  background-color: #65001F;
+  z-index: 1000;
+  color: white;
+  border: 1px solid #53011a;
+  box-shadow: 0 8px 16px rgba(182, 8, 8, 0.2);
+  width: 150px;
+}
+
+.dropdown-nav-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-nav-menu li {
+  padding: 10px;
+  border-bottom: 1px solid #53011a;
+  cursor: pointer;
+}
+
+.dropdown-nav-menu li:hover {
+  background-color: #8f042d;
+}
+
 .header {
   background-color: #65001F;
   color: #FFF;

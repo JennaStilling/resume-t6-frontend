@@ -1,4 +1,7 @@
 <script>
+export default {
+    name: "ReviewerHome",
+};
 </script>
 
 <template>
