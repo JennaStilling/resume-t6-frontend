@@ -187,7 +187,7 @@
   flex-direction: column;
   gap: 12px; 
   padding: 10px;
-  max-height: 100vh; 
+  max-height: 200vh; 
   overflow-y: auto; 
   background-color: #f0f4f8;
   border-radius: 8px;
