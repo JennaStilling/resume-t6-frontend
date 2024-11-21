@@ -45,6 +45,9 @@ export default {
       return currentTab.value !== '';
     });
 
+    const showHeader = computed(() => 
+      route.name !== 'login');
+
     return {
       isHomePage,
       currentTab,

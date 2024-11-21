@@ -6,7 +6,7 @@
         <p>Update Profile Information?</p>
         <hr />
       </div>
-      <img src="@/assets/bigUserIcon.png" alt="User Icon" class="user-icon" />
+      <img src="@/assets/blueUserIcon.png" alt="User Icon" class="user-icon" />
       <div class="modal-body">
         <button class="modal-button skip-button" @click="skip">SKIP</button>
         <button class="modal-button yes-button" @click="confirm">YES</button>
@@ -50,11 +50,11 @@ export default {
 }
 
 .modal-content {
-  background-color: #0a4a6c;
+  background-color: #ffffff;
   padding: 30px;
   border-radius: 12px;
   text-align: center;
-  color: #ffffff;
+  color:  #033A4E;
   width: 600px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   position: relative;
@@ -66,20 +66,20 @@ export default {
   right: 20px;
   font-size: 28px;
   cursor: pointer;
-  color: rgb(255, 255, 255);
+  color: #033A4E;
 }
 
 .modal-header p {
   font-size: 22px;
   font-weight: bold;
-  color: white;
+  color:  #033A4E;
   margin-bottom: 10px;
 }
 
 .modal-header hr {
   margin: 10px 0;
   border: none;
-  border-top: 4px solid #ffffff;
+  border-top: 4px solid #033A4E;
 }
 
 .user-icon {
