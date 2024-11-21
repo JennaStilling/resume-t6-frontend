@@ -34,11 +34,10 @@
       router.push({ name: 'addResume' });
     } else if (item.name === 'My Home') {
       router.push('/');
+      location.reload();
       // This needs to be changed for taking into account Student Roles and going to StudentHome
     } else if (item.name === 'Request Resume Review') {
       router.push({ name: 'reviewResume' });
-    } else if (item.name === 'Resume Templates') {
-      router.push({ name: 'resumeTemplates' });
     }
   }
 </script>

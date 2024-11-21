@@ -31,7 +31,6 @@
   onMounted(() => {
     Utils.getUser(user).then(value => {
       studentId.value = value.studentId;
-      console.log(studentId.value)
       getResumes();
     });
   });
@@ -41,6 +40,13 @@
   const studentId = ref();
   const showActions = ref(false);
   const resumes = ref([]);
+
+  onMounted(() => {
+    Utils.getUser(user).then(value => {
+      studentId.value = value.studentId;
+      getResumes();
+    });
+  });
 
   const getResumes = () => {
     ResumeServices.getAllResumes(studentId.value)
@@ -70,7 +76,7 @@
   
   const handleDelete = async () => {
     try {
-      await fetch(`/api/resumes/${props.resume.id}`, { method: 'DELETE' });
+      await ResumeServices.deleteResume(studentId.value, props.resume.id);
       emit('delete', props.resume.id);
     } catch (error) {
       console.error('Error deleting resume:', error);

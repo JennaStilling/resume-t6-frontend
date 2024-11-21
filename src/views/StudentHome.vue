@@ -63,7 +63,7 @@
   const user = Utils.getStore("user");
   const studentId = ref();
   const resumes = ref([]);
-  const displayType = ref('list'); // Default display type
+  const displayType = ref('grid'); // Default display type
   const router = useRouter();
   const filterOptions = ['- SORT BY -','Name', 'Last Modified', 'Created']; // Filter options
   const selectedFilter = ref(filterOptions[0]);
@@ -89,26 +89,40 @@
   };
   
   const selectFilter = (option) => {
-    selectedFilter.value = option; // Update label with selected option
+  selectedFilter.value = option;
 
-    switch(selectedFilter.value) {
-      case 'Name':
-        console.log(`Selected filter: ${option}`)
-        resumes.value = resumes.value.sort((a, b) => a.name.localeCompare(b.name));
-      case 'Last Modified':
-        console.log(`Selected filter: ${option}`)
-        resumes.value = resumes.value.sort((a, b) => a.updatedAt.toString().localeCompare(b.updatedAt.toString()));
-        // resumes => [resumes.value].sort((a, b) => 
-        // new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
-      case 'Created':
-        console.log(`Selected filter: ${option}`)
-        resumes.value = resumes.value.sort((a, b) => a.createdAt.toString().localeCompare(b.createdAt.toString()));
-        // resumes => [resumes.value].sort((a, b) => 
-        // new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-      default:
-    }
-    console.log(`Resume list: ${JSON.stringify(resumes.value)}`)
-  };
+  switch(selectedFilter.value) {
+    case 'Name':
+      resumes.value = resumes.value.sort((a, b) => {
+        const nameA = a.name || '';
+        const nameB = b.name || '';
+        return nameA.localeCompare(nameB);
+      });
+      break;
+    case 'Last Modified':
+      resumes.value = resumes.value.sort((a, b) => {
+        const dateA = new Date(a.updatedAt || '');
+        const dateB = new Date(b.updatedAt || '');
+        return dateA - dateB; // Ascending order
+      });
+      break;
+    case 'Created':
+      resumes.value = resumes.value.sort((a, b) => {
+        const dateA = new Date(a.createdAt || '');
+        const dateB = new Date(b.createdAt || '');
+        return dateA - dateB; // Ascending order
+      });
+      break;
+    default:
+      resumes.value = resumes.value.sort((a, b) => {
+        const idA = a.id || '';
+        const idB = b.id || '';
+        return idA.localeCompare(idB);
+      });
+  }
+
+  console.log(`Resume list after filter: ${JSON.stringify(resumes.value)}`);
+};
   
   onMounted(() => {
     Utils.getUser(user).then(value => {
@@ -118,20 +132,11 @@
   });
 
   const handleEdit = (id) => {
-    router.push({ name: 'editResume', params: { id } });
+    router.push({ name: 'resume', params: { id } });
   };
 
   const handleDelete = async (id) => {
-    try {
-      await fetch(`/api/resumes/${id}`, { method: 'DELETE' });
-      // Remove the deleted resume from the list
-      const index = resumes.value.findIndex(resume => resume.id === id);
-      if (index !== -1) {
-        resumes.value.splice(index, 1);
-      }
-    } catch (error) {
-    console.error('Error deleting resume:', error);
-    }
+    location.reload();
   };
   </script>
   
