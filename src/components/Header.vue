@@ -127,6 +127,7 @@ const updateHomePage = (loc) => {
     }
     else
       console.log("You do not have student permissions")
+      navOpen.value = false;
   }
   else if (loc === 'Reviewer') {
     if (reviewerId.value != null) {
@@ -135,6 +136,7 @@ const updateHomePage = (loc) => {
     }
     else
       console.log("You do not have reviewer permissions")
+      navOpen.value = false;
   }
   else if (loc === 'Admin') {
     if (adminId.value != null) {
@@ -143,6 +145,7 @@ const updateHomePage = (loc) => {
     }
     else
       console.log("You do not have admin permissions")
+      navOpen.value = false;
   }
 }
 
