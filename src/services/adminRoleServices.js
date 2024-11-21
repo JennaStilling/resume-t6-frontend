@@ -1,22 +1,22 @@
 import apiClient from "./services.js";
 
 export default {
-    createStudent(data) {
+    createAdmin(data) {
       return apiClient.post(`adminRole/`, data);
     },
-    getAllStudents() {
+    getAllAdmins() {
       return apiClient.get(`adminRole/`);
     },
-    getStudent(id) {
+    getAdmin(id) {
       return apiClient.get(`adminRole/${id}`);
     },
-    updateStudent(id, data) {
+    updateAdmin(id, data) {
       return apiClient.put(`adminRole/${id}`, data);
     },
-    deleteStudent(id) {
+    deleteAdmin(id) {
       return apiClient.delete(`adminRole/${id}`);
     },
-    deleteAllStudents() {
+    deleteAlLAdmins() {
       return apiClient.delete(`adminRole/`);
     },
 };

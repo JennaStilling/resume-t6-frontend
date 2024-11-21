@@ -34,6 +34,14 @@
   
       const handleLoginSuccess = () => {
         router.push('/home');
+        /*
+          if user.admin_id != null
+            router.push('/adminHome')
+          else if user.reviewer.id != null
+            router.push('/reviewerHome')
+          else
+            router.push('/studentHome')
+        */
       };
   
       const handleLoginFailure = (message) => {

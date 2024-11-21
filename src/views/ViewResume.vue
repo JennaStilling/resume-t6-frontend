@@ -63,20 +63,35 @@
       </div>
       <div class="ai-tab" width="100%" height="100%" v-if="activeTab === 'ai'">
         <div>
-          Job Description
+          <!-- Job Description Field -->
           <div class="text-field-with-title">
             <label for="degree" class="field-label">Job Description</label>
-            <textarea v-model="jobDescription" rows="3" class="text-field"></textarea>
+            <div class="textarea-wrapper">
+              <textarea v-model="jobDescription" rows="3" class="text-field" placeholder="Paste desired job description here..."></textarea>
+              <button @click="pasteFromClipboard" class="paste-icon" title="Paste">
+                <img :src="pasteIcon" alt="Paste" />
+              </button>
+            </div>
             <span class="mandatory">*</span>
           </div>
-          <div>
-            <div class="text-field-with-title">
-              <label for="degree" class="field-label">Suggestion</label>
-              <textarea v-model="result" rows="20" class="text-field" readonly></textarea>
-              <span class="mandatory">*</span>
-            </div>
+
+          <!-- AI Suggestion Field -->
+          <div class="text-field-with-title">
+            <label for="degree" class="field-label">AI Suggestion</label>
+            <textarea
+              v-model="result"
+              :placeholder="loading ? 'Loading...' : ''"
+              rows="18"
+              class="text-field"
+              readonly
+            ></textarea>
+            <span class="mandatory">*</span>
           </div>
-          <div @click="cohereRequest()" class="nav-button">Cohere</div>
+
+          <!-- Cohere Request Button -->
+          <div @click="cohereRequest" class="ai-review-button">
+            <img :src="aiIcon" alt="AI Icon" class="ai-icon" /> Generate AI Review
+          </div>
         </div>
       </div>
     </div>
@@ -113,6 +128,8 @@ import experienceIcon from '@/assets/build-icons/experience.png';
 import certsIcon from '@/assets/build-icons/certs.png';
 import skillsIcon from '@/assets/build-icons/skills.png';
 import projectIcon from '@/assets/build-icons/project.png';
+import aiIcon from '@/assets/build-icons/ai-review.png';
+import pasteIcon from '@/assets/build-icons/paste.png';
 
 import { loadTemplateOne } from '@/services/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
@@ -123,11 +140,6 @@ export default {
     EditBar,
   },
   setup() {
-    // const props = defineProps({
-    //   id: {
-    //     required: true,
-    //   },
-    // });
     const user = Utils.getStore('user');
     const studentId = ref(null);
     const resumeTitle = ref('');
@@ -373,17 +385,19 @@ export default {
     const loading = ref(false);
 
     const jobDescription = ref(null);
-    const result = ref(null);
+    const result = ref('');
 
     async function cohereRequest() {
       try {
         loading.value = true;
+        result.value = '';
+
+        console.log(generatePDFContent())
 
         const response = await cohereClient.chat({
-          message: generatePDFContent(),
+          message: `Job Descrption:${jobDescription.value} Resume:${generatePDFContent()}`,
           model: "command-r-08-2024",
-          //preamble: "You are an AI-assistant chatbot. You are trained to assist users by analyzing their resume. You will provide a concise list of recommendations to improve their resumes. Users will send their resumes in html."
-          preamble: "can you give me the resume information in the html"
+          preamble: "You are an AI-assistant chatbot. You are trained to assist users by analyzing their resume. You will provide a concise list of recommendations to improve their resumes. Users will send their resumes in html. Only give recommendations about the descriptions of each item in their resume and how those items relate to the job description. Do not mention that the request was made in HTML in your response."
         });
         result.value = response.text;
       } catch (error) {
@@ -483,6 +497,19 @@ export default {
       });
     }
 
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText(); // Read text from clipboard
+        if (text) {
+          this.jobDescription = text; // Set the job description
+        } else {
+          alert('Clipboard is empty!');
+        }
+      } catch (error) {
+        alert('Failed to read clipboard: ' + error.message);
+      }
+    }
+
     const deleteResumeData = (service) => {
       service(resumeId.value)
         .then(() => {
@@ -514,7 +541,11 @@ export default {
       selectedTemplate,
       selectTemplate,
       previewTemplate,
+      aiIcon,
+      pasteIcon,
+      pasteFromClipboard,
       cohereRequest,
+      loading,
       result,
       jobDescription
     };
@@ -525,4 +556,144 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
+
+.nav-button {
+  background-color: #5AC8FA;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.nav-button:hover {
+  background-color: #4BB5D7;
+}
+
+.gray-rectangle {
+  margin-left: 70px;
+  height: 105px;
+  background-color: #D2D9DC;
+  display: flex;
+  align-items: flex-end; 
+  justify-content: flex-end; 
+  padding: 10px; 
+}
+
+.ai-review-button {
+  background: linear-gradient(180deg, #5AC8FA 0%, #337C99 100%);
+  color: #021E2C; 
+  border: none;
+  padding: 15px 20px; 
+  border-radius: 9px; 
+  cursor: pointer;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+  height: 65px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+  font-family: 'Poppins', sans-serif;
+}
+
+.ai-review-button:hover {
+  background: linear-gradient(180deg, #4BB5D7 0%, #2F6D81 100%);
+  transform: scale(1.05);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ai-icon {
+  width: 48px; 
+  height: 50px; 
+  margin-right: 10px; 
+  display: flex; 
+  align-items: center;
+}
+
+.field-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #02161e;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.text-field-with-title {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 110vh;
+}
+
+.cohere-button {
+  background: linear-gradient(135deg, #022B3A 0%, #04425A 100%);
+  color: #E0F7FA; 
+  border: 2px solid #04425A; 
+  padding: 15px 30px;
+  border-radius: 10px; 
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 65px;
+  max-width: 40%;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5); 
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  margin-right: 40px;
+}
+
+.cohere-button:hover {
+  background: linear-gradient(135deg, #033A4E 0%, #044F6D 100%);
+  transform: translateY(-3px);
+  border-color: #056885; 
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6); 
+}
+
+.cohere-button:active {
+  transform: translateY(1px); 
+  background: linear-gradient(135deg, #021E2C 0%, #033A4E 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.textarea-wrapper {
+  display: flex;
+  position: relative;
+  align-items: right;
+  width:100%;
+}
+
+.text-field {
+  width: 100%;
+  padding-right: 40px; 
+}
+
+.paste-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.paste-icon img {
+  width: 27px; 
+  height: 29px; 
+  transition: opacity 0.3s ease;
+}
+
+.paste-icon:hover img {
+  opacity: 0.7;
+}
 </style>

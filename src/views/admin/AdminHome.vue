@@ -22,6 +22,64 @@ const roles = ref([])
 const userRoles = ref([])
 var userSpecificRole = ref("")
 
+const initials = ref("");
+const router = useRouter();
+
+const studentId = ref(""); 
+const adminId = ref("");
+const reviewerId = ref("");
+
+onMounted(() => {
+// Load user data if available
+user.value = Utils.getStore("user");
+// if (user.value) {
+//   initials.value = user.value.fName[0] + user.value.lName[0];
+//   name.value = user.value.fName + " " + user.value.lName;
+// }
+console.log(user.value);
+
+getUserRoles();
+});
+
+import Utils from "@/config/utils.js";
+import UserServices from "../../services/userServices.js";
+import { useRouter } from "vue-router";
+
+const getUserRoles = () => {
+  UserServices.getUser(user.value.userId)
+    .then((res) => {
+      user.value = res.data;
+      console.log("ID: " + user.value.id);
+      console.log("Student ID: " + user.value.studentId);
+      console.log("Admin ID: " + user.value.adminId);
+      console.log("Reviewer ID: " + user.value.reviewerId);
+
+      studentId.value = user.value.studentId;
+      adminId.value = user.value.adminId;
+      reviewerId.value = user.value.reviewerId;
+
+      if (studentId.value != null && adminId.value == null && reviewerId.value == null)
+        router.push({ name: "studentHome" });
+      else if (
+        (adminId.value != null && studentId.value == null && reviewerId.value == null) ||
+        (studentId.value != null && reviewerId.value != null && adminId.value != null) ||
+        (studentId.value != null && adminId.value != null && reviewerId.value == null) ||
+        (reviewerId.value != null && adminId.value != null && studentId.value == null)
+      )
+        router.push({ name: "adminHome" });
+      else if (
+        reviewerId.value != null &&
+        adminId.value == null &&
+        studentId.value == null
+      )
+        router.push({ name: "reviewerHome" });
+      else console.log("User has not been assigned a role");
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+};
+
 const getAllRoles = () => {
     RoleServices.getAllRoles()
         .then((res) => {
@@ -129,20 +187,20 @@ const getAllUserRoles = async (uId, r) => {
         return null;
 };
 
-const getUserRoles = async (userId) => {
-    let roleList = '';
-    const rolePromises = roles.value.map(async (role) => {
-        const roleType = await getAllUserRoles(userId, role);
-        return roleType;
-    });
+// const getUserRoles = async (userId) => {
+//     let roleList = '';
+//     const rolePromises = roles.value.map(async (role) => {
+//         const roleType = await getAllUserRoles(userId, role);
+//         return roleType;
+//     });
 
-    const roleTypes = await Promise.all(rolePromises);
-    const filteredRoles = roleTypes.filter((roleType) => 
-        roleType !== null);
-    roleList = filteredRoles.join(', ');
+//     const roleTypes = await Promise.all(rolePromises);
+//     const filteredRoles = roleTypes.filter((roleType) => 
+//         roleType !== null);
+//     roleList = filteredRoles.join(', ');
 
-    return roleList;
-};
+//     return roleList;
+// };
 
 onMounted(async () => {
     // if (user.value.id) {
@@ -156,6 +214,7 @@ getUsers();
 </script>
 
 <template>
+        <div class="home-page">
     <div class="modified-width">
         <v-card title="Edit Users">
 
@@ -234,6 +293,7 @@ getUsers();
             </div>
         </div>
     </div>
+</div>
 </template>
 
 
@@ -289,6 +349,17 @@ getUsers();
 }
 
 .justify-right {
-    padding-right: 10px
+    padding-right: 10px }
+
+    @import "@/assets/dark-mode.css";
+
+.home-page {
+    color: white;
+    padding: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+
 }
 </style>
