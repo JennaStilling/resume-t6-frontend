@@ -15,12 +15,16 @@ import EditResume from './views/EditResume.vue';
 import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
+import AdminHomePage from './views/admin/AdminHome.vue';
+import ReviewerHomePage from './views/reviewer/ReviewerHome.vue';
 import StudentHome from './views/StudentHome.vue'
 import Cohere from './views/CohereTest.vue';
+import HomePageRouter from './views/HomePageRouter.vue';
 
 // Define routes
 const routes = [
   { path: '/', component: HomePage },
+  { path: '/home', name: 'home', component: HomePageRouter },
 
   // Profile paths:
   { path: '/contact-info', component: ContactInfo },
@@ -45,7 +49,11 @@ const routes = [
   { path: '/add', name: 'addResume', component: AddResume },
   { path: '/edit/:id', name: 'editResume', component: EditResume, props: true },
   { path: '/profile', name: 'profile', component: ViewProfile },
-
+  
+  //dummy / temp routes for nav bar testing
+  { path: '/studentHome', name: 'studentHome', component: StudentHome },
+  { path: '/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
+  { path: '/adminHome', name: 'adminHome', component: AdminHomePage },
   { path: '/cohere-test', name: 'cohere', component: Cohere }
 ];
 
