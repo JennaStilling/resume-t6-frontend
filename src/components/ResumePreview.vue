@@ -1,41 +1,65 @@
 <template>
-    <div class="resume-preview" @click="handleClick">
-        <img :src="resume.imageUrl" alt="Resume Image" />
-        <h3>{{ resume.name }}</h3>
-        <p>{{ resume.description }}</p>
-        <v-tooltip location="top" max-width="200px">
-            <template v-slot:activator="{ props }">
-                <button v-bind="props" @click.stop="handleEdit">Edit</button>
-            </template>
-            Edit this resume
-        </v-tooltip>
-        <br>
-        <v-tooltip location="top" max-width="200px">
-            <template v-slot:activator="{ props }">
-                <button v-bind="props" @click.stop="handleDelete">Delete</button>
-            </template>
-            Delete this resume
-        </v-tooltip>
+  <div class="resume-preview" 
+    @click="handleClick"
+    @mouseover="handleMouseover"
+    @mouseleave="handleMouseleave"
+    >
+    <div class="resume-icon">
+      <img src="/src/assets/simple-resume-template.png" alt="Resume Image" width="100" max-width="150" />
     </div>
+    <h3>{{ resume.name }}</h3>
+    <p>{{ resume.description }}</p>
+
+    <!-- Hover overlay -->
+    <div class="hover-overlay" v-if="showActions">
+      <v-btn icon color="primary" @click="handleEdit">Edit</v-btn>
+      <v-btn icon color="error" @click="handleDelete">Delete</v-btn>
+    </div>
+  </div>
 </template>
+
   
 <script setup>
   import { ref, onMounted } from "vue";
+  import Utils from '@/config/utils.js';
+  import ResumeServices from "@/services/resumeServices";
   
   const props = defineProps({
     resume: Object,
   });
   
-  const emit = defineEmits(['edit', 'delete']);
-  
-  const tooltip1 = ref(true);
-  const tooltip2 = ref(true);
-  
   onMounted(() => {
-    tooltip1.value = true;
-    tooltip2.value = true;
+    Utils.getUser(user).then(value => {
+      studentId.value = value.studentId;
+      console.log(studentId.value)
+      getResumes();
+    });
   });
-  
+
+  const emit = defineEmits(['edit', 'delete']);
+  const user = Utils.getStore("user");
+  const studentId = ref();
+  const showActions = ref(false);
+  const resumes = ref([]);
+
+  const getResumes = () => {
+    ResumeServices.getAllResumes(studentId.value)
+        .then((response) => {
+          resumes.value = response.data;
+        })
+        .catch((error) => {
+          console.log("Could not retrieve resumes: " + error);
+        })
+  };
+
+  const handleMouseover = () => {
+    showActions.value = true;
+  };
+
+  const handleMouseleave = () => {
+    showActions.value = false;
+  };
+
   const handleClick = () => {
     console.log(`Clicked on resume ${props.resume.name}`);
   };
@@ -68,6 +92,28 @@
   
   .resume-preview:hover {
     background-color: #118ACB;
+  }
+
+  .hover-overlay {
+    position: relative;
+    top: 20px;
+    bottom: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 20%;
+    z-index: 1000;
+  }
+
+  .hover-overlay button {
+    font-size: 18px !important;
+  }
+
+  .resume-icon {
+    display: flex;
+    justify-content: center; /* Space between dropdown and buttons */
+    gap: 30px;
+    margin-bottom: 20px; /* Space below the shortcuts */
+    margin-top: 10px;
   }
   </style>
   

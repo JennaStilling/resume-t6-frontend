@@ -27,7 +27,6 @@
     { name: 'Start a New Resume' },
     { name: 'My Home' },
     { name: 'Request Resume Review' },
-    { name: 'Resume Templates' }
   ]
 
   const selectItem = (item) => {

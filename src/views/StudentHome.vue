@@ -8,14 +8,15 @@
             <div class="filtering-shortcuts">
                 <Dropdown style="border-color: #53011a;">
                     <template #trigger>
-                        <button type="button">SELECT</button>
+                        <button type="button"> {{ selectedFilter }}</button>
                     </template>
-                    <ul style="background-color: #65001F; color: white;">
+                    <ul style="background-color: #65001F; color: white; cursor: pointer;">
                       <li
                         v-for="filter in filterOptions" 
-                        :key="filter" 
+                        :key="filter"
                         @click="() => selectFilter(filter)"
-                        :class="{ 'is-selected': selectedFilter === filter }">
+                        :class="{ 'is-selected': selectedFilter === filter }"
+                        >
                         {{ filter }}
                       </li>
                     </ul>
@@ -29,21 +30,22 @@
                 </div>
             </div>
   
-            
-            <div class="resume-create-shortcut-area">
-              <br><br><br><br>
-                <img src="/src/assets/add-icon.png" alt="Start Resume" 
-                  :class="{ 'cursor-pointer': isActive }" style="display: block; margin: auto;" @click="createResume"/>
-            </div>
+            <div class="resume-main-area">
+              <div class="resume-create-shortcut-area">
+                <br><br><br><br>
+                  <img src="/src/assets/add-icon.png" alt="Start Resume" 
+                    :class="{ 'cursor-pointer': isActive }" style="display: block; margin: auto;" @click="createResume"/>
+              </div>
 
-            <div class="resume-previews">
-              <ResumePreview
-              v-for="resume in resumes"
-              :key="resume.id"
-              :resume="resume"
-              @edit="handleEdit"
-              @delete="handleDelete"
-              />
+              <div class="resume-previews">
+                <ResumePreview
+                  v-for="resume in resumes"
+                  :key="resume.id"
+                  :resume="resume"
+                  @edit="handleEdit"
+                  @delete="handleDelete"
+                />
+              </div>
             </div>
         </div>
     </div>
@@ -63,7 +65,7 @@
   const resumes = ref([]);
   const displayType = ref('list'); // Default display type
   const router = useRouter();
-  const filterOptions = ['Name', 'Last Modified', 'Created']; // Filter options
+  const filterOptions = ['- SORT BY -','Name', 'Last Modified', 'Created']; // Filter options
   const selectedFilter = ref(filterOptions[0]);
   const isActive = ref(true);
   
@@ -88,7 +90,24 @@
   
   const selectFilter = (option) => {
     selectedFilter.value = option; // Update label with selected option
-    console.log(`Selected filter: ${option}`)
+
+    switch(selectedFilter.value) {
+      case 'Name':
+        console.log(`Selected filter: ${option}`)
+        resumes.value = resumes.value.sort((a, b) => a.name.localeCompare(b.name));
+      case 'Last Modified':
+        console.log(`Selected filter: ${option}`)
+        resumes.value = resumes.value.sort((a, b) => a.updatedAt.toString().localeCompare(b.updatedAt.toString()));
+        // resumes => [resumes.value].sort((a, b) => 
+        // new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
+      case 'Created':
+        console.log(`Selected filter: ${option}`)
+        resumes.value = resumes.value.sort((a, b) => a.createdAt.toString().localeCompare(b.createdAt.toString()));
+        // resumes => [resumes.value].sort((a, b) => 
+        // new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      default:
+    }
+    console.log(`Resume list: ${JSON.stringify(resumes.value)}`)
   };
   
   onMounted(() => {
@@ -156,13 +175,18 @@
     color: white; /* Text color for active button */
   }
   
+  .resume-main-area {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+  }
+
   .resume-create-shortcut-area {
     width: 222px; /* Set width to resemble a piece of paper */
     height: 298px; /* Set height */
     border: 2px dashed #1A9BCB; /* Dashed border */
     padding: 10px; /* Padding inside the box */
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    margin-bottom: 20px; /* Space below the shortcut area */
     border-radius: 20px;
     cursor: pointer;
   }
@@ -187,9 +211,8 @@
 
   .resume-previews {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     grid-auto-flow: dense;
-    grid-row-gap: 10px; /* Adjust as needed */
   }
   </style>
