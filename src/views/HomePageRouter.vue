@@ -1,6 +1,5 @@
 <script setup>
 import Utils from "@/config/utils.js";
-import UpdateProfileModal from "@/components/UpdateProfileModal.vue";
 import UserServices from "../services/userServices.js";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -52,8 +51,6 @@ const HandleRoute = () => {
     <div class="home-page">
         <h1>Welcome to ResuMate!</h1>
         <p>You shouldn't see this page</p>
-
-        <UpdateProfileModal v-if="showModal" @close="showModal = false" />
     </div>
 </template>
 

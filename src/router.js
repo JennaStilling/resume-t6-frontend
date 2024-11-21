@@ -49,6 +49,7 @@ const routes = [
   { path: '/add', name: 'addResume', component: AddResume },
   { path: '/edit/:id', name: 'editResume', component: EditResume, props: true },
   { path: '/profile', name: 'profile', component: ViewProfile },
+  
   //dummy / temp routes for nav bar testing
   { path: '/studentHome', name: 'studentHome', component: StudentHome },
   { path: '/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },

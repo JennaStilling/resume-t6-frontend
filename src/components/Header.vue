@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <div class="logo-title">
-      <router-link to="/">
+      <router-link to="/home">
         <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
       </router-link>
       <div class="title">OC Resume Builder</div>
@@ -12,6 +12,9 @@
       <img src="/src/assets/userIcon.png" alt="Menu" class="menu-icon" @click="toggleNav" />
       <div v-if="navOpen" class="dropdown-nav-menu">
         <ul>
+          <!-- <li @click="updateHomePage('Student')" v-if="studentId.value != null">Student Home</li>
+          <li @click="updateHomePage('Reviewer')" v-if="reviewerId.value != null">Reviewer Home</li>
+          <li @click="updateHomePage('Admin')" v-if="adminId.value != null">Admin Home</li> -->
           <li @click="updateHomePage('Student')">Student Home</li>
           <li @click="updateHomePage('Reviewer')">Reviewer Home</li>
           <li @click="updateHomePage('Admin')">Admin Home</li>
@@ -32,11 +35,13 @@
 </template>
 
 
+
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Utils from "../config/utils";
 import AuthServices from "../services/authServices";
 import { useRouter } from "vue-router";
+import UserServices from "../services/userServices.js";
 
 const user = ref(null);
 const initials = ref("");
@@ -45,13 +50,59 @@ const menuOpen = ref(false);
 const router = useRouter();
 const navOpen = ref(false);
 
-// Load user data if available
-user.value = Utils.getStore("user");
-if (user.value) {
-  initials.value = user.value.fName[0] + user.value.lName[0];
-  name.value = user.value.fName + " " + user.value.lName;
-}
-console.log(user.value);
+const studentId = ref("");
+const adminId = ref("");
+const reviewerId = ref("");
+
+onMounted(() => {
+  // Load user data if available
+  user.value = Utils.getStore("user");
+  if (user.value) {
+    initials.value = user.value.fName[0] + user.value.lName[0];
+    name.value = user.value.fName + " " + user.value.lName;
+  }
+  console.log(user.value);
+
+  getUserRoles();
+});
+
+
+
+const getUserRoles = () => {
+  UserServices.getUser(user.value.userId)
+    .then((res) => {
+      user.value = res.data;
+      console.log("ID: " + user.value.id);
+      console.log("Student ID: " + user.value.studentId);
+      console.log("Admin ID: " + user.value.adminId);
+      console.log("Reviewer ID: " + user.value.reviewerId);
+
+      studentId.value = user.value.studentId;
+      adminId.value = user.value.adminId;
+      reviewerId.value = user.value.reviewerId;
+
+      if (studentId.value != null && adminId.value == null && reviewerId.value == null)
+        router.push({ name: "studentHome" });
+      else if (
+        (adminId.value != null && studentId.value == null && reviewerId.value == null) ||
+        (studentId.value != null && reviewerId.value != null && adminId.value != null) ||
+        (studentId.value != null && adminId.value != null && reviewerId.value == null) ||
+        (reviewerId.value != null && adminId.value != null && studentId.value == null)
+      )
+        router.push({ name: "adminHome" });
+      else if (
+        reviewerId.value != null &&
+        adminId.value == null &&
+        studentId.value == null
+      )
+        router.push({ name: "reviewerHome" });
+      else console.log("User has not been assigned a role");
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+};
+
 
 // Toggle the user menu display
 const toggleMenu = () => {
@@ -60,7 +111,6 @@ const toggleMenu = () => {
 
 const toggleNav = () => {
   navOpen.value = !navOpen.value;
-  console.log(navOpen.value)
 }
 
 // Navigate to the profile update page
@@ -71,16 +121,28 @@ const updateProfile = () => {
 
 const updateHomePage = (loc) => {
   if (loc === 'Student') {
-    navOpen.value = false;
-    router.push({ name: "studentHome" });
+    if (studentId.value != null) {
+      navOpen.value = false;
+      router.push({ name: "studentHome" });
+    }
+    else
+      console.log("You do not have student permissions")
   }
   else if (loc === 'Reviewer') {
-    navOpen.value = false;
-    router.push({ name: "reviewerHome" });
+    if (reviewerId.value != null) {
+      navOpen.value = false;
+      router.push({ name: "reviewerHome" });
+    }
+    else
+      console.log("You do not have reviewer permissions")
   }
   else if (loc === 'Admin') {
-    navOpen.value = false;
-    router.push({ name: "adminHome" });
+    if (adminId.value != null) {
+      navOpen.value = false;
+      router.push({ name: "adminHome" });
+    }
+    else
+      console.log("You do not have admin permissions")
   }
 }
 
@@ -104,7 +166,8 @@ const signOut = () => {
 <style scoped>
 .nav-menu {
   position: relative;
-  margin-right: 20px; /* Spacing between nav-menu and user-menu */
+  margin-right: 2px;
+  /* Spacing between nav-menu and user-menu */
 }
 
 .menu-icon {
