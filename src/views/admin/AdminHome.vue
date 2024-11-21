@@ -26,7 +26,7 @@ const students = ref([]);
 const reviewers = ref([]);
 const admins = ref([]);
 
-const filterOptions = ["Reviewers", "Students", "Admins", "All"];
+const filterOptions = ["All", "Students", "Reviewers", "Admins"];
 const filterType = ref("All");
 const headers = [
     { text: "Name", value: "name", align: "start" },
@@ -46,7 +46,6 @@ const reviewerId = ref("");
 const selectedStudentId = ref("");
 const selectedAdminId = ref("");
 const selectedReviewerId = ref("");
-
 const hasReviewerAccess = ref(false);
 
 onMounted(() => {
@@ -55,8 +54,6 @@ onMounted(() => {
     getUsers();
     //getUserRoles();
 });
-
-
 
 const getUserRoles = () => {
     UserServices.getUser(user.value.userId)
@@ -222,15 +219,15 @@ const getSpecificUserRoles = (specificUserId) => {
             selectedReviewerId.value = specificUser.value.reviewerId;
 
             if (selectedStudentId.value != null) {
-                userSpecificRoles.value += "Student "
+                userSpecificRoles.value += "Student, "
             }
 
             if (selectedAdminId.value != null) {
-                userSpecificRoles.value += "Admin "
+                userSpecificRoles.value += "Admin, "
             }
 
             if (selectedReviewerId.value != null) {
-                userSpecificRoles.value += "Reviewer "
+                userSpecificRoles.value += "Reviewer, "
             }
 
             console.log("Role List: " + userSpecificRoles.value)
@@ -241,16 +238,20 @@ const getSpecificUserRoles = (specificUserId) => {
 
 
 const handleReviewerChange = () => {
-    console.log("Reviewer access toggled:", hasReviewerAccess.value);
+    hasReviewerAccess.value = !hasReviewerAccess.value;
+    console.log("Value changed: " + hasReviewerAccess.value)
 }
 
 const determineReviewerStatus = (item) => {
-    var v = getUserRoles(item.id);
-    console.log(v);
-    // console.log("Has reviewer: " + v.includes('reviewer'));
+    // console.log("Reviewers list: " + reviewers.value[0].id)
+    // console.log("Has reviewer status: " + reviewers.value.includes(item.reviewerId));
+    hasReviewerAccess.value = reviewers.value.includes(item.reviewerId);
+    reviewers.value.forEach((value) => {
+    if (item.reviewerId === value.id) {
+        hasReviewerAccess.value = true;
+    }
+});
 }
-
-
 
 getAllStudents();
 getAllReviewers();
@@ -262,7 +263,6 @@ getUsers();
     <div class="home-page">
         <div class="modified-width">
             <v-card title="Edit Users">
-
                 <v-row>
                     <v-col cols="6">
                         <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify"
@@ -295,7 +295,7 @@ getUsers();
                     <h3>User Data</h3>
                 </div>
 
-                <v-card class="mx-auto pa-4" color='red'>
+                <v-card class="mx-auto pa-4">
                     <div class="modal-body">
                         <v-row>
                             <v-col cols="12">
@@ -305,16 +305,19 @@ getUsers();
                                 <strong>Email:</strong> {{ user.email }}
                             </v-col>
                             <v-col cols="12">
-                                <strong>Roles:</strong> {{ userSpecificRoles.value }}
+                                <strong>Roles:</strong> {{ userSpecificRoles }}
                             </v-col>
                             <v-col cols="12">
                                 <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
-                                    @change="handleReviewerChange"></v-checkbox>
+                                    @change="handleReviewerChange" checked= "hasReviewerAccess" ></v-checkbox>
                             </v-col>
                         </v-row>
                     </div>
+                    
                     <v-row class="justify-end pt-2 justify-right">
-                        <v-btn @click="showUserInfo = false" color="red">Close</v-btn>
+                        <v-btn @click="showUserInfo = false" color="green" class="me-2">Save</v-btn>
+                        <v-btn @click="showUserInfo = false, showDeleteItem=true" color="red" class="me-2">Delete</v-btn>
+                        <v-btn @click="showUserInfo = false" color="blue">Close</v-btn>
                     </v-row>
                 </v-card>
             </div>
@@ -331,9 +334,9 @@ getUsers();
                     <p v-if="deleteError">Error deleting<br />{{ user.fName + " " + user.lName }}.</p>
                 </div>
                 <div class="modal-body">
-                    <button v-if="!deleteError" @click="showDeleteItem = false">No, cancel</button>
-                    <button v-if="!deleteError" class="error" @click="deleteUser(user)">Yes, delete</button>
-                    <button v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">Close</button>
+                    <v-btn v-if="!deleteError" color="blue" @click="showDeleteItem = false">No, cancel</v-btn>
+                    <v-btn v-if="!deleteError" class="error" @click="deleteUser(user)">Yes, delete</v-btn>
+                    <v-btn v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">Close</v-btn>
                 </div>
             </div>
         </div>
