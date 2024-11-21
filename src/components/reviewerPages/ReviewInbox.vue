@@ -13,6 +13,10 @@
 <script>
 import userResumeReviewServices from "@/services/userResumeReviewServices.js";
 import resumeReviewServices from "@/services/resumeReviewServices";
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import Utils from "../../config/utils.js";
+
 
 export default {
   data() {
@@ -24,7 +28,9 @@ export default {
   methods: {
     async fetchUserResumeReviews() {
       try {
-        const userId = 9;
+        const user = Utils.getStore("user");
+        const userId = user.userId;
+        console.log("Current userId: " + userId);
         const response = await userResumeReviewServices.getAllUserResumeReviewsByUserId(userId);
         this.userResumeReviews = response.data;
 
