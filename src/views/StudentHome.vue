@@ -1,7 +1,8 @@
   <template>
     <div class="container">
         <!-- Side Navigation Bar -->
-        <StudentHomeSideNav/>
+        <StudentHomeSideNav @request="toggleRequest()"/>
+        <RequestReviewer v-if="isRequest" @toggleRequest="toggleRequest()"/>
 
         <!-- Main Content Area -->
         <div class="content">
@@ -15,8 +16,7 @@
                         v-for="filter in filterOptions" 
                         :key="filter"
                         @click="() => selectFilter(filter)"
-                        :class="{ 'is-selected': selectedFilter === filter }"
-                        >
+                        :class="{ 'is-selected': selectedFilter === filter }">
                         {{ filter }}
                       </li>
                     </ul>
@@ -59,6 +59,7 @@
   import resumeServices from '../services/resumeServices.js'
   import StudentHomeSideNav from '@/components/StudentHomeSideNav.vue';
   import ResumePreview from '@/components/ResumePreview.vue';
+  import RequestReviewer from '@/components/RequestReviewer.vue';
   
   const user = Utils.getStore("user");
   const studentId = ref();
@@ -68,7 +69,8 @@
   const filterOptions = ['- SORT BY -','Name', 'Last Modified', 'Created']; // Filter options
   const selectedFilter = ref(filterOptions[0]);
   const isActive = ref(true);
-  
+  const isRequest = ref(false);
+    
   const getResumes = () => {
     resumeServices.getAllResumes(studentId.value)
         .then((response) => {
@@ -78,6 +80,10 @@
           console.log("Could not retrieve resumes: " + error);
         })
   };
+  
+  const toggleRequest = () => {
+    isRequest.value = !isRequest.value;
+  }
   
   const createResume = () => {
     router.push({ name: 'addResume' }); // Navigate to the resume creation page

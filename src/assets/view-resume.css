@@ -176,6 +176,23 @@
   padding: 20px;
 }
 
+.ai-tab {
+  margin-left: 70px;
+  display: grid;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  background-color: #f3f3f3;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; 
+  padding: 10px;
+  max-height: 200vh; 
+  overflow-y: auto; 
+  background-color: #f0f4f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 .template-list {
   margin-left: 70px;

@@ -18,7 +18,7 @@
 <script setup>
   import { ref } from "vue";
   import { useRouter } from 'vue-router';
-  // import Utils from '@/config/utils.js';
+  const emit = defineEmits(["request"]);
 
   const router = useRouter();
   const isActive = ref(true);
@@ -37,7 +37,7 @@
       location.reload();
       // This needs to be changed for taking into account Student Roles and going to StudentHome
     } else if (item.name === 'Request Resume Review') {
-      router.push({ name: 'reviewResume' });
+      emit("request");
     }
   }
 </script>

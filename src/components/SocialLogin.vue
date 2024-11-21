@@ -16,6 +16,7 @@
       return {
         fName: "",
         lName: "",
+        id: "",
         roleCounter: 0,
         user: {},
       };
@@ -55,8 +56,8 @@
             Utils.setStore("user", this.user);
             this.fName = this.user.fName;
             this.lName = this.user.lName;
-            this.$router.push({ name: "studentHome" });
-            //this.$router.go();
+            this.id = this.user.id;
+            this.$router.push({ name: "home" });
           })
           .catch((error) => {
             console.log("error", error);

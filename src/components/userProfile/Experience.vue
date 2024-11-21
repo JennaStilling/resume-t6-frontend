@@ -153,7 +153,7 @@ const experienceToDelete = ref(null);
 const message = ref('');
 
 const buttonLabel = computed(() => {
-  return route.path.includes('/experience/edit/') ? 'SAVE CHANGES' : 'ADD EXPERIENCE';
+  return route.path.includes('/experience/edit/') ? 'SAVE CHANGES' : 'ADD TO LIST';
 });
 
 
