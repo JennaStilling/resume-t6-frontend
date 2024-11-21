@@ -4,12 +4,14 @@ import UserServices from "../../services/userServices";
 import UserRoleServices from "../../services/userRoleServices";
 import StudentServices from "../../services/studentServices";
 import RoleServices from "../../services/roleServices";
+import { useRouter } from "vue-router";
+import Utils from "@/config/utils.js";
 
 const users = ref([]);
 const user = ref(null);
 const showDeleteItem = ref(false);
 const deleteError = ref(false);
-const message = ref("test value");
+const message = ref("");
 const showUserInfo = ref(false);
 const search = ref("");
 const students = ref([]);
@@ -25,59 +27,52 @@ var userSpecificRole = ref("")
 const initials = ref("");
 const router = useRouter();
 
-const studentId = ref(""); 
+const studentId = ref("");
 const adminId = ref("");
 const reviewerId = ref("");
 
 onMounted(() => {
-// Load user data if available
-user.value = Utils.getStore("user");
-// if (user.value) {
-//   initials.value = user.value.fName[0] + user.value.lName[0];
-//   name.value = user.value.fName + " " + user.value.lName;
-// }
-console.log(user.value);
+    user.value = Utils.getStore("user");
+    console.log(user.value);
 
-getUserRoles();
+    getUserRoles();
 });
 
-import Utils from "@/config/utils.js";
-import UserServices from "../../services/userServices.js";
-import { useRouter } from "vue-router";
+
 
 const getUserRoles = () => {
-  UserServices.getUser(user.value.userId)
-    .then((res) => {
-      user.value = res.data;
-      console.log("ID: " + user.value.id);
-      console.log("Student ID: " + user.value.studentId);
-      console.log("Admin ID: " + user.value.adminId);
-      console.log("Reviewer ID: " + user.value.reviewerId);
+    UserServices.getUser(user.value.userId)
+        .then((res) => {
+            user.value = res.data;
+            console.log("ID: " + user.value.id);
+            console.log("Student ID: " + user.value.studentId);
+            console.log("Admin ID: " + user.value.adminId);
+            console.log("Reviewer ID: " + user.value.reviewerId);
 
-      studentId.value = user.value.studentId;
-      adminId.value = user.value.adminId;
-      reviewerId.value = user.value.reviewerId;
+            studentId.value = user.value.studentId;
+            adminId.value = user.value.adminId;
+            reviewerId.value = user.value.reviewerId;
 
-      if (studentId.value != null && adminId.value == null && reviewerId.value == null)
-        router.push({ name: "studentHome" });
-      else if (
-        (adminId.value != null && studentId.value == null && reviewerId.value == null) ||
-        (studentId.value != null && reviewerId.value != null && adminId.value != null) ||
-        (studentId.value != null && adminId.value != null && reviewerId.value == null) ||
-        (reviewerId.value != null && adminId.value != null && studentId.value == null)
-      )
-        router.push({ name: "adminHome" });
-      else if (
-        reviewerId.value != null &&
-        adminId.value == null &&
-        studentId.value == null
-      )
-        router.push({ name: "reviewerHome" });
-      else console.log("User has not been assigned a role");
-    })
-    .catch((error) => {
-      console.log("error", error);
-    });
+            if (studentId.value != null && adminId.value == null && reviewerId.value == null)
+                router.push({ name: "studentHome" });
+            else if (
+                (adminId.value != null && studentId.value == null && reviewerId.value == null) ||
+                (studentId.value != null && reviewerId.value != null && adminId.value != null) ||
+                (studentId.value != null && adminId.value != null && reviewerId.value == null) ||
+                (reviewerId.value != null && adminId.value != null && studentId.value == null)
+            )
+                router.push({ name: "adminHome" });
+            else if (
+                reviewerId.value != null &&
+                adminId.value == null &&
+                studentId.value == null
+            )
+                router.push({ name: "reviewerHome" });
+            else console.log("User has not been assigned a role");
+        })
+        .catch((error) => {
+            console.log("error", error);
+        });
 };
 
 const getAllRoles = () => {
@@ -175,16 +170,16 @@ const handleReviewerChange = () => {
 const determineReviewerStatus = (item) => {
     var v = getUserRoles(item.id);
     console.log(v);
-   // console.log("Has reviewer: " + v.includes('reviewer'));
+    // console.log("Has reviewer: " + v.includes('reviewer'));
 }
 
 const getAllUserRoles = async (uId, r) => {
-        const res = await UserRoleServices.getAllUserRoles(uId, r.id);
-        const userSpecificRole = res.data;
-        if (userSpecificRole[0] && r.id === userSpecificRole[0].roleId) {
-            return r.role_type;
-        }
-        return null;
+    const res = await UserRoleServices.getAllUserRoles(uId, r.id);
+    const userSpecificRole = res.data;
+    if (userSpecificRole[0] && r.id === userSpecificRole[0].roleId) {
+        return r.role_type;
+    }
+    return null;
 };
 
 // const getUserRoles = async (userId) => {
@@ -202,98 +197,91 @@ const getAllUserRoles = async (uId, r) => {
 //     return roleList;
 // };
 
-onMounted(async () => {
-    // if (user.value.id) {
-    //     const userRoles = await getUserRoles(user.value.id);
-    // }
-});
-
-
 getAllStudents();
 getUsers();
 </script>
 
 <template>
-        <div class="home-page">
-    <div class="modified-width">
-        <v-card title="Edit Users">
+    <div class="home-page">
+        <div class="modified-width">
+            <v-card title="Edit Users">
 
-            <v-row>
-                <v-col cols="6">
-                    <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify"
-                        variant="outlined" hide-details single-line>
-                    </v-text-field>
-                </v-col>
+                <v-row>
+                    <v-col cols="6">
+                        <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify"
+                            variant="outlined" hide-details single-line>
+                        </v-text-field>
+                    </v-col>
 
-                <v-col cols="6">
-                    <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined
-                        hide-details>
-                    </v-select>
-                </v-col>
-            </v-row>
-
-            <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
-                :items-per-page="filteredUsers.length" hide-default-footer>
-                <template #item.name="{ item }">
-                    <span @click="userDataDisplay(item); determineReviewerStatus(item)">
-                        {{ item.fName + " " + item.lName }}
-                    </span>
-                </template>
-            </v-data-table>
-
-        </v-card>
-    </div>
-
-    <div v-if="showUserInfo" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span @click="showUserInfo = false" class="close">&times;</span>
-                <h3>User Data</h3>
-            </div>
-
-            <v-card class="mx-auto pa-4">
-                <div class="modal-body">
-                    <v-row>
-                        <v-col cols="12">
-                            <strong>Name:</strong> {{ user.fName + " " + user.lName }}
-                        </v-col>
-                        <v-col cols="12">
-                            <strong>Email:</strong> {{ user.email }}
-                        </v-col>
-                        <v-col cols="12">
-                            <strong>Roles:</strong> {{ getUserRoles(user.id) || 'Loading roles...' }}
-                        </v-col>
-                        <v-col cols="12">
-                            <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
-                                @change="handleReviewerChange"></v-checkbox>
-                        </v-col>
-                    </v-row>
-                </div>
-                <v-row class="justify-end pt-2 justify-right">
-                    <v-btn @click="showUserInfo = false" color="red">Close</v-btn>
+                    <v-col cols="6">
+                        <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined
+                            hide-details>
+                        </v-select>
+                    </v-col>
                 </v-row>
+
+                <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
+                    :items-per-page="filteredUsers.length" hide-default-footer>
+                    <template #item.name="{ item }">
+                        <span @click="userDataDisplay(item); determineReviewerStatus(item)">
+                            {{ item.fName + " " + item.lName }}
+                        </span>
+                    </template>
+                </v-data-table>
+
             </v-card>
         </div>
-    </div>
 
-    <div v-if="showDeleteItem" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span @click="showDeleteItem = false" class="close">&times;</span>
-                <p v-if="!deleteError">
-                    Are you sure you want to delete this user?<br />
-                    {{ user.fName + " " + user.lName }}
-                </p>
-                <p v-if="deleteError">Error deleting<br />{{ user.fName + " " + user.lName }}.</p>
+        <div v-if="showUserInfo" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span @click="showUserInfo = false" class="close">&times;</span>
+                    <h3>User Data</h3>
+                </div>
+
+                <v-card class="mx-auto pa-4">
+                    <div class="modal-body">
+                        <v-row>
+                            <v-col cols="12">
+                                <strong>Name:</strong> {{ user.fName + " " + user.lName }}
+                            </v-col>
+                            <v-col cols="12">
+                                <strong>Email:</strong> {{ user.email }}
+                            </v-col>
+                            <v-col cols="12">
+                                <strong>Roles:</strong> {{ getUserRoles(user.id) || 'Loading roles...' }}
+                            </v-col>
+                            <v-col cols="12">
+                                <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
+                                    @change="handleReviewerChange"></v-checkbox>
+                            </v-col>
+                        </v-row>
+                    </div>
+                    <v-row class="justify-end pt-2 justify-right">
+                        <v-btn @click="showUserInfo = false" color="red">Close</v-btn>
+                    </v-row>
+                </v-card>
             </div>
-            <div class="modal-body">
-                <button v-if="!deleteError" @click="showDeleteItem = false">No, cancel</button>
-                <button v-if="!deleteError" class="error" @click="deleteUser(user)">Yes, delete</button>
-                <button v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">Close</button>
+        </div>
+
+        <div v-if="showDeleteItem" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span @click="showDeleteItem = false" class="close">&times;</span>
+                    <p v-if="!deleteError">
+                        Are you sure you want to delete this user?<br />
+                        {{ user.fName + " " + user.lName }}
+                    </p>
+                    <p v-if="deleteError">Error deleting<br />{{ user.fName + " " + user.lName }}.</p>
+                </div>
+                <div class="modal-body">
+                    <button v-if="!deleteError" @click="showDeleteItem = false">No, cancel</button>
+                    <button v-if="!deleteError" class="error" @click="deleteUser(user)">Yes, delete</button>
+                    <button v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </template>
 
 
@@ -349,9 +337,10 @@ getUsers();
 }
 
 .justify-right {
-    padding-right: 10px }
+    padding-right: 10px
+}
 
-    @import "@/assets/dark-mode.css";
+@import "@/assets/dark-mode.css";
 
 .home-page {
     color: white;
