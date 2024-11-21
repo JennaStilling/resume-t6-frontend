@@ -8,29 +8,49 @@
     </div>
 
     <div class="user-menu">
+      <!-- Home Menu -->
+      <img
+        src="/src/assets/home.png"
+        alt="Home"
+        class="user-icon"
+        @click="toggleHomeMenu"
+        @keydown.enter="toggleHomeMenu"
+        role="button"
+        tabindex="0"
+        aria-haspopup="true"
+        :aria-expanded="homeMenuOpen"
+        style="width: 39px; height: 39px;"
+      />
+      <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop> 
+        <ul>
+          <li @click="updateHomePage('Student')">Student Home</li>
+          <li @click="updateHomePage('Reviewer')">Reviewer Home</li>
+          <li @click="updateHomePage('Admin')">Admin Home</li>        
+        </ul>
+      </div>
+
+      <!-- Profile Menu -->
       <img
         src="/src/assets/userIcon.png"
         alt="User"
         class="user-icon"
-        @click="toggleMenu"
-        @keydown.enter="toggleMenu"
+        @click="toggleProfileMenu"
+        @keydown.enter="toggleProfileMenu"
         role="button"
         tabindex="0"
         aria-haspopup="true"
-        aria-expanded="menuOpen"
+        :aria-expanded="profileMenuOpen"
       />
-      <div v-if="menuOpen" class="dropdown-menu" @click.stop>
+      <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop> 
         <ul>
           <li @click="updateProfile">Update Profile</li>
-          <li @click="updateHomePage('Student')">Student Home</li>
-          <li @click="updateHomePage('Reviewer')">Reviewer Home</li>
-          <li @click="updateHomePage('Admin')">Admin Home</li>
           <li @click="signOut">Sign Out</li>
         </ul>
       </div>
     </div>
   </header>
 </template>
+
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
@@ -48,6 +68,9 @@ const router = useRouter();
 const studentId = ref("");
 const adminId = ref("");
 const reviewerId = ref("");
+
+const homeMenuOpen = ref(false);
+const profileMenuOpen = ref(false);
 
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
@@ -88,7 +111,7 @@ const toggleMenu = () => {
 
 const updateProfile = () => {
   router.push("/contact-info");
-  menuOpen.value = false;
+  profileMenuOpen.value = false;
 };
 
 const updateHomePage = (loc) => {
@@ -103,6 +126,7 @@ const updateHomePage = (loc) => {
   } else {
     console.error(`You do not have ${loc.toLowerCase()} permissions`);
   }
+  homeMenuOpen.value = false;
 };
 
 const signOut = async () => {
@@ -115,7 +139,17 @@ const signOut = async () => {
       console.error("Error logging out", error);
     }
   }
-  menuOpen.value = false;
+  profileMenuOpen.value = false; // Close menu after selection
+};
+
+const toggleHomeMenu = () => {
+  homeMenuOpen.value = !homeMenuOpen.value;
+  profileMenuOpen.value = false; // Close profile menu when home menu opens
+};
+
+const toggleProfileMenu = () => {
+  profileMenuOpen.value = !profileMenuOpen.value;
+  homeMenuOpen.value = false; // Close home menu when profile menu opens
 };
 </script>
 
@@ -146,8 +180,12 @@ const signOut = async () => {
   cursor: pointer;
 }
 
-.user-menu {
+.user-menu, .home-menu {
   position: relative;
+}
+
+.home-menu span {
+  margin-left: 5px;
 }
 
 .user-icon {
