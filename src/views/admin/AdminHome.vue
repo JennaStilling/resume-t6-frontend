@@ -1,28 +1,40 @@
 <script setup>
+import "@/assets/dark-mode.css";
 import { ref, computed, onMounted } from "vue";
 import UserServices from "../../services/userServices";
 import UserRoleServices from "../../services/userRoleServices";
 import StudentServices from "../../services/studentServices";
+import AdminRoleServices from "../../services/adminRoleServices";
+import ReviewerRoleServices from "../../services/reviewerRoleServices";
 import RoleServices from "../../services/roleServices";
 import { useRouter } from "vue-router";
 import Utils from "@/config/utils.js";
 
 const users = ref([]);
 const user = ref(null);
+const specificUser = ref(null);
+
 const showDeleteItem = ref(false);
 const deleteError = ref(false);
 const message = ref("");
+
 const showUserInfo = ref(false);
+
 const search = ref("");
+
 const students = ref([]);
-const filterOptions = ["Reviewers", "Students", "All"];
-const filterType = ref("Reviewers");
+const reviewers = ref([]);
+const admins = ref([]);
+
+const filterOptions = ["Reviewers", "Students", "Admins", "All"];
+const filterType = ref("All");
 const headers = [
     { text: "Name", value: "name", align: "start" },
 ];
+
 const roles = ref([])
 const userRoles = ref([])
-var userSpecificRole = ref("")
+const userSpecificRoles = ref("")
 
 const initials = ref("");
 const router = useRouter();
@@ -31,11 +43,17 @@ const studentId = ref("");
 const adminId = ref("");
 const reviewerId = ref("");
 
+const selectedStudentId = ref("");
+const selectedAdminId = ref("");
+const selectedReviewerId = ref("");
+
+const hasReviewerAccess = ref(false);
+
 onMounted(() => {
     user.value = Utils.getStore("user");
     console.log(user.value);
-
-    getUserRoles();
+    getUsers();
+    //getUserRoles();
 });
 
 
@@ -86,6 +104,7 @@ const getAllRoles = () => {
             console.log(err);
         });
 }
+
 getAllRoles();
 
 const getUsers = () => {
@@ -141,9 +160,12 @@ const filteredUsers = computed(() => {
     );
 
     if (filterType.value === "Students") {
-        filtered = filtered.filter(user => students.value.some(tempUser => tempUser.id === user.id));
+        filtered = filtered.filter(user => students.value.some(tempUser => tempUser.id === user.studentId));
     } else if (filterType.value === "Reviewers") {
-        filtered = filtered.filter(user => !students.value.some(tempUser => tempUser.id === user.id));
+        filtered = filtered.filter(user => reviewers.value.some(tempUser => tempUser.id === user.reviewerId));
+    }
+    else if (filterType.value === "Admins") {
+        filtered = filtered.filter(user => admins.value.some(tempUser => tempUser.id === user.adminId));
     }
 
     return filtered;
@@ -161,7 +183,62 @@ const getAllStudents = () => {
         });
 };
 
-const hasReviewerAccess = ref(false);
+const getAllReviewers = () => {
+    ReviewerRoleServices.getAllReviewers()
+        .then((res) => {
+            reviewers.value = res.data;
+            message.value = "";
+        })
+        .catch((err) => {
+            message.value = "Error: " + err.code + ":" + err.message;
+            console.log(err);
+        });
+};
+
+const getAllAdmins = () => {
+    AdminRoleServices.getAllAdmins()
+        .then((res) => {
+            admins.value = res.data;
+            message.value = "";
+        })
+        .catch((err) => {
+            message.value = "Error: " + err.code + ":" + err.message;
+            console.log(err);
+        });
+};
+
+const getSpecificUserRoles = (specificUserId) => {
+    UserServices.getUser(specificUserId)
+        .then((res) => {
+            userSpecificRoles.value = "";
+            specificUser.value = res.data;
+            console.log("ID: " + specificUser.value.id);
+            console.log("Student ID: " + specificUser.value.studentId);
+            console.log("Admin ID: " + specificUser.value.adminId);
+            console.log("Reviewer ID: " + specificUser.value.reviewerId);
+
+            selectedStudentId.value = specificUser.value.studentId;
+            selectedAdminId.value = specificUser.value.adminId;
+            selectedReviewerId.value = specificUser.value.reviewerId;
+
+            if (selectedStudentId.value != null) {
+                userSpecificRoles.value += "Student "
+            }
+
+            if (selectedAdminId.value != null) {
+                userSpecificRoles.value += "Admin "
+            }
+
+            if (selectedReviewerId.value != null) {
+                userSpecificRoles.value += "Reviewer "
+            }
+
+            console.log("Role List: " + userSpecificRoles.value)
+            return userSpecificRoles;
+        });
+};
+
+
 
 const handleReviewerChange = () => {
     console.log("Reviewer access toggled:", hasReviewerAccess.value);
@@ -173,31 +250,11 @@ const determineReviewerStatus = (item) => {
     // console.log("Has reviewer: " + v.includes('reviewer'));
 }
 
-const getAllUserRoles = async (uId, r) => {
-    const res = await UserRoleServices.getAllUserRoles(uId, r.id);
-    const userSpecificRole = res.data;
-    if (userSpecificRole[0] && r.id === userSpecificRole[0].roleId) {
-        return r.role_type;
-    }
-    return null;
-};
 
-// const getUserRoles = async (userId) => {
-//     let roleList = '';
-//     const rolePromises = roles.value.map(async (role) => {
-//         const roleType = await getAllUserRoles(userId, role);
-//         return roleType;
-//     });
-
-//     const roleTypes = await Promise.all(rolePromises);
-//     const filteredRoles = roleTypes.filter((roleType) => 
-//         roleType !== null);
-//     roleList = filteredRoles.join(', ');
-
-//     return roleList;
-// };
 
 getAllStudents();
+getAllReviewers();
+getAllAdmins();
 getUsers();
 </script>
 
@@ -223,12 +280,11 @@ getUsers();
                 <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
                     :items-per-page="filteredUsers.length" hide-default-footer>
                     <template #item.name="{ item }">
-                        <span @click="userDataDisplay(item); determineReviewerStatus(item)">
+                        <span @click="userDataDisplay(item); determineReviewerStatus(item); getSpecificUserRoles(item.id)">
                             {{ item.fName + " " + item.lName }}
                         </span>
                     </template>
                 </v-data-table>
-
             </v-card>
         </div>
 
@@ -239,7 +295,7 @@ getUsers();
                     <h3>User Data</h3>
                 </div>
 
-                <v-card class="mx-auto pa-4">
+                <v-card class="mx-auto pa-4" color='red'>
                     <div class="modal-body">
                         <v-row>
                             <v-col cols="12">
@@ -249,7 +305,7 @@ getUsers();
                                 <strong>Email:</strong> {{ user.email }}
                             </v-col>
                             <v-col cols="12">
-                                <strong>Roles:</strong> {{ getUserRoles(user.id) || 'Loading roles...' }}
+                                <strong>Roles:</strong> {{ userSpecificRoles.value }}
                             </v-col>
                             <v-col cols="12">
                                 <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
@@ -339,8 +395,6 @@ getUsers();
 .justify-right {
     padding-right: 10px
 }
-
-@import "@/assets/dark-mode.css";
 
 .home-page {
     color: white;
