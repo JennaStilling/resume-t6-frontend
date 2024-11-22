@@ -52,7 +52,6 @@ const routes = [
   { path: '/profile', name: 'profile', component: ViewProfile },
 
   //dummy / temp routes for nav bar testing
-  { path: '/studentHome', name: 'studentHome', component: StudentHome },
   { path: '/reviewerHome', name: 'reviewerHome', component: ReviewerHomePage },
   { path: '/adminHome', name: 'adminHome', component: AdminHomePage },
   { path: '/cohere-test', name: 'cohere', component: Cohere }
