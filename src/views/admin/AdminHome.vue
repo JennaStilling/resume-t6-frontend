@@ -2,7 +2,6 @@
 import "@/assets/dark-mode.css";
 import { ref, computed, onMounted } from "vue";
 import UserServices from "../../services/userServices";
-import UserRoleServices from "../../services/userRoleServices";
 import StudentServices from "../../services/studentServices";
 import AdminRoleServices from "../../services/adminRoleServices";
 import ReviewerRoleServices from "../../services/reviewerRoleServices";
@@ -33,7 +32,7 @@ const headers = [
 ];
 
 const roles = ref([])
-const userRoles = ref([])
+const userRoles = ref([]);
 const userSpecificRoles = ref("")
 
 const initials = ref("");
@@ -51,6 +50,9 @@ const hasReviewerAccess = ref(false);
 onMounted(() => {
     user.value = Utils.getStore("user");
     console.log(user.value);
+    getAllStudents();
+    getAllReviewers();
+    getAllAdmins();
     getUsers();
     //getUserRoles();
 });
@@ -123,6 +125,7 @@ const deleteUser = (user) => {
             showDeleteItem.value = false;
             deleteError.value = false;
             getUsers();
+            // refresh page
         })
         .catch((e) => {
             message.value = e.response.data.message;
@@ -180,6 +183,28 @@ const getAllStudents = () => {
         });
 };
 
+const addReviewer = (userId) => {
+    let tempId = ""
+    ReviewerRoleServices.createReviewer()
+        .then((res) => {
+            tempId = res.data.id;
+            UserServices.updateUser(userId, { "reviewerId": tempId })
+                .then((result) => {
+                    console.log("Reviewer added successfully");
+                    // refresh page
+                })
+        })
+}
+
+const removeReviewer = (userId) => {
+    let tempId = ""
+    UserServices.updateUser(userId, { "reviewerId": null })
+        .then((result) => {
+            console.log("Reviewer removed successfully");
+            // refresh page
+        })
+}
+
 const getAllReviewers = () => {
     ReviewerRoleServices.getAllReviewers()
         .then((res) => {
@@ -219,22 +244,24 @@ const getSpecificUserRoles = (specificUserId) => {
             selectedReviewerId.value = specificUser.value.reviewerId;
 
             if (selectedStudentId.value != null) {
-                userSpecificRoles.value += "Student, "
+                userRoles.value.push("Student")
             }
 
             if (selectedAdminId.value != null) {
-                userSpecificRoles.value += "Admin, "
+                userRoles.value.push("Admin")
             }
 
             if (selectedReviewerId.value != null) {
-                userSpecificRoles.value += "Reviewer, "
+                userRoles.value.push("Reviewer")
             }
 
-            console.log("Role List: " + userSpecificRoles.value)
-            return userSpecificRoles;
+            userRoles.value.forEach((val) => {
+                console.log("Role: " + val)
+            })
+
+            userSpecificRoles.value = userRoles.value.join(', ');
         });
 };
-
 
 
 const handleReviewerChange = () => {
@@ -242,21 +269,25 @@ const handleReviewerChange = () => {
     console.log("Value changed: " + hasReviewerAccess.value)
 }
 
-const determineReviewerStatus = (item) => {
-    // console.log("Reviewers list: " + reviewers.value[0].id)
-    // console.log("Has reviewer status: " + reviewers.value.includes(item.reviewerId));
-    hasReviewerAccess.value = reviewers.value.includes(item.reviewerId);
-    reviewers.value.forEach((value) => {
-    if (item.reviewerId === value.id) {
-        hasReviewerAccess.value = true;
+const saveUserData = (userId) => {
+    if (hasReviewerAccess.value) {
+        console.log("Adding reviewer role");
+        addReviewer(userId);
     }
-});
+    else {
+        console.log("Removing reviewer role");
+        removeReviewer(userId);
+    }
 }
 
-getAllStudents();
-getAllReviewers();
-getAllAdmins();
-getUsers();
+const determineReviewerStatus = (item) => {
+    reviewers.value.forEach((value) => {
+        if (item.reviewerId === value.id) {
+            hasReviewerAccess.value = true;
+        }
+    });
+}
+
 </script>
 
 <template>
@@ -280,7 +311,8 @@ getUsers();
                 <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
                     :items-per-page="filteredUsers.length" hide-default-footer>
                     <template #item.name="{ item }">
-                        <span @click="userDataDisplay(item); determineReviewerStatus(item); getSpecificUserRoles(item.id)">
+                        <span
+                            @click="userDataDisplay(item); determineReviewerStatus(item); getSpecificUserRoles(item.id)">
                             {{ item.fName + " " + item.lName }}
                         </span>
                     </template>
@@ -309,14 +341,16 @@ getUsers();
                             </v-col>
                             <v-col cols="12">
                                 <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
-                                    @change="handleReviewerChange" checked= "hasReviewerAccess" ></v-checkbox>
+                                    @change="handleReviewerChange" checked="hasReviewerAccess"></v-checkbox>
                             </v-col>
                         </v-row>
                     </div>
-                    
+
                     <v-row class="justify-end pt-2 justify-right">
-                        <v-btn @click="showUserInfo = false" color="green" class="me-2">Save</v-btn>
-                        <v-btn @click="showUserInfo = false, showDeleteItem=true" color="red" class="me-2">Delete</v-btn>
+                        <v-btn @click="showUserInfo = false; saveUserData(user.id)" color="green"
+                            class="me-2">Save</v-btn>
+                        <v-btn @click="showUserInfo = false, showDeleteItem = true" color="red"
+                            class="me-2">Delete</v-btn>
                         <v-btn @click="showUserInfo = false" color="blue">Close</v-btn>
                     </v-row>
                 </v-card>
