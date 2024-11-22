@@ -44,13 +44,12 @@
       <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop> 
         <ul>
           <li @click="updateProfile">Update Profile</li>
-          <li @click="logout">Sign Out</li>
+          <li @click="signOut">Sign Out</li>
         </ul>
       </div>
     </div>
   </header>
 </template>
-
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
@@ -128,7 +127,7 @@ const updateHomePage = (loc) => {
   homeMenuOpen.value = false;
 };
 
-const logout = async() => {
+const signOut = async() => {
   user.value = Utils.getStore("user");
   AuthServices.logoutUser(user.value)
     .then((response) => {
