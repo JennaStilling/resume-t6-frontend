@@ -128,7 +128,8 @@ const updateHomePage = (loc) => {
   homeMenuOpen.value = false;
 };
 
-const logout = () => {
+const logout = async() => {
+  user.value = Utils.getStore("user");
   AuthServices.logoutUser(user.value)
     .then((response) => {
       console.log(response);
@@ -138,7 +139,8 @@ const logout = () => {
     .catch((error) => {
       console.log("error", error);
     });
-};
+  profileMenuOpen.value = false;
+}; 
 
 const toggleHomeMenu = () => {
   homeMenuOpen.value = !homeMenuOpen.value;
