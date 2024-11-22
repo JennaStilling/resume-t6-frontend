@@ -243,6 +243,8 @@ const getSpecificUserRoles = (specificUserId) => {
             selectedAdminId.value = specificUser.value.adminId;
             selectedReviewerId.value = specificUser.value.reviewerId;
 
+            userRoles.value = []
+
             if (selectedStudentId.value != null) {
                 userRoles.value.push("Student")
             }
