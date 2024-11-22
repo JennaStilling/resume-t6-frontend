@@ -36,7 +36,9 @@ logout();
 
 
 <template>
-  <!-- <br>
-  <p style="color:white;"> - Logged IN</p>
-  <v-btn depressed rounded text @click="logout"> Logout </v-btn> -->
+  <div>
+    <!-- <br>
+    <p style="color:white;"> - Logged IN</p>
+    <v-btn depressed rounded text @click="logout"> Logout </v-btn> -->
+  </div>
 </template>
