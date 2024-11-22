@@ -19,7 +19,6 @@
   import { ref } from "vue";
   import { useRouter } from 'vue-router';
   const emit = defineEmits(["request"]);
-  // import Utils from '@/config/utils.js';
 
   const router = useRouter();
   const isActive = ref(true);
@@ -28,7 +27,6 @@
     { name: 'Start a New Resume' },
     { name: 'My Home' },
     { name: 'Request Resume Review' },
-    { name: 'Resume Templates' }
   ]
 
   const selectItem = (item) => {
@@ -36,11 +34,10 @@
       router.push({ name: 'addResume' });
     } else if (item.name === 'My Home') {
       router.push('/');
+      location.reload();
       // This needs to be changed for taking into account Student Roles and going to StudentHome
     } else if (item.name === 'Request Resume Review') {
       emit("request");
-    } else if (item.name === 'Resume Templates') {
-      router.push({ name: 'resumeTemplates' });
     }
   }
 </script>
