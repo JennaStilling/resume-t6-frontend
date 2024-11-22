@@ -74,7 +74,7 @@ export default {
 
 <style scoped>
 .inbox-container {
-  background-color: #A6B1B6;
+  background-color: #C4D8E1;
   padding: 20px;
   border-radius: 10px;
   max-width: 800px;

@@ -129,16 +129,17 @@ const updateHomePage = (loc) => {
   homeMenuOpen.value = false;
 };
 
-const signOut = async () => {
-  if (user.value) {
-    try {
-      await AuthServices.logoutUser(user.value);
+const signOut = async() => {
+  console.log(user.value);
+  AuthServices.logoutUser(user.value)
+    .then((response) => {
+      console.log(response);
       Utils.removeItem("user");
       router.push({ name: "login" });
-    } catch (error) {
-      console.error("Error logging out", error);
-    }
-  }
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
   profileMenuOpen.value = false; // Close menu after selection
 };
 

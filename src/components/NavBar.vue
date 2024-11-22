@@ -16,7 +16,7 @@ export default {
   props: ['currentTab'],
   data() {
     return {
-      tabs: ['Contact Info', 'Education', 'Experience', 'Certifications', 'Skills', 'Project'],
+      tabs: ['Contact Info', 'Education', 'Courses', 'Experience', 'Certifications', 'Skills', 'Project'],
     }
   },
   methods: {
@@ -25,6 +25,7 @@ export default {
       const tabPathMap = {
         'Contact Info': '/contact-info',
         'Education': '/education',
+        'Courses': '/courses',
         'Experience': '/experience',
         'Certifications': '/certifications',
         'Skills': '/skills',
@@ -37,6 +38,7 @@ export default {
       const routes = {
         'Contact Info': '/contact-info',
         'Education': '/education',
+        'Courses': '/courses',
         'Experience': '/experience',
         'Certifications': '/certifications',
         'Skills': '/skills',

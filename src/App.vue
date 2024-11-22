@@ -25,6 +25,7 @@ export default {
     const routeToTabName = {
       '/contact-info': 'Contact Info',
       '/education': 'Education',
+      '/courses': 'Courses',
       '/experience': 'Experience',
       '/certifications': 'Certifications',
       '/skills': 'Skills',
