@@ -44,7 +44,7 @@
       <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop> 
         <ul>
           <li @click="updateProfile">Update Profile</li>
-          <li @click="signOut">Sign Out</li>
+          <li @click="logout">Sign Out</li>
         </ul>
       </div>
     </div>
@@ -128,17 +128,16 @@ const updateHomePage = (loc) => {
   homeMenuOpen.value = false;
 };
 
-const signOut = async () => {
-  if (user.value) {
-    try {
-      await AuthServices.logoutUser(user.value);
+const logout = () => {
+  AuthServices.logoutUser(user.value)
+    .then((response) => {
+      console.log(response);
       Utils.removeItem("user");
       router.push({ name: "login" });
-    } catch (error) {
-      console.error("Error logging out", error);
-    }
-  }
-  profileMenuOpen.value = false; // Close menu after selection
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
 };
 
 const toggleHomeMenu = () => {

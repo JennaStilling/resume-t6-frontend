@@ -30,6 +30,8 @@ const logout = () => {
       console.log("error", error);
     });
 };
+
+logout();
 </script>
 
 
