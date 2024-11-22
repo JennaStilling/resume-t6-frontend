@@ -23,9 +23,9 @@
       />
       <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop> 
         <ul>
-          <li @click="updateHomePage('Student')">Student Home</li>
-          <li @click="updateHomePage('Reviewer')">Reviewer Home</li>
-          <li @click="updateHomePage('Admin')">Admin Home</li>        
+          <li v-if="studentId != null" @click="updateHomePage('Student')">Student Home</li>
+          <li v-if="reviewerId != null" @click="updateHomePage('Reviewer')">Reviewer Home</li>
+          <li v-if="adminId != null" @click="updateHomePage('Admin')">Admin Home</li>       
         </ul>
       </div>
 
@@ -51,7 +51,6 @@
   </header>
 </template>
 
-
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import Utils from "../config/utils";
@@ -64,7 +63,6 @@ const initials = ref("");
 const name = ref("");
 const menuOpen = ref(false);
 const router = useRouter();
-
 const studentId = ref("");
 const adminId = ref("");
 const reviewerId = ref("");
@@ -129,18 +127,19 @@ const updateHomePage = (loc) => {
   homeMenuOpen.value = false;
 };
 
-const signOut = async () => {
-  if (user.value) {
-    try {
-      await AuthServices.logoutUser(user.value);
+const signOut = async() => {
+  user.value = Utils.getStore("user");
+  AuthServices.logoutUser(user.value)
+    .then((response) => {
+      console.log(response);
       Utils.removeItem("user");
       router.push({ name: "login" });
-    } catch (error) {
-      console.error("Error logging out", error);
-    }
-  }
-  profileMenuOpen.value = false; // Close menu after selection
-};
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+  profileMenuOpen.value = false;
+}; 
 
 const toggleHomeMenu = () => {
   homeMenuOpen.value = !homeMenuOpen.value;
@@ -204,6 +203,7 @@ const toggleProfileMenu = () => {
   border: 1px solid #53011a;
   box-shadow: 0 8px 16px rgba(182, 8, 8, 0.2);
   width: 150px;
+  z-index: 1000;
 }
 
 .dropdown-menu ul {
