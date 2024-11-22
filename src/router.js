@@ -15,6 +15,7 @@ import EditResume from './views/EditResume.vue';
 import ViewProfile from './views/ViewProfile.vue';
 import Login from './components/Login.vue';
 import Logout from './views/LogoutTest.vue';
+import StudentHome from './views/StudentHome.vue'
 import AdminHomePage from './views/admin/AdminHome.vue';
 import ReviewerHomePage from './views/reviewer/ReviewerHome.vue';
 import StudentHome from './views/StudentHome.vue'
