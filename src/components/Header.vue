@@ -71,7 +71,6 @@ onMounted(() => {
   }
   getUserRoles();
   document.addEventListener("click", handleClickOutside);
-  currentRouteName.value = computed(() => router.currentRoute.value.name)
 });
 
 onBeforeUnmount(() => {
@@ -81,7 +80,7 @@ onBeforeUnmount(() => {
 const getUserRoles = async () => {
   try {
     user.value = Utils.getStore("user");
-    const res = await UserServices.getUser(user.value.id);
+    const res = await UserServices.getUser(user.value.userId);
     user.value = res.data;
     studentId.value = user.value.studentId;
     adminId.value = user.value.adminId;
