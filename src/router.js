@@ -35,17 +35,17 @@ const routes = [
   { path: "/home", name: "home", component: HomePageRouter },
 
   // Profile paths:
-  { path: "/contact-info", component: ContactInfo },
-  { path: "/education", component: Education },
-  { path: "/education/edit", component: Education },
-  { path: "/experience", component: Experience },
-  { path: "/experience/edit", component: Experience },
-  { path: "/certifications", component: Certifications },
-  { path: "/certifications/edit", component: Certifications },
-  { path: "/skills", component: Skills },
-  { path: "/skills/edit", component: Skills },
-  { path: "/project", component: Project },
-  { path: "/project/edit", component: Project },
+  { path: "/contact-info", name: "contactInfo", component: ContactInfo },
+  { path: "/education", name: "education", component: Education },
+  { path: "/education/edit", name: "educationEdit", component: Education },
+  { path: "/experience", name: "experience", component: Experience },
+  { path: "/experience/edit", name: "experienceEdit", component: Experience },
+  { path: "/certifications", name: "certifications", component: Certifications },
+  { path: "/certifications/edit", name: "certificationsEdit", component: Certifications },
+  { path: "/skills", name: "skills", component: Skills },
+  { path: "/skills/edit", name: "skillsEdit", component: Skills },
+  { path: "/project", name: "project", component: Project },
+  { path: "/project/edit", name: "projectEdit", component: Project },
 
   //Login/out:
   { path: "/profile-app", name: "profile-app", component: ProfileApp },
@@ -99,8 +99,19 @@ router.beforeEach(async (to, from) => {
     "resume",
     "addResume",
     "editResume",
+    "contactInfo",
+    "education",
+    "educationEdit",
+    "experience",
+    "experienceEdit",
+    "certifications",
+    "certificationsEdit",
+    "skills",
+    "skillsEdit",
+    "project",
+    "projectEdit",
   ];
-
+  
   const adminPages = [
     "adminHome"
   ];
