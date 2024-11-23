@@ -6,6 +6,9 @@
             <p>Resume Listing</p>
           </li>
           <li class="menu-item">
+            <router-link :to="{ name: 'studentHome' }">STUDENT HOME</router-link>
+          </li>
+          <li class="menu-item">
             <router-link :to="{ name: 'login' }">LOGIN</router-link>
           </li>
           <li class="menu-item">
