@@ -302,6 +302,7 @@ const saveUserData = (userId) => {
 };
 
 const determineReviewerStatus = (item) => {
+hasReviewerAccess.value = false;
   reviewers.value.forEach((value) => {
     if (item.reviewerId === value.id) {
       hasReviewerAccess.value = true;
