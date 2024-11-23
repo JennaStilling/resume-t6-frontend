@@ -127,6 +127,8 @@ import { loadTemplateFive } from '@/services/templates/templateFive.js';
 import { loadTemplateSix } from '@/services/templates/templateSix.js';
 import { loadTemplateSeven } from '@/services/templates/templateSeven.js';
 
+import { useRouter } from "vue-router";
+
 export default {
   components: {
     PreviewBar,
@@ -135,6 +137,7 @@ export default {
     const user = Utils.getStore('user');
     const studentId = ref(null);
     const resumeTitle = ref('');
+    const router = useRouter();
     const resume = ref({
       name: null,
       template_type: 1
@@ -340,7 +343,7 @@ export default {
         .then((res) => {
           resumeId.value = res.data.id;
           addResumeInfo();
-          // Should reroute to student homepage
+          router.push({ name: "studentHome" });
         })
         .catch((error) => {
           if (error.response && error.response.status === 406) {

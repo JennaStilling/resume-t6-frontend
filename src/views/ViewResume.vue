@@ -135,6 +135,8 @@ import { loadTemplateOne } from '@/services/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
 import EditBar from '@/components/EditBar.vue';
 
+import { useRouter } from "vue-router";
+
 export default {
   components: {
     EditBar,
@@ -151,6 +153,7 @@ export default {
       resume.value.template_type = type;
     };
     // Will be changed to props once student homepage is done
+    const router = useRouter();
     const path = window.location.pathname;
     const match = path.match(/\/resume\/(\d+)$/);
     const resumeId = ref(match ? Number(match[1]) : null);
@@ -368,7 +371,7 @@ export default {
         .then((res) => {
           resumeId.value = res.data.id;
           updateResumeInfo();
-          // Should reroute to student homepage
+          router.push({ name: "studentHome" });
         })
         .catch((error) => {
           if (error.response && error.response.status === 406) {
