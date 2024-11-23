@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-    <Header />
-    <!-- Show NavBar only if the current route should have it -->
+    <Header v-if="currentTab.value !== 'login'" :currentTab="currentTab" />
     <NavBar v-if="showNavBar" :currentTab="currentTab" />
     <router-view></router-view>
   </div>
@@ -45,8 +44,8 @@ export default {
       return currentTab.value !== '';
     });
 
-    const showHeader = computed(() => 
-      route.name !== 'login');
+    const showHeader = computed(() => {
+      return currentTab.value === 'login'});
 
     return {
       isHomePage,

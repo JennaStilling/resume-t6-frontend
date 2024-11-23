@@ -24,9 +24,11 @@ import ReviewResume from './components/reviewerPages/ReviewResume.vue';
 //import path from 'path';
 import HomePageRouter from './views/HomePageRouter.vue';
 
+import Utils from "@/config/utils.js";
+
 // Define routes
 const routes = [
-  { path: '/', component: HomePage },
+  { path: '/', name: 'login', component: Login },
   { path: '/home', name: 'home', component: HomePageRouter },
 
   // Profile paths:
@@ -67,6 +69,22 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
+});
+
+// Add a global beforeEach guard
+router.beforeEach(async (to, from) => {
+  const user = Utils.getStore("user"); // Retrieve user from Utils
+  const isAuthenticated = !!user; // Check if user exists
+
+  if (!isAuthenticated && to.name !== 'login') {
+    // If the user is not authenticated and trying to access a protected route
+    return { name: 'login' };
+  }
+
+  if (to.name === 'login' && isAuthenticated) {
+    // If the user is authenticated and trying to access the root route
+    return { name: 'home' };
+  }
 });
 
 export default router;
