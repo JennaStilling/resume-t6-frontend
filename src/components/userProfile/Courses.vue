@@ -30,8 +30,8 @@
             </ul>
           </div>
           <br/>
-          <div class="list-title" @click="toggleDropdown">
-            Courses List {{ showDropdown ? '▲' : '▼' }}
+          <div class="list-title" @click="toggleDropdownCourses">
+            Courses List {{ showDropdownCourses ? '▲' : '▼' }}
           </div>
         </div>
       </div>
@@ -41,15 +41,47 @@
         <div class="form">
           <!-- Education label -->
           <div class="text-field-with-title">
-            <label class="field-label">EDUCATION</label>
-              <div class="text-field-boring" readonly>{{formData.degree}}, {{ formData.institution }}</div>
+            <label class="field-label">
+              {{ route.path.includes('/courses/select/') ? 'SELECTED EDUCATION' : 'SELECT AN EDUCATION' }}
+            </label>
+                <div class="text-field-boring" readonly>
+                  {{ formData.degree && formData.institution ? `${formData.degree}, ${formData.institution}` : '' }}
+                </div>
           </div>
 
-          <!-- Save/Add button -->
-          <div class="save-button" @click="saveChanges">
-            <div class="save-button-child"></div>
-            <b class="save-changes">{{ buttonLabel }}</b>
-          </div>
+          <!-- IF EDUCATION IS SELECTED SHOW THIS -->
+            <div v-if="formData.degree && formData.institution">
+            <div class="text-field-with-title">
+              <label class="field-label">NAME</label>
+              <input
+              v-model="formData.name"
+              class="text-field"
+              type="text"
+              placeholder="Enter course name"
+              />
+            </div>
+
+            <div class="text-field-with-title">
+              <label class="field-label">GRADE</label>
+              <input
+              v-model="formData.grade"
+              class="text-field"
+              type="text"
+              placeholder="Enter grade you received"
+              />
+            </div>
+
+              <!-- Save/Add button -->
+            <div class="save-button" @click="saveChanges">
+              <div class="save-button-child"></div>
+              <b class="save-changes">{{ buttonLabel }}</b>
+            </div>
+            </div>
+
+            <!-- ELSE IF EDUCATION IS NOT SELECTED SHOW THIS -->
+            <div v-else>
+              <br><br><br><br><br><br>
+            </div>
         </div>
   
         <!-- Navigation buttons -->
@@ -105,6 +137,7 @@
   import { ref, onMounted, computed } from "vue";
   import { useRouter, useRoute } from "vue-router";
   import educationServices from "../../services/educationServices.js";
+  import courseServices from "@/services/courseServices.js";
   import Utils from "../../config/utils.js";
   
   const router = useRouter();
@@ -124,6 +157,7 @@
   });
   
   const showDropdown = ref(true);
+  const showDropdownCourses = ref(true);
   const formData = ref({
     degree: '',
     institution: '',
@@ -145,9 +179,13 @@
   function toggleDropdown() {
     showDropdown.value = !showDropdown.value;
   }
+
+  function toggleDropdownCourses() {
+    showDropdownCourses.value = !showDropdownCourses.value;
+  }
   
   function editEntry(item) {
-    router.push({ path: `/courses/edit/` });
+    router.push({ path: `/courses/select/` });
     currentEducation.value = item.id;
     formData.value.degree = item.degree;
     formData.value.institution = item.institution;
@@ -174,7 +212,7 @@
   }
   
   function saveChanges() {
-    if (route.path.includes('/courses/edit/')) {
+    if (route.path.includes('/courses/select/')) {
       educationServices.updateEducation(studentId.value, currentEducation.value, formData.value)
         .then(() => {
           window.location.reload();
@@ -240,7 +278,7 @@
     width: 100%;
     margin-top: 30px;
     padding: 5px;
-    border: 1px solid white;
+   
     border-radius: 4px;
     font-size: 16px; 
     font-family: 'Helvetica', sans-serif;
