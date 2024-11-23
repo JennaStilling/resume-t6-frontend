@@ -110,7 +110,7 @@ function saveContactInfo() {
 }
 
 function exit() {
-  router.push('/contact-info');
+  router.push('/studentHome');
 }
 
 function goNext() {
