@@ -135,7 +135,7 @@ const deleteUser = (user) => {
       showDeleteItem.value = false;
       deleteError.value = false;
       getUsers();
-      // refresh page
+      window.location.reload();
     })
     .catch((e) => {
       message.value = e.response.data.message;
@@ -203,7 +203,7 @@ const addReviewer = (userId) => {
     tempId = res.data.id;
     UserServices.updateUser(userId, { reviewerId: tempId }).then((result) => {
       console.log("Reviewer added successfully");
-      // refresh page
+      window.location.reload();
     });
   });
 };
@@ -214,7 +214,11 @@ const removeReviewer = (userId) => {
     tempId = res.data.reviewerId;
     UserServices.updateUser(userId, { reviewerId: null }).then((result) => {
       console.log("Reviewer removed successfully");
-      ReviewerRoleServices.deleteReviewer(tempId).then((revres) => {console.log("Reviewer role successfully deleted")});
+      ReviewerRoleServices.deleteReviewer(tempId).then((revres) => {
+        console.log("Reviewer role successfully deleted")
+        window.location.reload();
+    });
+      
     })
     .catch((err) => {
       message.value = "Error: " + err.code + ":" + err.message;
@@ -433,7 +437,7 @@ hasReviewerAccess.value = false;
             @click="showDeleteItem = false"
             >No, cancel</v-btn
           >
-          <v-btn v-if="!deleteError" class="error" @click="deleteUser(user)"
+          <v-btn v-if="!deleteError" color="red" class="error" @click="deleteUser(user)"
             >Yes, delete</v-btn
           >
           <v-btn
