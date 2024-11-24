@@ -82,6 +82,9 @@
     color: #fff;
     font-family: 'Helvetica', sans-serif;
     margin: 5px;
+    white-space: normal;
+    word-wrap: break-word;
+    display: flex;
 }
 .text-field {
     width: 30%;
@@ -188,6 +191,12 @@
     margin-left: 5px;
 }
 
+.text-field-boring{
+    display: flex;
+    padding-top: 30px;
+    text-indent: 5px; 
+}
+
 .text-field::placeholder {
     color: #118ACB;
     font-size: 14px; /* Smaller text size */
@@ -257,3 +266,22 @@
 .error {
     background-color: #e74c3c;
 }
+
+.add-button-green {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 1px 1px;
+    width: 200px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 4px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .add-button-green:hover {
+    background-color: #45a049;
+  }

@@ -37,6 +37,7 @@ const routes = [
   { path: '/education/edit', component: Education },
   { path: '/courses', component: Courses },
   { path: '/courses/select', component: Courses },
+  { path: '/courses/select/edit', component: Courses },
   { path: '/experience', component: Experience },
   { path: '/experience/edit', component: Experience },
   { path: '/certifications', component: Certifications },
