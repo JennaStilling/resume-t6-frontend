@@ -1,5 +1,6 @@
 <template>
   <div class="resume-preview" 
+    :class="statusClass"
     @click="handleClick"
     @mouseover="handleMouseover"
     @mouseleave="handleMouseleave"
@@ -20,12 +21,28 @@
 
   
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, computed } from "vue";
   import Utils from '@/config/utils.js';
   import ResumeServices from "@/services/resumeServices";
+import resumeReviewServices from "@/services/resumeReviewServices";
   
   const props = defineProps({
     resume: Object,
+    review: Object,
+  });
+
+  const statusClass = computed(() => {
+    if (props.review != null) {
+      if (props.review.status === "reviewed") {
+        return "border-reviewed";
+      } 
+      else {
+        return "border-created"
+      } 
+    }
+    else {
+      return "border-created";
+    }
   });
   
   onMounted(() => {
@@ -77,6 +94,9 @@
   const handleDelete = async () => {
     try {
       await ResumeServices.deleteResume(studentId.value, props.resume.id);
+      if (props.resume.resumeReviewId != null) {
+        await resumeReviewServices.deleteResumeReview(studentId.value, props.resume.resumeReviewId);
+      }
       emit('delete', props.resume.id);
     } catch (error) {
       console.error('Error deleting resume:', error);
@@ -94,6 +114,14 @@
     margin-bottom: 20px; /* Space below the shortcut area */
     border-radius: 20px;
     cursor: pointer;
+  }
+
+  .border-reviewed {
+    border: 2px solid green;
+  }
+
+  .border-created {
+    border: 2px dashed #1A9BCB;
   }
   
   .resume-preview:hover {

@@ -23,10 +23,10 @@
             <textarea id="comments" v-model="reviewSuggestions" placeholder="Feedback..."></textarea>
           </div>
           <!-- Requesting an in-person metting (Stretch Goal?) -->
-          <div class="options">
+          <!-- <div class="options">
             <input type="checkbox" id="inPersonMeeting" />
             <label for="inPersonMeeting">Request in-person meeting</label>
-          </div>
+          </div> -->
           <button class="send-button" @click="submitReview()">SEND</button>
         </div>
       </div>

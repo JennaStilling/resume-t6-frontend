@@ -42,6 +42,7 @@
                   v-for="resume in resumes"
                   :key="resume.id"
                   :resume="resume"
+                  :review="resume.review"
                   @edit="handleEdit"
                   @delete="handleDelete"
                 />
@@ -60,6 +61,7 @@
   import StudentHomeSideNav from '@/components/StudentHomeSideNav.vue';
   import ResumePreview from '@/components/ResumePreview.vue';
   import RequestReviewer from '@/components/RequestReviewer.vue';
+  import resumeReviewServices from '@/services/resumeReviewServices.js';
   
   const user = Utils.getStore("user");
   const studentId = ref();
@@ -71,15 +73,34 @@
   const isActive = ref(true);
   const isRequest = ref(false);
     
-  const getResumes = () => {
-    resumeServices.getAllResumes(studentId.value)
-        .then((response) => {
-          resumes.value = response.data;
-        })
-        .catch((error) => {
-          console.log("Could not retrieve resumes: " + error);
-        })
-  };
+  const getResumes = async () => {
+  try {
+    const response = await resumeServices.getAllResumes(studentId.value);
+    const resumesData = response.data;
+
+    // Fetch the reviews for each resume
+    const updatedResumes = await Promise.all(
+      resumesData.map(async (resume) => {
+        if (resume.resumeReviewId) {
+          try {
+            const reviewResponse = await resumeReviewServices.getResumeReviewById(resume.resumeReviewId);
+            resume.review = reviewResponse.data; // Attach the review to the resume
+          } catch (error) {
+            console.error(`Error fetching review for resume ${resume.id}:`, error);
+            resume.review = null; // Fallback if fetching review fails
+          }
+        } else {
+          resume.review = null; // No review associated
+        }
+        return resume;
+      })
+    );
+
+    resumes.value = updatedResumes; // Update the resumes with reviews
+  } catch (error) {
+    console.error("Could not retrieve resumes:", error);
+  }
+};
   
   const toggleRequest = () => {
     isRequest.value = !isRequest.value;
