@@ -86,12 +86,12 @@
             />
           </div>
           <div class="text-field-with-title">
-            <label class="field-label">GRADE</label>
+            <label class="field-label">GRADE PERCENTAGE</label>
             <input
               v-model="formData.grade"
               class="text-field"
               type="text"
-              placeholder="Enter grade you received"
+              placeholder="Enter grade (97 instead of an A)"
             />
           </div>
 
