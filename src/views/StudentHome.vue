@@ -1,4 +1,4 @@
-<template>
+  <template>
     <div class="container">
         <!-- Side Navigation Bar -->
         <StudentHomeSideNav @request="toggleRequest()"/>
@@ -6,15 +6,15 @@
 
         <!-- Main Content Area -->
         <div class="content">
-            <div class="shortcuts">
+            <div class="filtering-shortcuts">
                 <Dropdown style="border-color: #53011a;">
                     <template #trigger>
-                        <button type="button">SELECT</button>
+                        <button type="button"> {{ selectedFilter }}</button>
                     </template>
-                    <ul style="background-color: #65001F; color: white;">
+                    <ul style="background-color: #65001F; color: white; cursor: pointer;">
                       <li
                         v-for="filter in filterOptions" 
-                        :key="filter" 
+                        :key="filter"
                         @click="() => selectFilter(filter)"
                         :class="{ 'is-selected': selectedFilter === filter }">
                         {{ filter }}
@@ -25,15 +25,27 @@
                 <div class="display-toggle">
                     <img src="/src/assets/grid-icon.svg" alt="Grid Layout" style="display: block; margin: auto;" 
                       @click="setDisplay('grid')" :class="{ active: displayType === 'grid', 'cursor-pointer': isActive }"/>
-                    <img src="/src/assets/list-icon.svg" alt="List Layout" style="display: block; margin: auto;" 
+                    <img src="/src/assets/list-elements/list-icon.svg" alt="List Layout" style="display: block; margin: auto;" 
                       @click="setDisplay('list')" :class="{ active: displayType === 'list', 'cursor-pointer': isActive }"/>
                 </div>
             </div>
   
-            <div class="shortcut-area">
-              <br><br><br><br>
-                <img src="/src/assets/add-icon.png" alt="Start Resume" 
-                  :class="{ 'cursor-pointer': isActive }" style="display: block; margin: auto;" @click="createResume"/>
+            <div class="resume-main-area">
+              <div class="resume-create-shortcut-area">
+                <br><br><br><br>
+                  <img src="/src/assets/add-icon.png" alt="Start Resume" 
+                    :class="{ 'cursor-pointer': isActive }" style="display: block; margin: auto;" @click="createResume"/>
+              </div>
+
+              <div class="resume-previews">
+                <ResumePreview
+                  v-for="resume in resumes"
+                  :key="resume.id"
+                  :resume="resume"
+                  @edit="handleEdit"
+                  @delete="handleDelete"
+                />
+              </div>
             </div>
         </div>
     </div>
@@ -44,24 +56,31 @@
   import { ref, onMounted } from "vue";
   import { useRouter } from 'vue-router';
   import Utils from '@/config/utils.js';
+  import resumeServices from '../services/resumeServices.js'
   import StudentHomeSideNav from '@/components/StudentHomeSideNav.vue';
+  import ResumePreview from '@/components/ResumePreview.vue';
   import RequestReviewer from '@/components/RequestReviewer.vue';
   
   const user = Utils.getStore("user");
   const studentId = ref();
-  const resumes = ref(null);
-  const selectedItem = ref(null);
-  const displayType = ref('list'); // Default display type
+  const resumes = ref([]);
+  const displayType = ref('grid'); // Default display type
   const router = useRouter();
-  const filterOptions = ['Name', 'Last Modified', 'Created']; // Filter options
+  const filterOptions = ['- SORT BY -','Name', 'Last Modified', 'Created']; // Filter options
   const selectedFilter = ref(filterOptions[0]);
   const isActive = ref(true);
   const isRequest = ref(false);
-  
+    
   const getResumes = () => {
-    // Fetch resumes logic here
+    resumeServices.getAllResumes(studentId.value)
+        .then((response) => {
+          resumes.value = response.data;
+        })
+        .catch((error) => {
+          console.log("Could not retrieve resumes: " + error);
+        })
   };
-
+  
   const toggleRequest = () => {
     isRequest.value = !isRequest.value;
   }
@@ -76,9 +95,40 @@
   };
   
   const selectFilter = (option) => {
-    selectedFilter.value = option; // Update label with selected option
-    console.log(`Selected filter: ${option}`)
-  };
+  selectedFilter.value = option;
+
+  switch(selectedFilter.value) {
+    case 'Name':
+      resumes.value = resumes.value.sort((a, b) => {
+        const nameA = a.name || '';
+        const nameB = b.name || '';
+        return nameA.localeCompare(nameB);
+      });
+      break;
+    case 'Last Modified':
+      resumes.value = resumes.value.sort((a, b) => {
+        const dateA = new Date(a.updatedAt || '');
+        const dateB = new Date(b.updatedAt || '');
+        return dateA - dateB; // Ascending order
+      });
+      break;
+    case 'Created':
+      resumes.value = resumes.value.sort((a, b) => {
+        const dateA = new Date(a.createdAt || '');
+        const dateB = new Date(b.createdAt || '');
+        return dateA - dateB; // Ascending order
+      });
+      break;
+    default:
+      resumes.value = resumes.value.sort((a, b) => {
+        const idA = a.id || '';
+        const idB = b.id || '';
+        return idA.localeCompare(idB);
+      });
+  }
+
+  console.log(`Resume list after filter: ${JSON.stringify(resumes.value)}`);
+};
   
   onMounted(() => {
     Utils.getUser(user).then(value => {
@@ -86,6 +136,14 @@
       getResumes();
     });
   });
+
+  const handleEdit = (id) => {
+    router.push({ name: 'resume', params: { id } });
+  };
+
+  const handleDelete = async (id) => {
+    location.reload();
+  };
   </script>
   
   <style scoped>
@@ -98,7 +156,7 @@
     flex-grow: 1; /* Take up remaining space */
   }
   
-  .shortcuts {
+  .filtering-shortcuts {
     display: flex;
     justify-content: flex-end; /* Space between dropdown and buttons */
     gap: 30px;
@@ -123,19 +181,25 @@
     stroke: #007bff; /* Change stroke color when active */
   }
 
-  .shortcuts .active {
+  .filtering-shortcuts .active {
     background-color: #1A9BCB; /* Highlight active button */
     color: white; /* Text color for active button */
   }
   
-  .shortcut-area {
+  .resume-main-area {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+  }
+
+  .resume-create-shortcut-area {
     width: 222px; /* Set width to resemble a piece of paper */
     height: 298px; /* Set height */
     border: 2px dashed #1A9BCB; /* Dashed border */
     padding: 10px; /* Padding inside the box */
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    margin-bottom: 20px; /* Space below the shortcut area */
     border-radius: 20px;
+    cursor: pointer;
   }
   
   .create-resume-button {
@@ -153,6 +217,13 @@
   }
 
   .cursor-pointer {
-  cursor: pointer;
+    cursor: pointer;
+  }
+
+  .resume-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    grid-auto-flow: dense;
   }
   </style>

@@ -58,7 +58,6 @@
             this.lName = this.user.lName;
             this.id = this.user.id;
             this.$router.push({ name: "home" });
-            //this.$router.go();
           })
           .catch((error) => {
             console.log("error", error);

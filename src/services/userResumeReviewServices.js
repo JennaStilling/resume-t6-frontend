@@ -22,4 +22,7 @@ export default {
     getAllUserResumeReviewsByUserId(userId) {
       return apiClient.get(`user/${userId}/userResumeReview/`);
     },
+    getUserResumeReviewUserId(userId, id) {
+      return apiClient.get(`user/${userId}/userResumeReview/${id}`);
+    }
 };

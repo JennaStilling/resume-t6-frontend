@@ -47,17 +47,22 @@ export default {
         // Fetch detailed reviews for each resumeReviewId
         const reviewPromises = this.userResumeReviews.map(async (review) => {
           const reviewDetails = await resumeReviewServices.getResumeReviewById(review.resumeReviewId);
+          console.log(reviewDetails);
           const studentDetails = await userServices.getStudentUser(reviewDetails.data.studentId, userId);
-          return { 
-            id: reviewDetails.data.id, 
-            notes: reviewDetails.data.notes, 
-            studentfName: studentDetails.data.fName,
-            studentlName: studentDetails.data.lName
-          };
+          if (reviewDetails.data.status === "created") {
+            let tempObj = {
+              id: reviewDetails.data.id, 
+              notes: reviewDetails.data.notes, 
+              studentfName: studentDetails.data.fName,
+              studentlName: studentDetails.data.lName
+            }
+            
+            this.resumeReviews.push(tempObj);
+          }
         });
 
         // Wait for all promises to resolve and store the result
-        this.resumeReviews = await Promise.all(reviewPromises);
+        // this.resumeReviews = await Promise.all(reviewPromises);
       } catch (error) {
         console.error("Error fetching user resume reviews:", error);
       }
@@ -74,10 +79,10 @@ export default {
 
 <style scoped>
 .inbox-container {
-  background-color: #C4D8E1;
+  background-color: #A6B1B6;
   padding: 20px;
   border-radius: 10px;
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
   margin-top: 50px;
 }

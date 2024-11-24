@@ -189,8 +189,12 @@ const submitReview = () => {
         error.value = "No Reviewer was selected";
     }
     else {
+        if (selectedResume.value.resumeReviewId != null) {
+            // Delete previous review
+            deleteResumeReview(selectedResume.value.resumeReviewId);
+        }
         // Create resumeReview
-        resumeReviewServices.createResumeReview(studentId.value, {suggestion: "", notes: reviewNotes.value})
+        resumeReviewServices.createResumeReview(studentId.value, {suggestion: "", notes: reviewNotes.value, status: "created"})
             .then((res) => {
                 console.log("Resume Review Created");
                 console.log(res.data);
@@ -233,6 +237,16 @@ const createUserResumeReview = () => {
         .catch((err) => {
             console.log(err);
         });
+}
+
+const deleteResumeReview = (id) => {
+    resumeReviewServices.deleteResumeReview(studentId.value, id)
+        .then((res) => {
+            console.log("Previous Review removed");
+        })
+        .catch((error) => {
+            console.log(error);
+        })
 }
 </script>
 

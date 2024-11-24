@@ -23,4 +23,7 @@ export default {
     getResumeForReview(resumeReviewId, id) {
       return apiClient.get(`resumeReview/${resumeReviewId}/resume/${id}`);
     },
+    getResumeAsReviewer(resumeReviewId) {
+      return apiClient.get(`resumeReview/${resumeReviewId}/resume`);
+    }
 };

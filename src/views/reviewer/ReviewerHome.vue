@@ -13,12 +13,7 @@ const adminId = ref("");
 const reviewerId = ref("");
 
 onMounted(() => {
-// Load user data if available
 user.value = Utils.getStore("user");
-// if (user.value) {
-//   initials.value = user.value.fName[0] + user.value.lName[0];
-//   name.value = user.value.fName + " " + user.value.lName;
-// }
 console.log(user.value);
 
 getUserRoles();
@@ -38,23 +33,6 @@ const getUserRoles = () => {
       studentId.value = user.value.studentId;
       adminId.value = user.value.adminId;
       reviewerId.value = user.value.reviewerId;
-
-      if (studentId.value != null && adminId.value == null && reviewerId.value == null)
-        router.push({ name: "studentHome" });
-      else if (
-        (adminId.value != null && studentId.value == null && reviewerId.value == null) ||
-        (studentId.value != null && reviewerId.value != null && adminId.value != null) ||
-        (studentId.value != null && adminId.value != null && reviewerId.value == null) ||
-        (reviewerId.value != null && adminId.value != null && studentId.value == null)
-      )
-        router.push({ name: "adminHome" });
-      else if (
-        reviewerId.value != null &&
-        adminId.value == null &&
-        studentId.value == null
-      )
-        router.push({ name: "reviewerHome" });
-      else console.log("User has not been assigned a role");
     })
     .catch((error) => {
       console.log("error", error);
