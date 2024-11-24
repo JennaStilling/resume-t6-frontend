@@ -54,7 +54,6 @@ const routes = [
   //{ path: '/edit/:id', name: 'editResume', component: EditResume, props: true },
   //{ path: '/profile', name: 'profile', component: ViewProfile },
 
-  // Other:
   { path: '/review-inbox', name: 'review-inbox', component: ReviewInbox },
   { path: '/review-resume/:id', name: 'reviewResume', component: ReviewResume, props: true },
   { path: '/studentHome', name: 'studentHome', component: StudentHome },
