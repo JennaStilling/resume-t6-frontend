@@ -293,7 +293,7 @@ export default {
       resumeServices.getResume(studentId.value, resumeId.value)
         .then((response) => {
           resume.value = response.data;
-          getReview();
+          if (resume.value.resumeReviewId != null) getReview();
         })
         .catch((error) => {
           console.log("Could not retrieve resume: " + error);
