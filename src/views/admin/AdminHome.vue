@@ -50,40 +50,16 @@ const hasReviewerAccess = ref(false);
 
 onMounted(() => {
     user.value = Utils.getStore("user");
-    console.log(user.value);
     getUsers();
-    //getUserRoles();
 });
 
 const getUserRoles = () => {
     UserServices.getUser(user.value.userId)
         .then((res) => {
             user.value = res.data;
-            console.log("ID: " + user.value.id);
-            console.log("Student ID: " + user.value.studentId);
-            console.log("Admin ID: " + user.value.adminId);
-            console.log("Reviewer ID: " + user.value.reviewerId);
-
             studentId.value = user.value.studentId;
             adminId.value = user.value.adminId;
             reviewerId.value = user.value.reviewerId;
-
-            if (studentId.value != null && adminId.value == null && reviewerId.value == null)
-                router.push({ name: "studentHome" });
-            else if (
-                (adminId.value != null && studentId.value == null && reviewerId.value == null) ||
-                (studentId.value != null && reviewerId.value != null && adminId.value != null) ||
-                (studentId.value != null && adminId.value != null && reviewerId.value == null) ||
-                (reviewerId.value != null && adminId.value != null && studentId.value == null)
-            )
-                router.push({ name: "adminHome" });
-            else if (
-                reviewerId.value != null &&
-                adminId.value == null &&
-                studentId.value == null
-            )
-                router.push({ name: "reviewerHome" });
-            else console.log("User has not been assigned a role");
         })
         .catch((error) => {
             console.log("error", error);
@@ -209,11 +185,6 @@ const getSpecificUserRoles = (specificUserId) => {
         .then((res) => {
             userSpecificRoles.value = "";
             specificUser.value = res.data;
-            console.log("ID: " + specificUser.value.id);
-            console.log("Student ID: " + specificUser.value.studentId);
-            console.log("Admin ID: " + specificUser.value.adminId);
-            console.log("Reviewer ID: " + specificUser.value.reviewerId);
-
             selectedStudentId.value = specificUser.value.studentId;
             selectedAdminId.value = specificUser.value.adminId;
             selectedReviewerId.value = specificUser.value.reviewerId;
@@ -229,23 +200,21 @@ const getSpecificUserRoles = (specificUserId) => {
             if (selectedReviewerId.value != null) {
                 userSpecificRoles.value += "Reviewer, "
             }
-
-            console.log("Role List: " + userSpecificRoles.value)
+            
+            if (userSpecificRoles.value[userSpecificRoles.value.length - 1] === ' ')
+                userSpecificRoles.value = userSpecificRoles.value.slice(0, -2);
             return userSpecificRoles;
+
         });
 };
 
 
 
 const handleReviewerChange = () => {
-    hasReviewerAccess.value = !hasReviewerAccess.value;
-    console.log("Value changed: " + hasReviewerAccess.value)
+    hasReviewerAccess.value = !!hasReviewerAccess.value;
 }
-
+ 
 const determineReviewerStatus = (item) => {
-    // console.log("Reviewers list: " + reviewers.value[0].id)
-    // console.log("Has reviewer status: " + reviewers.value.includes(item.reviewerId));
-    hasReviewerAccess.value = reviewers.value.includes(item.reviewerId);
     reviewers.value.forEach((value) => {
     if (item.reviewerId === value.id) {
         hasReviewerAccess.value = true;
