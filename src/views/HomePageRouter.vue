@@ -10,11 +10,12 @@ const router = useRouter();
 
 onMounted(() => {
     user.value = Utils.getStore("user");
-    console.log("User id: " + user.value.userId);
     HandleRoute();
 });
 
 const HandleRoute = () => {
+    if (user.value != null)
+    {
     UserServices.getUser(user.value.userId)
         .then((res) => {
             currentUser.value = res.data;
@@ -44,7 +45,12 @@ const HandleRoute = () => {
         .catch((error) => {
             console.log("error", error);
         });
-};
+    }
+    else
+    {
+        router.push({ name: "login" });
+    }
+    };
 </script>
 
 <template>
