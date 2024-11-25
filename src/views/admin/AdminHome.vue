@@ -287,28 +287,16 @@ const getSpecificUserRoles = (specificUserId) => {
   });
 };
 
-const handleReviewerChange = () => {
-  hasReviewerAccess.value = !hasReviewerAccess.value;
-  console.log("Value changed: " + hasReviewerAccess.value);
-};
-
 const saveUserData = (userId) => {
   if (hasReviewerAccess.value) {
-    console.log("Adding reviewer role");
     addReviewer(userId);
   } else {
-    console.log("Removing reviewer role");
     removeReviewer(userId);
   }
 };
 
 const determineReviewerStatus = (item) => {
-hasReviewerAccess.value = false;
-  reviewers.value.forEach((value) => {
-    if (item.reviewerId === value.id) {
-      hasReviewerAccess.value = true;
-    }
-  });
+  hasReviewerAccess.value = reviewers.value.some((val) => item.reviewerId === val.id);
 };
 </script>
 
@@ -383,12 +371,7 @@ hasReviewerAccess.value = false;
                 <strong>Roles:</strong> {{ userSpecificRoles }}
               </v-col>
               <v-col cols="12">
-                <v-checkbox
-                  v-model="hasReviewerAccess"
-                  label="Has Reviewer Access?"
-                  @change="handleReviewerChange"
-                  checked="hasReviewerAccess"
-                ></v-checkbox>
+                <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"></v-checkbox>
               </v-col>
             </v-row>
           </div>
