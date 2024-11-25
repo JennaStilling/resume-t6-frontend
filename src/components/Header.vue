@@ -51,7 +51,6 @@
   </header>
 </template>
 
-
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import Utils from "../config/utils";
@@ -128,18 +127,19 @@ const updateHomePage = (loc) => {
   homeMenuOpen.value = false;
 };
 
-const signOut = async () => {
-  if (user.value) {
-    try {
-      await AuthServices.logoutUser(user.value);
+const signOut = async() => {
+  user.value = Utils.getStore("user");
+  AuthServices.logoutUser(user.value)
+    .then((response) => {
+      console.log(response);
       Utils.removeItem("user");
       router.push({ name: "login" });
-    } catch (error) {
-      console.error("Error logging out", error);
-    }
-  }
-  profileMenuOpen.value = false; // Close menu after selection
-};
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+  profileMenuOpen.value = false;
+}; 
 
 const toggleHomeMenu = () => {
   homeMenuOpen.value = !homeMenuOpen.value;
