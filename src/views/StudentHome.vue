@@ -60,13 +60,13 @@
   import StudentHomeSideNav from '@/components/StudentHomeSideNav.vue';
   import ResumePreview from '@/components/ResumePreview.vue';
   import RequestReviewer from '@/components/RequestReviewer.vue';
-  
+
   const user = Utils.getStore("user");
   const studentId = ref();
   const resumes = ref([]);
   const displayType = ref('grid'); // Default display type
   const router = useRouter();
-  const filterOptions = ['- SORT BY -','Name', 'Last Modified', 'Created']; // Filter options
+  const filterOptions = ['- SORT BY -','Name', 'Last Modified', 'First Created']; // Filter options
   const selectedFilter = ref(filterOptions[0]);
   const isActive = ref(true);
   const isRequest = ref(false);
@@ -109,10 +109,10 @@
       resumes.value = resumes.value.sort((a, b) => {
         const dateA = new Date(a.updatedAt || '');
         const dateB = new Date(b.updatedAt || '');
-        return dateA - dateB; // Ascending order
+        return dateB - dateA; // Ascending order
       });
       break;
-    case 'Created':
+    case 'First Created':
       resumes.value = resumes.value.sort((a, b) => {
         const dateA = new Date(a.createdAt || '');
         const dateB = new Date(b.createdAt || '');
@@ -141,8 +141,7 @@
     router.push({ name: 'resume', params: { id } });
   };
 
-  const handleDelete = async (id) => {
-    location.reload();
+  const handleDelete = async () => {
   };
   </script>
   
