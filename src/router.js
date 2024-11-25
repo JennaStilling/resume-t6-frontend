@@ -18,6 +18,12 @@ import ReviewResume from './components/reviewerPages/ReviewResume.vue';
 
 import HomePageRouter from './views/HomePageRouter.vue';
 
+import Utils from "@/config/utils.js";
+import UserServices from "@/services/userServices.js";
+import { computed, ref } from "vue";
+
+const user = computed(() => Utils.getStore("user"));
+
 // Define routes
 const routes = [
   { path: '/', name: "login"},
