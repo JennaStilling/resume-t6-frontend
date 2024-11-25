@@ -1,5 +1,5 @@
 <template>
-  <header class="header">
+  <header class="header" v-if="currentRouteName !== 'login'">
     <div class="logo-title">
       <router-link to="/home">
         <img src="/src/assets/smallLogo.png" alt="ResuMate Logo" class="logo" />
@@ -9,39 +9,22 @@
 
     <div class="user-menu">
       <!-- Home Menu -->
-      <img
-        src="/src/assets/home.png"
-        alt="Home"
-        class="user-icon"
-        @click="toggleHomeMenu"
-        @keydown.enter="toggleHomeMenu"
-        role="button"
-        tabindex="0"
-        aria-haspopup="true"
-        :aria-expanded="homeMenuOpen"
-        style="width: 39px; height: 39px;"
-      />
-      <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop> 
+      <img src="/src/assets/home.png" alt="Home" class="user-icon" @click="toggleHomeMenu"
+        @keydown.enter="toggleHomeMenu" role="button" tabindex="0" aria-haspopup="true" :aria-expanded="homeMenuOpen"
+        style="width: 39px; height: 39px;" />
+      <div v-if="homeMenuOpen" class="dropdown-menu" @click.stop>
         <ul>
           <li v-if="studentId != null" @click="updateHomePage('Student')">Student Home</li>
           <li v-if="reviewerId != null" @click="updateHomePage('Reviewer')">Reviewer Home</li>
-          <li v-if="adminId != null" @click="updateHomePage('Admin')">Admin Home</li>       
+          <li v-if="adminId != null" @click="updateHomePage('Admin')">Admin Home</li>
         </ul>
       </div>
 
       <!-- Profile Menu -->
-      <img
-        src="/src/assets/userIcon.png"
-        alt="User"
-        class="user-icon"
-        @click="toggleProfileMenu"
-        @keydown.enter="toggleProfileMenu"
-        role="button"
-        tabindex="0"
-        aria-haspopup="true"
-        :aria-expanded="profileMenuOpen"
-      />
-      <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop> 
+      <img src="/src/assets/userIcon.png" alt="User" class="user-icon" @click="toggleProfileMenu"
+        @keydown.enter="toggleProfileMenu" role="button" tabindex="0" aria-haspopup="true"
+        :aria-expanded="profileMenuOpen" />
+      <div v-if="profileMenuOpen" class="dropdown-menu" @click.stop>
         <ul>
           <li @click="updateProfile">Update Profile</li>
           <li @click="signOut">Sign Out</li>
@@ -52,10 +35,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import Utils from "../config/utils";
 import AuthServices from "../services/authServices";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import UserServices from "../services/userServices.js";
 
 const user = ref(null);
@@ -69,6 +52,9 @@ const reviewerId = ref("");
 
 const homeMenuOpen = ref(false);
 const profileMenuOpen = ref(false);
+
+const route = useRoute();
+const currentRouteName = computed(() => route.name);
 
 // Close menu when clicking outside
 const handleClickOutside = (event) => {
@@ -93,6 +79,7 @@ onBeforeUnmount(() => {
 
 const getUserRoles = async () => {
   try {
+    user.value = Utils.getStore("user");
     const res = await UserServices.getUser(user.value.userId);
     user.value = res.data;
     studentId.value = user.value.studentId;
@@ -127,7 +114,7 @@ const updateHomePage = (loc) => {
   homeMenuOpen.value = false;
 };
 
-const signOut = async() => {
+const signOut = async () => {
   user.value = Utils.getStore("user");
   AuthServices.logoutUser(user.value)
     .then((response) => {
@@ -139,7 +126,7 @@ const signOut = async() => {
       console.log("error", error);
     });
   profileMenuOpen.value = false;
-}; 
+};
 
 const toggleHomeMenu = () => {
   homeMenuOpen.value = !homeMenuOpen.value;
@@ -162,7 +149,8 @@ const toggleProfileMenu = () => {
   justify-content: space-between;
   position: sticky;
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.234);
-  z-index: 1000; /* Ensure header is above other elements */
+  z-index: 1000;
+  /* Ensure header is above other elements */
 }
 
 .logo-title {
@@ -179,7 +167,8 @@ const toggleProfileMenu = () => {
   cursor: pointer;
 }
 
-.user-menu, .home-menu {
+.user-menu,
+.home-menu {
   position: relative;
 }
 
@@ -198,7 +187,8 @@ const toggleProfileMenu = () => {
   position: absolute;
   right: 0;
   background-color: #65001F;
-  z-index: 2000; /* Higher z-index to ensure dropdown is above everything */
+  z-index: 2000;
+  /* Higher z-index to ensure dropdown is above everything */
   color: white;
   border: 1px solid #53011a;
   box-shadow: 0 8px 16px rgba(182, 8, 8, 0.2);
