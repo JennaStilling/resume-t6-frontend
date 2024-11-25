@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <Header />
-    <!-- Show NavBar only if the current route should have it -->
     <NavBar v-if="showNavBar" :currentTab="currentTab" />
     <router-view></router-view>
   </div>
