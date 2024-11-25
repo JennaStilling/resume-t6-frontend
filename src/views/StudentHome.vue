@@ -60,7 +60,7 @@
   import StudentHomeSideNav from '@/components/StudentHomeSideNav.vue';
   import ResumePreview from '@/components/ResumePreview.vue';
   import RequestReviewer from '@/components/RequestReviewer.vue';
-  
+
   const user = Utils.getStore("user");
   const studentId = ref();
   const resumes = ref([]);
@@ -141,8 +141,7 @@
     router.push({ name: 'resume', params: { id } });
   };
 
-  const handleDelete = async (id) => {
-    location.reload();
+  const handleDelete = async () => {
   };
   </script>
   
