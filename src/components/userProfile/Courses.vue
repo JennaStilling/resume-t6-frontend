@@ -66,7 +66,7 @@
         <!-- Education label -->
         <div class="text-field-with-title">
           <label class="field-label">
-            {{ route.path.includes('/courses/select') ? 'SELECTED EDUCATION' : 'SELECT AN EDUCATION' }} <br>
+            {{ route.path.includes('/courses/select') ? 'SELECTED EDUCATION' : 'EDIT EDUCATION TO ADD COURSES' }} <br>
           </label>
         </div>
 
@@ -91,7 +91,7 @@
               v-model="formData.grade"
               class="text-field"
               type="text"
-              placeholder="Enter grade (A, B, C, P*)"
+              placeholder="Enter grade (A, B, C, D, F, P*)"
             />
           </div>
 
@@ -313,7 +313,7 @@ function getCourses() {
 
 // Navigation methods
 function goBack() {
-  router.push('/contact-info');
+  router.push('/education');
 }
 
 function goNext() {
