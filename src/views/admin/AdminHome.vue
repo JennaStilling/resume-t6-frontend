@@ -6,6 +6,7 @@ import StudentServices from "../../services/studentServices";
 import AdminRoleServices from "../../services/adminRoleServices";
 import ReviewerRoleServices from "../../services/reviewerRoleServices";
 import RoleServices from "../../services/roleServices";
+import { useRouter } from "vue-router";
 import Utils from "@/config/utils.js";
 
 const users = ref([]);
@@ -32,6 +33,9 @@ const roles = ref([]);
 const userRoles = ref([]);
 const userSpecificRoles = ref("");
 
+const initials = ref("");
+const router = useRouter();
+
 const studentId = ref("");
 const adminId = ref("");
 const reviewerId = ref("");
@@ -48,6 +52,7 @@ onMounted(() => {
   getAllReviewers();
   getAllAdmins();
   getUsers();
+  //getUserRoles();
 });
 
 const getUserRoles = () => {
@@ -62,6 +67,35 @@ const getUserRoles = () => {
       studentId.value = user.value.studentId;
       adminId.value = user.value.adminId;
       reviewerId.value = user.value.reviewerId;
+
+      if (
+        studentId.value != null &&
+        adminId.value == null &&
+        reviewerId.value == null
+      )
+        router.push({ name: "studentHome" });
+      else if (
+        (adminId.value != null &&
+          studentId.value == null &&
+          reviewerId.value == null) ||
+        (studentId.value != null &&
+          reviewerId.value != null &&
+          adminId.value != null) ||
+        (studentId.value != null &&
+          adminId.value != null &&
+          reviewerId.value == null) ||
+        (reviewerId.value != null &&
+          adminId.value != null &&
+          studentId.value == null)
+      )
+        router.push({ name: "adminHome" });
+      else if (
+        reviewerId.value != null &&
+        adminId.value == null &&
+        studentId.value == null
+      )
+        router.push({ name: "reviewerHome" });
+      else console.log("User has not been assigned a role");
     })
     .catch((error) => {
       console.log("error", error);
@@ -99,9 +133,7 @@ const deleteUser = (user) => {
   UserServices.deleteUser(user.id)
     .then(() => {
       showDeleteItem.value = false;
-      deleteError.value = false;
-      getUsers();
-      window.location.reload();
+      users.value = users.value.filter((allUsers) => allUsers.id !== user.id);
     })
     .catch((e) => {
       message.value = e.response.data.message;
@@ -125,7 +157,6 @@ const deleteDisplay = (item) => {
 const userDataDisplay = async (item) => {
   user.value = item;
   showUserInfo.value = true;
-  determineReviewerStatus(user)
   await getUserRoles(item.id);
 };
 
@@ -165,35 +196,37 @@ const getAllStudents = () => {
 };
 
 const addReviewer = (userId) => {
-  let tempId = "";
-  ReviewerRoleServices.createReviewer().then((res) => {
-    tempId = res.data.id;
-    UserServices.updateUser(userId, { reviewerId: tempId }).then((result) => {
-      window.location.reload();
-    });
-  });
+  ReviewerRoleServices.createReviewer()
+    .then((res) => {
+      const tempId = res.data.id;
+      return UserServices.updateUser(userId, { reviewerId: tempId })      
+      .catch((err) => console.error(err));
+    })
+    .then(() => {
+      getUsers();
+      getAllReviewers();
+    })
+    .catch((err) => console.error(err));
 };
+
 
 const removeReviewer = (userId) => {
-  let tempId = "";
-  UserServices.getUser(userId).then((res) => {
-    tempId = res.data.reviewerId;
-    UserServices.updateUser(userId, { reviewerId: null }).then((result) => {
-      ReviewerRoleServices.deleteReviewer(tempId).then((revres) => {
-        window.location.reload();
-      });
-
+  UserServices.getUser(userId)
+    .then((res) => {
+      const tempId = res.data.reviewerId;
+      return UserServices.updateUser(userId, { reviewerId: null })
+      .then(() =>
+        ReviewerRoleServices.deleteReviewer(tempId)
+      )
+      .catch((err) => console.error(err));
     })
-      .catch((err) => {
-        message.value = "Error: " + err.code + ":" + err.message;
-        console.log(err);
-      });;
-  })
-    .catch((err) => {
-      message.value = "Error: " + err.code + ":" + err.message;
-      console.log(err);
-    });;
+    .then(() => {
+      getUsers();
+      getAllReviewers();
+    })
+    .catch((err) => console.error(err));
 };
+
 
 const getAllReviewers = () => {
   ReviewerRoleServices.getAllReviewers()
@@ -223,41 +256,60 @@ const getSpecificUserRoles = (specificUserId) => {
   UserServices.getUser(specificUserId).then((res) => {
     userSpecificRoles.value = "";
     specificUser.value = res.data;
+    console.log("ID: " + specificUser.value.id);
+    console.log("Student ID: " + specificUser.value.studentId);
+    console.log("Admin ID: " + specificUser.value.adminId);
+    console.log("Reviewer ID: " + specificUser.value.reviewerId);
 
     selectedStudentId.value = specificUser.value.studentId;
     selectedAdminId.value = specificUser.value.adminId;
     selectedReviewerId.value = specificUser.value.reviewerId;
 
+    userRoles.value = [];
+
+    if (selectedStudentId.value != null) {
+      userRoles.value.push("Student");
+    }
+
     if (selectedAdminId.value != null) {
-      userSpecificRoles.value += "Admin, "
+      userRoles.value.push("Admin");
     }
 
     if (selectedReviewerId.value != null) {
-      userSpecificRoles.value += "Reviewer, "
+      userRoles.value.push("Reviewer");
     }
 
-    if (selectedStudentId.value != null) {
-      userSpecificRoles.value += "Student, "
-    }
+    userRoles.value.forEach((val) => {
+      console.log("Role: " + val);
+    });
 
-    if (userSpecificRoles.value[userSpecificRoles.value.length - 1] === ' ')
-      userSpecificRoles.value = userSpecificRoles.value.slice(0, -2);
-    return userSpecificRoles;
+    userSpecificRoles.value = userRoles.value.join(", ");
   });
+};
+
+const handleReviewerChange = () => {
+  hasReviewerAccess.value = !hasReviewerAccess.value;
+  console.log("Value changed: " + hasReviewerAccess.value);
 };
 
 const saveUserData = (userId) => {
   if (hasReviewerAccess.value) {
+    console.log("Adding reviewer role");
     addReviewer(userId);
   } else {
+    console.log("Removing reviewer role");
     removeReviewer(userId);
   }
 };
 
 const determineReviewerStatus = (item) => {
-  hasReviewerAccess.value = reviewers.value.some((val) => item.reviewerId === val.id);
+hasReviewerAccess.value = false;
+  reviewers.value.forEach((value) => {
+    if (item.reviewerId === value.id) {
+      hasReviewerAccess.value = true;
+    }
+  });
 };
-
 </script>
 
 <template>
@@ -266,25 +318,44 @@ const determineReviewerStatus = (item) => {
       <v-card title="Edit Users">
         <v-row>
           <v-col cols="6">
-            <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify" variant="outlined"
-              hide-details single-line>
+            <v-text-field
+              v-model="search"
+              label="Search for User"
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              hide-details
+              single-line
+            >
             </v-text-field>
           </v-col>
 
           <v-col cols="6">
-            <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined hide-details>
+            <v-select
+              v-model="filterType"
+              :items="filterOptions"
+              label="Filter by User Type"
+              outlined
+              hide-details
+            >
             </v-select>
           </v-col>
         </v-row>
 
-        <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
-          :items-per-page="filteredUsers.length" hide-default-footer>
+        <v-data-table
+          :headers="headers"
+          :items="filteredUsers"
+          class="elevation-1"
+          :items-per-page="filteredUsers.length"
+          hide-default-footer
+        >
           <template #item.name="{ item }">
-            <span @click="
-              userDataDisplay(item);
-            determineReviewerStatus(item);
-            getSpecificUserRoles(item.id);
-            ">
+            <span
+              @click="
+                userDataDisplay(item);
+                determineReviewerStatus(item);
+                getSpecificUserRoles(item.id);
+              "
+            >
               {{ item.fName + " " + item.lName }}
             </span>
           </template>
@@ -312,17 +383,32 @@ const determineReviewerStatus = (item) => {
                 <strong>Roles:</strong> {{ userSpecificRoles }}
               </v-col>
               <v-col cols="12">
-                <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"></v-checkbox>
+                <v-checkbox
+                  v-model="hasReviewerAccess"
+                  label="Has Reviewer Access?"
+                  @change="handleReviewerChange"
+                  checked="hasReviewerAccess"
+                ></v-checkbox>
               </v-col>
             </v-row>
           </div>
 
           <v-row class="justify-end pt-2 justify-right">
-            <v-btn @click="
-              showUserInfo = false;
-            saveUserData(user.id);
-            " color="green" class="me-2">Save</v-btn>
-            <v-btn @click="(showUserInfo = false), (showDeleteItem = true)" color="red" class="me-2">Delete</v-btn>
+            <v-btn
+              @click="
+                showUserInfo = false;
+                saveUserData(user.id);
+              "
+              color="green"
+              class="me-2"
+              >Save</v-btn
+            >
+            <v-btn
+              @click="(showUserInfo = false), (showDeleteItem = true)"
+              color="red"
+              class="me-2"
+              >Delete</v-btn
+            >
             <v-btn @click="showUserInfo = false" color="blue">Close</v-btn>
           </v-row>
         </v-card>
@@ -342,12 +428,23 @@ const determineReviewerStatus = (item) => {
           </p>
         </div>
         <div class="modal-body">
-          <v-btn v-if="!deleteError" color="blue" @click="showDeleteItem = false">No, cancel</v-btn>
-          <v-btn v-if="!deleteError" color="red" class="error" @click="deleteUser(user)">Yes, delete</v-btn>
-          <v-btn v-if="deleteError" @click="
-            deleteError = false;
-          showDeleteItem = false;
-          ">Close</v-btn>
+          <v-btn
+            v-if="!deleteError"
+            color="blue"
+            @click="showDeleteItem = false"
+            >No, cancel</v-btn
+          >
+          <v-btn v-if="!deleteError" color="red" class="error" @click="deleteUser(user)"
+            >Yes, delete</v-btn
+          >
+          <v-btn
+            v-if="deleteError"
+            @click="
+              deleteError = false;
+              showDeleteItem = false;
+            "
+            >Close</v-btn
+          >
         </div>
       </div>
     </div>
