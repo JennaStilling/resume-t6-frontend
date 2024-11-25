@@ -133,9 +133,7 @@ const deleteUser = (user) => {
   UserServices.deleteUser(user.id)
     .then(() => {
       showDeleteItem.value = false;
-      deleteError.value = false;
-      getUsers();
-      window.location.reload();
+      users.value = users.value.filter((allUsers) => allUsers.id !== user.id);
     })
     .catch((e) => {
       message.value = e.response.data.message;
@@ -198,38 +196,37 @@ const getAllStudents = () => {
 };
 
 const addReviewer = (userId) => {
-  let tempId = "";
-  ReviewerRoleServices.createReviewer().then((res) => {
-    tempId = res.data.id;
-    UserServices.updateUser(userId, { reviewerId: tempId }).then((result) => {
-      console.log("Reviewer added successfully");
-      window.location.reload();
-    });
-  });
+  ReviewerRoleServices.createReviewer()
+    .then((res) => {
+      const tempId = res.data.id;
+      return UserServices.updateUser(userId, { reviewerId: tempId })      
+      .catch((err) => console.error(err));
+    })
+    .then(() => {
+      getUsers();
+      getAllReviewers();
+    })
+    .catch((err) => console.error(err));
 };
 
+
 const removeReviewer = (userId) => {
-  let tempId = "";
-  UserServices.getUser(userId).then((res) => {
-    tempId = res.data.reviewerId;
-    UserServices.updateUser(userId, { reviewerId: null }).then((result) => {
-      console.log("Reviewer removed successfully");
-      ReviewerRoleServices.deleteReviewer(tempId).then((revres) => {
-        console.log("Reviewer role successfully deleted")
-        window.location.reload();
-    });
-      
+  UserServices.getUser(userId)
+    .then((res) => {
+      const tempId = res.data.reviewerId;
+      return UserServices.updateUser(userId, { reviewerId: null })
+      .then(() =>
+        ReviewerRoleServices.deleteReviewer(tempId)
+      )
+      .catch((err) => console.error(err));
     })
-    .catch((err) => {
-      message.value = "Error: " + err.code + ":" + err.message;
-      console.log(err);
-    }); ;
-  })
-  .catch((err) => {
-      message.value = "Error: " + err.code + ":" + err.message;
-      console.log(err);
-    });;
+    .then(() => {
+      getUsers();
+      getAllReviewers();
+    })
+    .catch((err) => console.error(err));
 };
+
 
 const getAllReviewers = () => {
   ReviewerRoleServices.getAllReviewers()
