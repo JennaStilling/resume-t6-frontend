@@ -133,6 +133,11 @@ import pasteIcon from '@/assets/build-icons/paste.png';
 
 import { loadTemplateOne } from '@/services/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
+import { loadTemplateThree } from '@/services/templates/templateThree.js';
+import { loadTemplateFour } from '@/services/templates/templateFour.js';
+import { loadTemplateFive } from '@/services/templates/templateFive.js';
+import { loadTemplateSix } from '@/services/templates/templateSix.js';
+import { loadTemplateSeven } from '@/services/templates/templateSeven.js';
 import EditBar from '@/components/EditBar.vue';
 
 import { useRouter } from "vue-router";
@@ -187,7 +192,11 @@ export default {
     const templates = ref([
       { name: '01: Default', type: 1 },
       { name: '02: Teal Template', type: 2 },
-      { name: '03: ', type: 3 },
+      { name: '03: Generic Georgia', type: 3 },
+      { name: '04: Experience Centered', type: 4 },
+      { name: '05: Pale Green', type: 5 },
+      { name: '06: Bold Black', type: 6 },
+      { name: '07: Productive Purple', type: 7 },
     ]);
 
     const selectedTemplate = ref(templates.value[0].name);
@@ -264,17 +273,29 @@ export default {
       const sections = dropdownSections.value;
 
       switch (resume.value.template_type) {
-        case 1:
-          //console.log("Template 1");
-          return loadTemplateOne(user, sections);
-          break;
-        case 2:
-          //console.log("Template 2");
-          return loadTemplateTwo(user, sections);
-          break;
-        default:
-          //console.log("Default");
-          return loadTemplateOne(user, sections);
+      case 1:
+        return loadTemplateOne(user, sections);
+        break;
+      case 2:
+        return loadTemplateTwo(user, sections);
+        break;
+      case 3:
+        return loadTemplateThree(user, sections);
+        break;
+      case 4:
+        return loadTemplateFour(user, sections);
+        break;
+      case 5:
+        return loadTemplateFive(user, sections);
+        break;
+      case 6:
+        return loadTemplateSix(user, sections);
+        break;
+      case 7:
+        return loadTemplateSeven(user, sections);
+        break;
+      default:
+        return loadTemplateOne(user, sections);
       }
     };
 
@@ -598,8 +619,8 @@ export default {
   align-items: center; 
   justify-content: center; 
   height: 65px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
-  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
   font-family: 'Poppins', sans-serif;
 }
 

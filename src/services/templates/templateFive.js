@@ -51,22 +51,57 @@ export const loadTemplateFive = (user, dropdownSections) => {
     content += '<div style="height: 10px;"></div>';
     // Add Education section
     const selectedEducation = dropdownSections.education.items.filter(item => item.isSelected);
+
+    // Sort education items by graduation date, most recent first
+    selectedEducation.sort((a, b) => {
+      const dateA = new Date(a.graduation_date);
+      const dateB = new Date(b.graduation_date);
+      return dateB - dateA; // Sort in descending order (most recent on top)
+    });
+
     if (selectedEducation.length) {
       content += '<h2>Education</h2><hr><ul>';
-      selectedEducation.forEach(item => {
-        const gpaText = Number.isInteger(item.gpa) ? `${item.gpa}.0` : item.gpa;
-        const formattedDate = item.graduation_date ? new Date(item.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+
+      selectedEducation.forEach(educationItem => {
+        const gpaText = Number.isInteger(educationItem.gpa) ? `${educationItem.gpa}.0` : educationItem.gpa;
+        const formattedDate = educationItem.graduation_date ? new Date(educationItem.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+        
         content += `<li style="display: flex; justify-content: space-between;">
-            <strong>${item.institution}</strong>
-            ${item.graduation_date ? '<span>Graduation:</span>' : ''}
+            <strong>${educationItem.institution}</strong>
+            ${educationItem.graduation_date ? '<span>Graduation:</span>' : ''}
           </li>`;
+        
         content += `<li style="display: flex; justify-content: space-between;">
-            <em>${item.degree}</em>
+            <em>${educationItem.degree}</em>
             <span>${formattedDate}</span>
           </li>`;
+        
         content += `<li>GPA: ${gpaText}</li>`;
+
+        // Add Courses under each Education
+        const selectedCourses = educationItem.courses.filter(course => course.isSelected);
+        if (selectedCourses.length) {
+          content += `<h4 style="font-weight: bold; margin: 10px 0; text-align: left; display: inline;">▸Courses:</h4>`;
+          
+          // Create an array to hold the course strings
+          const courseList = selectedCourses.map(course => {
+            const grade = convertGradeToLetter(course.grade); // Convert grade to letter
+            return `${course.name}${grade}`;
+          });
+
+          content += `<p style="margin-left: 10px; font-style: italic; display: inline;"> ${courseList.join(', ')}</p>`;
+        }
+
+        // Function to convert percentage to letter grade
+        function convertGradeToLetter(grade) {
+          if (grade >= 90) return ': A';
+          if (grade >= 80) return ': B';
+          if (grade >= 70) return ': C';
+          return ''; // Don't display grade if below 70
+        }
         content += `<div style="height: 5px;"></div>`;
       });
+
       content += '</ul>';
     }
   
