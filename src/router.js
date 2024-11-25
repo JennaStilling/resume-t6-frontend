@@ -20,7 +20,7 @@ import HomePageRouter from './views/HomePageRouter.vue';
 
 // Define routes
 const routes = [
-  { path: '/', name: "login", redirect: '/home' },
+  { path: '/', name: "login"},
   { path: '/home', name: 'home', component: HomePageRouter },
 
   // Profile paths:
