@@ -231,7 +231,7 @@ function saveChanges() {
 
 // Navigation methods
 function goBack() {
-  router.push('/education');
+  router.push('/courses');
 }
 
 function goNext() {

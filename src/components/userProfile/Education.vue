@@ -260,7 +260,7 @@ function goBack() {
 }
 
 function goNext() {
-  router.push('/experience');
+  router.push('/courses');
 }
 
 const getEducation = () => {
