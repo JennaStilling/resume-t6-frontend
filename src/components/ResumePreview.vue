@@ -15,6 +15,45 @@
       <v-btn icon color="primary" @click="handleEdit">Edit</v-btn>
       <v-btn icon color="error" @click="handleDelete">Delete</v-btn>
     </div>
+
+    <div v-if="displayDelete" class="modal">
+      <div class="modal-content">
+        <span @click="displayDelete = false" class="close">&times;</span>
+        <div class="modal-header">
+          <p style="font-weight: bold;">This action is permanent.</p>
+          <hr />
+          <p v-if="!deleteError">
+            Are you sure you want to delete <br />
+            {{ props.resume.name }}?
+          </p>
+          <p v-if="deleteError">
+            Error deleting<br />
+            {{ resumeToDelete.name }}.
+          </p>
+        </div>
+
+        <br />
+        <div class="modal-body">
+          <button v-if="!deleteError" @click="displayDelete = false" class="modal-button">
+            CANCEL
+          </button>
+          <button
+            v-if="!deleteError"
+            class="error modal-button"
+            @click="deleteResume()"
+          >
+            DELETE
+          </button>
+          <button
+            v-if="deleteError"
+            @click="() => { deleteError = false; displayDelete = false; }"
+            class="modal-button"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,18 +67,15 @@
     resume: Object,
   });
   
-  onMounted(() => {
-    Utils.getUser(user).then(value => {
-      studentId.value = value.studentId;
-      getResumes();
-    });
-  });
-
   const emit = defineEmits(['edit', 'delete']);
   const user = Utils.getStore("user");
   const studentId = ref();
   const showActions = ref(false);
   const resumes = ref([]);
+  const resumeToDelete = ref(null);
+  const displayDelete = ref(false);
+  const deleting = ref(false);
+  const deleteError = ref(false);
 
   onMounted(() => {
     Utils.getUser(user).then(value => {
@@ -75,13 +111,26 @@
   };
   
   const handleDelete = async () => {
+    resumeToDelete.value = props.resume.value;
+    displayDelete.value = true;
+  };
+
+  const closeModal = () => {
+    displayDelete.value = false;
+  };
+
+  const deleteResume = async () => {
     try {
       await ResumeServices.deleteResume(studentId.value, props.resume.id);
       emit('delete', props.resume.id);
+      window.location.reload();
     } catch (error) {
       console.error('Error deleting resume:', error);
+      deleteError.value = true;
+    } finally {
+      deleting.value = false;
     }
-  };
+};
   </script>
   
   <style scoped>
