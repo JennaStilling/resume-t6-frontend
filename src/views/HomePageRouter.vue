@@ -19,10 +19,10 @@ const HandleRoute = () => {
     UserServices.getUser(user.value.userId)
         .then((res) => {
             currentUser.value = res.data;
-            console.log("ID: " + currentUser.value.id);
-            console.log("Student ID: " + currentUser.value.studentId);
-            console.log("Admin ID: " + currentUser.value.adminId);
-            console.log("Reviewer ID: " + currentUser.value.reviewerId);
+            // console.log("ID: " + currentUser.value.id);
+            // console.log("Student ID: " + currentUser.value.studentId);
+            // console.log("Admin ID: " + currentUser.value.adminId);
+            // console.log("Reviewer ID: " + currentUser.value.reviewerId);
             let studentId = currentUser.value.studentId;
             let adminId = currentUser.value.adminId;
             let reviewerId = currentUser.value.reviewerId;

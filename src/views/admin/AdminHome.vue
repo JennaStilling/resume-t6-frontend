@@ -2,7 +2,6 @@
 import "@/assets/dark-mode.css";
 import { ref, computed, onMounted } from "vue";
 import UserServices from "../../services/userServices";
-import UserRoleServices from "../../services/userRoleServices";
 import StudentServices from "../../services/studentServices";
 import AdminRoleServices from "../../services/adminRoleServices";
 import ReviewerRoleServices from "../../services/reviewerRoleServices";
@@ -28,13 +27,11 @@ const admins = ref([]);
 
 const filterOptions = ["All", "Students", "Reviewers", "Admins"];
 const filterType = ref("All");
-const headers = [
-    { text: "Name", value: "name", align: "start" },
-];
+const headers = [{ text: "Name", value: "name", align: "start" }];
 
-const roles = ref([])
-const userRoles = ref([])
-const userSpecificRoles = ref("")
+const roles = ref([]);
+const userRoles = ref([]);
+const userSpecificRoles = ref("");
 
 const initials = ref("");
 const router = useRouter();
@@ -49,363 +46,455 @@ const selectedReviewerId = ref("");
 const hasReviewerAccess = ref(false);
 
 onMounted(() => {
-    user.value = Utils.getStore("user");
-    console.log(user.value);
-    getUsers();
-    //getUserRoles();
+  user.value = Utils.getStore("user");
+  console.log(user.value);
+  getAllStudents();
+  getAllReviewers();
+  getAllAdmins();
+  getUsers();
+  //getUserRoles();
 });
 
 const getUserRoles = () => {
-    UserServices.getUser(user.value.userId)
-        .then((res) => {
-            user.value = res.data;
-            console.log("ID: " + user.value.id);
-            console.log("Student ID: " + user.value.studentId);
-            console.log("Admin ID: " + user.value.adminId);
-            console.log("Reviewer ID: " + user.value.reviewerId);
+  UserServices.getUser(user.value.userId)
+    .then((res) => {
+      user.value = res.data;
+      console.log("ID: " + user.value.id);
+      console.log("Student ID: " + user.value.studentId);
+      console.log("Admin ID: " + user.value.adminId);
+      console.log("Reviewer ID: " + user.value.reviewerId);
 
-            studentId.value = user.value.studentId;
-            adminId.value = user.value.adminId;
-            reviewerId.value = user.value.reviewerId;
+      studentId.value = user.value.studentId;
+      adminId.value = user.value.adminId;
+      reviewerId.value = user.value.reviewerId;
 
-            if (studentId.value != null && adminId.value == null && reviewerId.value == null)
-                router.push({ name: "studentHome" });
-            else if (
-                (adminId.value != null && studentId.value == null && reviewerId.value == null) ||
-                (studentId.value != null && reviewerId.value != null && adminId.value != null) ||
-                (studentId.value != null && adminId.value != null && reviewerId.value == null) ||
-                (reviewerId.value != null && adminId.value != null && studentId.value == null)
-            )
-                router.push({ name: "adminHome" });
-            else if (
-                reviewerId.value != null &&
-                adminId.value == null &&
-                studentId.value == null
-            )
-                router.push({ name: "reviewerHome" });
-            else console.log("User has not been assigned a role");
-        })
-        .catch((error) => {
-            console.log("error", error);
-        });
+      if (
+        studentId.value != null &&
+        adminId.value == null &&
+        reviewerId.value == null
+      )
+        router.push({ name: "studentHome" });
+      else if (
+        (adminId.value != null &&
+          studentId.value == null &&
+          reviewerId.value == null) ||
+        (studentId.value != null &&
+          reviewerId.value != null &&
+          adminId.value != null) ||
+        (studentId.value != null &&
+          adminId.value != null &&
+          reviewerId.value == null) ||
+        (reviewerId.value != null &&
+          adminId.value != null &&
+          studentId.value == null)
+      )
+        router.push({ name: "adminHome" });
+      else if (
+        reviewerId.value != null &&
+        adminId.value == null &&
+        studentId.value == null
+      )
+        router.push({ name: "reviewerHome" });
+      else console.log("User has not been assigned a role");
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
 };
 
 const getAllRoles = () => {
-    RoleServices.getAllRoles()
-        .then((res) => {
-            roles.value = res.data;
-            message.value = "";
-        })
-        .catch((err) => {
-            message.value = "Error: " + err.code + ":" + err.message;
-            console.log(err);
-        });
-}
+  RoleServices.getAllRoles()
+    .then((res) => {
+      roles.value = res.data;
+      message.value = "";
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    });
+};
 
 getAllRoles();
 
 const getUsers = () => {
-    UserServices.getAllUsers()
-        .then((res) => {
-            users.value = res.data;
-            message.value = "";
-            orderUsers("asc");
-        })
-        .catch((err) => {
-            message.value = "Error: " + err.code + ":" + err.message;
-            console.log(err);
-        });
-};
-
-const deleteUser = (user) => {
-    UserServices.deleteUser(user.id)
-        .then(() => {
-            showDeleteItem.value = false;
-            deleteError.value = false;
-            getUsers();
-        })
-        .catch((e) => {
-            message.value = e.response.data.message;
-            deleteError.value = true;
-        });
-};
-
-const orderUsers = (val) => {
-    users.value.sort((a, b) => {
-        return val === "asc"
-            ? a.lName.localeCompare(b.lName)
-            : b.lName.localeCompare(a.lName);
+  UserServices.getAllUsers()
+    .then((res) => {
+      users.value = res.data;
+      message.value = "";
+      orderUsers("asc");
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
     });
 };
 
+const deleteUser = (user) => {
+  UserServices.deleteUser(user.id)
+    .then(() => {
+      showDeleteItem.value = false;
+      users.value = users.value.filter((allUsers) => allUsers.id !== user.id);
+    })
+    .catch((e) => {
+      message.value = e.response.data.message;
+      deleteError.value = true;
+    });
+};
+
+const orderUsers = (val) => {
+  users.value.sort((a, b) => {
+    return val === "asc"
+      ? a.lName.localeCompare(b.lName)
+      : b.lName.localeCompare(a.lName);
+  });
+};
+
 const deleteDisplay = (item) => {
-    user.value = item;
-    showDeleteItem.value = true;
+  user.value = item;
+  showDeleteItem.value = true;
 };
 
 const userDataDisplay = async (item) => {
-    user.value = item;
-    showUserInfo.value = true;
-    await getUserRoles(item.id);
+  user.value = item;
+  showUserInfo.value = true;
+  await getUserRoles(item.id);
 };
 
-
 const filteredUsers = computed(() => {
-    const searchTerm = search.value.toLowerCase();
-    let filtered = users.value.filter(user =>
-        `${user.fName} ${user.lName}`.toLowerCase().includes(searchTerm)
+  const searchTerm = search.value.toLowerCase();
+  let filtered = users.value.filter((user) =>
+    `${user.fName} ${user.lName}`.toLowerCase().includes(searchTerm)
+  );
+
+  if (filterType.value === "Students") {
+    filtered = filtered.filter((user) =>
+      students.value.some((tempUser) => tempUser.id === user.studentId)
     );
+  } else if (filterType.value === "Reviewers") {
+    filtered = filtered.filter((user) =>
+      reviewers.value.some((tempUser) => tempUser.id === user.reviewerId)
+    );
+  } else if (filterType.value === "Admins") {
+    filtered = filtered.filter((user) =>
+      admins.value.some((tempUser) => tempUser.id === user.adminId)
+    );
+  }
 
-    if (filterType.value === "Students") {
-        filtered = filtered.filter(user => students.value.some(tempUser => tempUser.id === user.studentId));
-    } else if (filterType.value === "Reviewers") {
-        filtered = filtered.filter(user => reviewers.value.some(tempUser => tempUser.id === user.reviewerId));
-    }
-    else if (filterType.value === "Admins") {
-        filtered = filtered.filter(user => admins.value.some(tempUser => tempUser.id === user.adminId));
-    }
-
-    return filtered;
+  return filtered;
 });
 
 const getAllStudents = () => {
-    StudentServices.getAllStudents()
-        .then((res) => {
-            students.value = res.data;
-            message.value = "";
-        })
-        .catch((err) => {
-            message.value = "Error: " + err.code + ":" + err.message;
-            console.log(err);
-        });
+  StudentServices.getAllStudents()
+    .then((res) => {
+      students.value = res.data;
+      message.value = "";
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    });
 };
 
+const addReviewer = (userId) => {
+  ReviewerRoleServices.createReviewer()
+    .then((res) => {
+      const tempId = res.data.id;
+      return UserServices.updateUser(userId, { reviewerId: tempId })      
+      .catch((err) => console.error(err));
+    })
+    .then(() => {
+      getUsers();
+      getAllReviewers();
+    })
+    .catch((err) => console.error(err));
+};
+
+
+const removeReviewer = (userId) => {
+  UserServices.getUser(userId)
+    .then((res) => {
+      const tempId = res.data.reviewerId;
+      return UserServices.updateUser(userId, { reviewerId: null })
+      .then(() =>
+        ReviewerRoleServices.deleteReviewer(tempId)
+      )
+      .catch((err) => console.error(err));
+    })
+    .then(() => {
+      getUsers();
+      getAllReviewers();
+    })
+    .catch((err) => console.error(err));
+};
+
+
 const getAllReviewers = () => {
-    ReviewerRoleServices.getAllReviewers()
-        .then((res) => {
-            reviewers.value = res.data;
-            message.value = "";
-        })
-        .catch((err) => {
-            message.value = "Error: " + err.code + ":" + err.message;
-            console.log(err);
-        });
+  ReviewerRoleServices.getAllReviewers()
+    .then((res) => {
+      reviewers.value = res.data;
+      message.value = "";
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    });
 };
 
 const getAllAdmins = () => {
-    AdminRoleServices.getAllAdmins()
-        .then((res) => {
-            admins.value = res.data;
-            message.value = "";
-        })
-        .catch((err) => {
-            message.value = "Error: " + err.code + ":" + err.message;
-            console.log(err);
-        });
+  AdminRoleServices.getAllAdmins()
+    .then((res) => {
+      admins.value = res.data;
+      message.value = "";
+    })
+    .catch((err) => {
+      message.value = "Error: " + err.code + ":" + err.message;
+      console.log(err);
+    });
 };
 
 const getSpecificUserRoles = (specificUserId) => {
-    UserServices.getUser(specificUserId)
-        .then((res) => {
-            userSpecificRoles.value = "";
-            specificUser.value = res.data;
-            console.log("ID: " + specificUser.value.id);
-            console.log("Student ID: " + specificUser.value.studentId);
-            console.log("Admin ID: " + specificUser.value.adminId);
-            console.log("Reviewer ID: " + specificUser.value.reviewerId);
+  UserServices.getUser(specificUserId).then((res) => {
+    userSpecificRoles.value = "";
+    specificUser.value = res.data;
+    console.log("ID: " + specificUser.value.id);
+    console.log("Student ID: " + specificUser.value.studentId);
+    console.log("Admin ID: " + specificUser.value.adminId);
+    console.log("Reviewer ID: " + specificUser.value.reviewerId);
 
-            selectedStudentId.value = specificUser.value.studentId;
-            selectedAdminId.value = specificUser.value.adminId;
-            selectedReviewerId.value = specificUser.value.reviewerId;
+    selectedStudentId.value = specificUser.value.studentId;
+    selectedAdminId.value = specificUser.value.adminId;
+    selectedReviewerId.value = specificUser.value.reviewerId;
 
-            if (selectedStudentId.value != null) {
-                userSpecificRoles.value += "Student, "
-            }
+    userRoles.value = [];
 
-            if (selectedAdminId.value != null) {
-                userSpecificRoles.value += "Admin, "
-            }
+    if (selectedStudentId.value != null) {
+      userRoles.value.push("Student");
+    }
 
-            if (selectedReviewerId.value != null) {
-                userSpecificRoles.value += "Reviewer, "
-            }
+    if (selectedAdminId.value != null) {
+      userRoles.value.push("Admin");
+    }
 
-            console.log("Role List: " + userSpecificRoles.value)
-            return userSpecificRoles;
-        });
+    if (selectedReviewerId.value != null) {
+      userRoles.value.push("Reviewer");
+    }
+
+    userRoles.value.forEach((val) => {
+      console.log("Role: " + val);
+    });
+
+    userSpecificRoles.value = userRoles.value.join(", ");
+  });
 };
 
-
-
-const handleReviewerChange = () => {
-    hasReviewerAccess.value = !hasReviewerAccess.value;
-    console.log("Value changed: " + hasReviewerAccess.value)
-}
+const saveUserData = (userId) => {
+  if (hasReviewerAccess.value) {
+    addReviewer(userId);
+  } else {
+    removeReviewer(userId);
+  }
+};
 
 const determineReviewerStatus = (item) => {
-    // console.log("Reviewers list: " + reviewers.value[0].id)
-    // console.log("Has reviewer status: " + reviewers.value.includes(item.reviewerId));
-    hasReviewerAccess.value = reviewers.value.includes(item.reviewerId);
-    reviewers.value.forEach((value) => {
-    if (item.reviewerId === value.id) {
-        hasReviewerAccess.value = true;
-    }
-});
-}
-
-getAllStudents();
-getAllReviewers();
-getAllAdmins();
-getUsers();
+  hasReviewerAccess.value = reviewers.value.some((val) => item.reviewerId === val.id);
+};
 </script>
 
 <template>
-    <div class="home-page">
-        <div class="modified-width">
-            <v-card title="Edit Users">
-                <v-row>
-                    <v-col cols="6">
-                        <v-text-field v-model="search" label="Search for User" prepend-inner-icon="mdi-magnify"
-                            variant="outlined" hide-details single-line>
-                        </v-text-field>
-                    </v-col>
+  <div class="home-page">
+    <div class="modified-width">
+      <v-card title="Edit Users">
+        <v-row>
+          <v-col cols="6">
+            <v-text-field
+              v-model="search"
+              label="Search for User"
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              hide-details
+              single-line
+            >
+            </v-text-field>
+          </v-col>
 
-                    <v-col cols="6">
-                        <v-select v-model="filterType" :items="filterOptions" label="Filter by User Type" outlined
-                            hide-details>
-                        </v-select>
-                    </v-col>
-                </v-row>
+          <v-col cols="6">
+            <v-select
+              v-model="filterType"
+              :items="filterOptions"
+              label="Filter by User Type"
+              outlined
+              hide-details
+            >
+            </v-select>
+          </v-col>
+        </v-row>
 
-                <v-data-table :headers="headers" :items="filteredUsers" class="elevation-1"
-                    :items-per-page="filteredUsers.length" hide-default-footer>
-                    <template #item.name="{ item }">
-                        <span @click="userDataDisplay(item); determineReviewerStatus(item); getSpecificUserRoles(item.id)">
-                            {{ item.fName + " " + item.lName }}
-                        </span>
-                    </template>
-                </v-data-table>
-            </v-card>
-        </div>
-
-        <div v-if="showUserInfo" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span @click="showUserInfo = false" class="close">&times;</span>
-                    <h3>User Data</h3>
-                </div>
-
-                <v-card class="mx-auto pa-4">
-                    <div class="modal-body">
-                        <v-row>
-                            <v-col cols="12">
-                                <strong>Name:</strong> {{ user.fName + " " + user.lName }}
-                            </v-col>
-                            <v-col cols="12">
-                                <strong>Email:</strong> {{ user.email }}
-                            </v-col>
-                            <v-col cols="12">
-                                <strong>Roles:</strong> {{ userSpecificRoles }}
-                            </v-col>
-                            <v-col cols="12">
-                                <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"
-                                    @change="handleReviewerChange" checked= "hasReviewerAccess" ></v-checkbox>
-                            </v-col>
-                        </v-row>
-                    </div>
-                    
-                    <v-row class="justify-end pt-2 justify-right">
-                        <v-btn @click="showUserInfo = false" color="green" class="me-2">Save</v-btn>
-                        <v-btn @click="showUserInfo = false, showDeleteItem=true" color="red" class="me-2">Delete</v-btn>
-                        <v-btn @click="showUserInfo = false" color="blue">Close</v-btn>
-                    </v-row>
-                </v-card>
-            </div>
-        </div>
-
-        <div v-if="showDeleteItem" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span @click="showDeleteItem = false" class="close">&times;</span>
-                    <p v-if="!deleteError">
-                        Are you sure you want to delete this user?<br />
-                        {{ user.fName + " " + user.lName }}
-                    </p>
-                    <p v-if="deleteError">Error deleting<br />{{ user.fName + " " + user.lName }}.</p>
-                </div>
-                <div class="modal-body">
-                    <v-btn v-if="!deleteError" color="blue" @click="showDeleteItem = false">No, cancel</v-btn>
-                    <v-btn v-if="!deleteError" class="error" @click="deleteUser(user)">Yes, delete</v-btn>
-                    <v-btn v-if="deleteError" @click="deleteError = false; showDeleteItem = false;">Close</v-btn>
-                </div>
-            </div>
-        </div>
+        <v-data-table
+          :headers="headers"
+          :items="filteredUsers"
+          class="elevation-1"
+          :items-per-page="filteredUsers.length"
+          hide-default-footer
+        >
+          <template #item.name="{ item }">
+            <span
+              @click="
+                userDataDisplay(item);
+                determineReviewerStatus(item);
+                getSpecificUserRoles(item.id);
+              "
+            >
+              {{ item.fName + " " + item.lName }}
+            </span>
+          </template>
+        </v-data-table>
+      </v-card>
     </div>
-</template>
 
+    <div v-if="showUserInfo" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span @click="showUserInfo = false" class="close">&times;</span>
+          <h3>User Data</h3>
+        </div>
+
+        <v-card class="mx-auto pa-4">
+          <div class="modal-body">
+            <v-row>
+              <v-col cols="12">
+                <strong>Name:</strong> {{ user.fName + " " + user.lName }}
+              </v-col>
+              <v-col cols="12">
+                <strong>Email:</strong> {{ user.email }}
+              </v-col>
+              <v-col cols="12">
+                <strong>Roles:</strong> {{ userSpecificRoles }}
+              </v-col>
+              <v-col cols="12">
+                <v-checkbox v-model="hasReviewerAccess" label="Has Reviewer Access?"></v-checkbox>
+              </v-col>
+            </v-row>
+          </div>
+
+          <v-row class="justify-end pt-2 justify-right">
+            <v-btn
+              @click="
+                showUserInfo = false;
+                saveUserData(user.id);
+              "
+              color="green"
+              class="me-2"
+              >Save</v-btn
+            >
+            <v-btn
+              @click="(showUserInfo = false), (showDeleteItem = true)"
+              color="red"
+              class="me-2"
+              >Delete</v-btn
+            >
+            <v-btn @click="showUserInfo = false" color="blue">Close</v-btn>
+          </v-row>
+        </v-card>
+      </div>
+    </div>
+
+    <div v-if="showDeleteItem" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span @click="showDeleteItem = false" class="close">&times;</span>
+          <p v-if="!deleteError">
+            Are you sure you want to delete this user?<br />
+            {{ user.fName + " " + user.lName }}
+          </p>
+          <p v-if="deleteError">
+            Error deleting<br />{{ user.fName + " " + user.lName }}.
+          </p>
+        </div>
+        <div class="modal-body">
+          <v-btn
+            v-if="!deleteError"
+            color="blue"
+            @click="showDeleteItem = false"
+            >No, cancel</v-btn
+          >
+          <v-btn v-if="!deleteError" color="red" class="error" @click="deleteUser(user)"
+            >Yes, delete</v-btn
+          >
+          <v-btn
+            v-if="deleteError"
+            @click="
+              deleteError = false;
+              showDeleteItem = false;
+            "
+            >Close</v-btn
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .menu {
-    list-style-type: none;
-    padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 
 .menu-item {
-    margin: 10px 0;
+  margin: 10px 0;
 }
 
 .admin-sidebar {
-    width: 20%;
-    background-color: aqua;
-    float: left;
+  width: 20%;
+  background-color: aqua;
+  float: left;
 }
 
 .sidenav {
-    height: 100%;
-    width: 20%;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    background-color: rgb(100, 0, 30);
-    overflow-x: hidden;
-    padding-top: 20px;
-    border-right-style: solid;
-    border-right-width: 2px;
-    border-right-color: black;
+  height: 100%;
+  width: 20%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: rgb(100, 0, 30);
+  overflow-x: hidden;
+  padding-top: 20px;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: black;
 }
 
 .side-bar-button,
 .side-bar-button:active {
-    font-weight: 900;
-    color: black;
-    width: 100%;
+  font-weight: 900;
+  color: black;
+  width: 100%;
 
-    padding-right: 20px;
+  padding-right: 20px;
 }
 
 .card-padding {
-    margin: 10px;
-    padding: 10px;
+  margin: 10px;
+  padding: 10px;
 }
 
 .modified-width {
-    width: 70%;
-    margin: 0 auto;
-    padding-top: 15px;
+  width: 70%;
+  margin: 0 auto;
+  padding-top: 15px;
 }
 
 .justify-right {
-    padding-right: 10px
+  padding-right: 10px;
 }
 
 .home-page {
-    color: white;
-    padding: 70px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
-
+  color: white;
+  padding: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
 }
 </style>
