@@ -47,7 +47,7 @@
               >
                 <div class="student-contact-info-inner">
                   <div class="group-child" :class="{ 'selected': item.isSelected }">
-                    <p>{{ item.degree }}, {{ item.institution }}</p>
+                    <p>{{ item.degree ? `${item.degree}, ${item.institution}` : item.institution }}</p>
                     <label class="custom-checkbox">
                       <input type="checkbox" v-model="item.isSelected" />
                       <span class="checkmark"></span>
@@ -70,7 +70,7 @@
             >
               <!-- Courses Dropdown Header -->
               <div class="courses-dropdown-header" @click="toggleCourseDropdown(index, education.id)">
-                <p>{{ education.degree }}, {{ education.institution }}</p>
+                <p>{{ education.degree ? `${education.degree}, ${education.institution}` : education.institution }}</p>
                 <img
                   class="arrow-icon"
                   :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"

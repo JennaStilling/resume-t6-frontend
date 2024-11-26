@@ -69,20 +69,12 @@ export const loadTemplateOne = (user, dropdownSections) => {
         
         // Create an array to hold the course strings
         const courseList = selectedCourses.map(course => {
-          const grade = convertGradeToLetter(course.grade); // Convert grade to letter
-          return `${course.name}${grade}`;
+          return course.grade ? `${course.name}: ${course.grade}` : course.name;
         });
 
         content += `<p style="margin-left: 10px; font-style: italic; display: inline;"> ${courseList.join(', ')}</p>`;
       }
 
-      // Function to convert percentage to letter grade
-      function convertGradeToLetter(grade) {
-        if (grade >= 90) return ': A';
-        if (grade >= 80) return ': B';
-        if (grade >= 70) return ': C';
-        return ''; // Don't display grade if below 70
-      }
       content += `<div style="height: 5px;"></div>`;
     });
 

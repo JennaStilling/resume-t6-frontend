@@ -66,14 +66,14 @@
         <!-- Education label -->
         <div class="text-field-with-title">
           <label class="field-label">
-            {{ route.path.includes('/courses/select') ? 'SELECTED EDUCATION' : 'SELECT AN EDUCATION' }} <br>
+            {{ route.path.includes('/courses/select') ? 'SELECTED EDUCATION' : 'EDIT EDUCATION TO ADD COURSES' }} <br>
           </label>
         </div>
 
         <!-- IF EDUCATION IS SELECTED SHOW THIS -->
-        <div v-if="formData.degree && formData.institution">
+        <div v-if="formData.institution">
           <div class="text-field-boring" readonly>
-            {{ formData.degree && formData.institution ? `${formData.degree}, ${formData.institution}` : '' }}
+            {{ formData.degree ? `${formData.degree}${formData.institution ? ', ' + formData.institution : ''}` : formData.institution }}
             <br><br>
           </div>
           <div class="text-field-with-title">
@@ -86,12 +86,12 @@
             />
           </div>
           <div class="text-field-with-title">
-            <label class="field-label">GRADE PERCENTAGE</label>
+            <label class="field-label">GRADE LETTER</label>
             <input
               v-model="formData.grade"
               class="text-field"
               type="text"
-              placeholder="Enter grade (97 instead of an A)"
+              placeholder="Enter grade (A, B, C, D, F, P*)"
             />
           </div>
 
@@ -313,7 +313,7 @@ function getCourses() {
 
 // Navigation methods
 function goBack() {
-  router.push('/contact-info');
+  router.push('/education');
 }
 
 function goNext() {
