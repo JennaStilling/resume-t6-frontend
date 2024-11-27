@@ -306,14 +306,28 @@ export default {
         loadCertificationData();
         loadSkillData();
         loadProjectData();
-        // Load the initial PDF content in the iframe
+
+        // Ensure the PDF preview is updated only once
+        let previewUpdated = false; // Flag to track if updatePDFPreview has been called
         const iframe = document.querySelector("iframe");
+
         if (iframe) {
           iframe.addEventListener('load', () => {
             console.log('Iframe loaded');
-            updatePDFPreview();
+            if (!previewUpdated) {
+              previewUpdated = true;
+              setTimeout(() => {
+                updatePDFPreview(); // Call with a slight delay
+              }, 500); // Delay in milliseconds
+            }
           });
-          updatePDFPreview();
+
+          if (!previewUpdated) {
+            previewUpdated = true;
+            setTimeout(() => {
+              updatePDFPreview(); 
+            }, 500); 
+          }
         } else {
           console.error('Iframe not found');
         }
