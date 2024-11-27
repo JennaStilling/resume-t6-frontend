@@ -1,7 +1,6 @@
-\<template>
+<template>
   <div class="resume-builder">
     <div class="resume-sidebar">
-
       <!-- Title Section -->
       <div class="title-section">
         <label for="resumeTitle" class="title-label">Title:</label>
@@ -12,15 +11,19 @@
           placeholder="First Resume"
         />
         <button @click="saveResume">
-          <img :src="saveIcon" alt="save" class="save-button"/>
+          <img :src="saveIcon" alt="save" class="save-button" />
         </button>
         <button @click="downloadPDF">
-          <img :src="downloadIcon" alt="download"/>
+          <img :src="downloadIcon" alt="download" />
         </button>
       </div>
 
       <!-- Dropdown Sections -->
-      <div v-for="(section, sectionKey) in dropdownSections" :key="sectionKey" class="dropdown-section">
+      <div
+        v-for="(section, sectionKey) in dropdownSections"
+        :key="sectionKey"
+        class="dropdown-section"
+      >
         <div class="dropdown-header" @click="toggleDropdown(sectionKey)">
           <img
             class="section-icon"
@@ -38,7 +41,10 @@
         <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
           <!-- Education Section -->
           <div v-if="sectionKey === 'education'">
-            <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
+            <div
+              v-if="dropdownSections[sectionKey].items.length"
+              class="section-list"
+            >
               <div
                 v-for="(item, index) in dropdownSections[sectionKey].items"
                 :key="index"
@@ -46,8 +52,14 @@
                 @click="toggleCheckbox(item)"
               >
                 <div class="student-contact-info-inner">
-                  <div class="group-child" :class="{ 'selected': item.isSelected }">
-                    <p>{{ item.degree ? `${item.degree}, ${item.institution}` : item.institution }}</p>
+                  <div class="group-child" :class="{ selected: item.isSelected }">
+                    <p>
+                      {{
+                        item.degree
+                          ? `${item.degree}, ${item.institution}`
+                          : item.institution
+                      }}
+                    </p>
                     <label class="custom-checkbox">
                       <input type="checkbox" v-model="item.isSelected" />
                       <span class="checkmark"></span>
@@ -61,7 +73,10 @@
 
           <!-- Courses Section -->
           <div v-if="sectionKey === 'courses'">
-            <div v-if="dropdownSections.education.items.length" class="section-list">
+            <div
+              v-if="dropdownSections.education.items.length"
+              class="section-list"
+            >
               <!-- Courses Dropdown -->
               <div
                 v-for="(education, index) in dropdownSections.education.items"
@@ -69,8 +84,17 @@
                 class="courses-dropdown"
               >
                 <!-- Courses Dropdown Header -->
-                <div class="courses-dropdown-header" @click="toggleCourseDropdown(index, education.id)">
-                  <p>{{ education.degree ? `${education.degree}, ${education.institution}` : education.institution }}</p>
+                <div
+                  class="courses-dropdown-header"
+                  @click="toggleCourseDropdown(index, education.id)"
+                >
+                  <p>
+                    {{
+                      education.degree
+                        ? `${education.degree}, ${education.institution}`
+                        : education.institution
+                    }}
+                  </p>
                   <img
                     class="arrow-icon"
                     :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"
@@ -79,12 +103,23 @@
                 </div>
 
                 <!-- Courses Dropdown Content -->
-                <div v-if="isCourseDropdownOpen[index]" class="courses-dropdown-content">
+                <div
+                  v-if="isCourseDropdownOpen[index]"
+                  class="courses-dropdown-content"
+                >
                   <div v-if="education.courses && education.courses.length">
                     <ul>
-                      <li v-for="(course, courseIndex) in education.courses" :key="courseIndex" class="course-item">
+                      <li
+                        v-for="(course, courseIndex) in education.courses"
+                        :key="courseIndex"
+                        class="course-item"
+                      >
                         <label class="custom-checkbox">
-                          <input type="checkbox" v-model="course.isSelected" @click="toggleCourseCheckbox(course)" />
+                          <input
+                            type="checkbox"
+                            v-model="course.isSelected"
+                            @click="toggleCourseCheckbox(course)"
+                          />
                           {{ course.name }} &nbsp;
                           <span class="checkmark"></span>
                         </label>
@@ -95,11 +130,14 @@
                 </div>
               </div>
             </div>
-          </div>  
+          </div>
 
           <!-- Other Sections -->
           <div v-if="sectionKey !== 'education' && sectionKey !== 'courses'">
-            <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
+            <div
+              v-if="dropdownSections[sectionKey].items.length"
+              class="section-list"
+            >
               <div
                 v-for="(item, index) in dropdownSections[sectionKey].items"
                 :key="index"
@@ -107,9 +145,13 @@
                 @click="toggleCheckbox(item)"
               >
                 <div class="student-contact-info-inner">
-                  <div class="group-child" :class="{ 'selected': item.isSelected }">
-                    <p v-if="sectionKey === 'experience'">{{ item.role }}, {{ item.company }}</p>
-                    <p v-else-if="sectionKey === 'certifications'">{{ item.name }}, {{ item.company }}</p>
+                  <div class="group-child" :class="{ selected: item.isSelected }">
+                    <p v-if="sectionKey === 'experience'">
+                      {{ item.role }}, {{ item.company }}
+                    </p>
+                    <p v-else-if="sectionKey === 'certifications'">
+                      {{ item.name }}, {{ item.company }}
+                    </p>
                     <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
                     <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
                     <label class="custom-checkbox">
@@ -125,28 +167,71 @@
         </div>
       </div>
     </div>
+
+    <!-- Main Content -->
     <div class="main-content">
-      <EditBar @tab-change="handleTabChange" />
-      <div class="pdf-preview" v-if="activeTab === 'preview'">
-        <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
-      </div>
-      <div v-if="activeTab === 'template'">
-        <div class="template-list" width="100%" height="100%">
-          <div v-for="(template, index) in templates" :key="index" class="template-item"
-            :class="{ active: template.name === selectedTemplate }">
-            <p class="template-name">{{ template.name }}</p>
-            <button @click="previewTemplate(template)" class="preview-button">Preview</button>
-          </div>
+      <div class="edit-bar">
+        <div
+          class="tab"
+          :class="{ active: activeTab === 'preview' }"
+          @click="handleTabChange('preview')"
+        >
+          Preview
+        </div>
+        <div
+          class="tab"
+          :class="{ active: activeTab === 'template' }"
+          @click="handleTabChange('template')"
+        >
+          Select Template
+        </div>
+        <div
+          class="tab"
+          :class="{ active: activeTab === 'ai' }"
+          @click="handleTabChange('ai')"
+        >
+          AI Analysis
         </div>
       </div>
-      <div class="ai-tab" width="100%" height="100%" v-if="activeTab === 'ai'">
+
+      <!-- Preview Tab -->
+      <div v-if="activeTab === 'preview'" class="pdf-preview">
+        <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
+      </div>
+
+      <!-- Select Template Tab -->
+      <div v-if="activeTab === 'template'" class="template-list">
+        <div
+          v-for="(template, index) in templates"
+          :key="index"
+          class="template-item"
+          :class="{ active: template.name === selectedTemplate }"
+        >
+          <p class="template-name">{{ template.name }}</p>
+          <button @click="previewTemplate(template)" class="preview-button">
+            Preview
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Analysis Tab -->
+      <div v-if="activeTab === 'ai'" class="ai-tab">
         <div>
           <!-- Job Description Field -->
           <div class="text-field-with-title">
-            <label for="degree" class="field-label">Job Description</label>
+            <label for="jobDescription" class="field-label">Job Description</label>
             <div class="textarea-wrapper">
-              <textarea v-model="jobDescription" rows="3" class="text-field" placeholder="Paste desired job description here..."></textarea>
-              <button @click="pasteFromClipboard" class="paste-icon" title="Paste">
+              <textarea
+                v-model="jobDescription"
+                rows="3"
+                class="text-field"
+                placeholder="Paste desired job description here..."
+              ></textarea>
+              <button
+                @click="pasteFromClipboard"
+                class="paste-icon"
+                title="Paste"
+              >
                 <img :src="pasteIcon" alt="Paste" />
               </button>
             </div>
@@ -155,7 +240,7 @@
 
           <!-- AI Suggestion Field -->
           <div class="text-field-with-title">
-            <label for="degree" class="field-label">AI Suggestion</label>
+            <label for="aiSuggestion" class="field-label">AI Suggestion</label>
             <textarea
               v-model="result"
               :placeholder="loading ? 'Loading...' : ''"
@@ -166,9 +251,10 @@
             <span class="mandatory">*</span>
           </div>
 
-          <!-- Cohere Request Button -->
+          <!-- Generate AI Review Button -->
           <div @click="cohereRequest" class="ai-review-button">
-            <img :src="aiIcon" alt="AI Icon" class="ai-icon" /> Generate AI Review
+            <img :src="aiIcon" alt="AI Icon" class="ai-icon" /> Generate AI
+            Review
           </div>
         </div>
       </div>
@@ -218,14 +304,10 @@ import { loadTemplateFour } from '@/services/templates/templateFour.js';
 import { loadTemplateFive } from '@/services/templates/templateFive.js';
 import { loadTemplateSix } from '@/services/templates/templateSix.js';
 import { loadTemplateSeven } from '@/services/templates/templateSeven.js';
-import EditBar from '@/components/EditBar.vue';
 
 import { useRouter } from "vue-router";
 
 export default {
-  components: {
-    EditBar,
-  },
   setup() {
     const user = Utils.getStore('user');
     const studentId = ref(null);
@@ -237,6 +319,7 @@ export default {
     const changeTemplateType = (type) => {
       resume.value.template_type = type;
     };
+    const activeTab = ref('preview');
     // Will be changed to props once student homepage is done
     const router = useRouter();
     const path = window.location.pathname;
@@ -291,9 +374,8 @@ export default {
     const previewTemplate = (template) => {
       selectTemplate(template);
       changeTemplateType(template.type);
-      // Switch back to the 'preview' tab
+      activeTab.value = 'preview';
       handleTabChange('preview');
-      this.editBar = template;
     };
 
     onMounted(() => {
@@ -334,16 +416,16 @@ export default {
       });
     });
 
-    const activeTab = ref('preview');
-
     function handleTabChange(tab) {
       console.log('Tab changed to:', tab);
       activeTab.value = tab;
+
       if (tab === 'preview') {
         setTimeout(() => {
           const iframe = document.querySelector("iframe");
           if (iframe) {
             updatePDFPreview();
+            console.log('Gets here');
           } else {
             console.error('Iframe not found for PDF preview when handling tab change');
           }
@@ -371,8 +453,6 @@ export default {
     const generatePDFContent = () => {
       const user = Utils.getStore('user');
       const sections = dropdownSections.value;
-
-      console.log('Selected Courses in Generate PDF:', sections.courses.items.length);
 
       switch (resume.value.template_type) {
       case 1:
@@ -405,6 +485,7 @@ export default {
       resumeServices.getResume(studentId.value, resumeId.value)
         .then((response) => {
           resume.value = response.data;
+          resumeTitle.value = response.data.name;
         })
         .catch((error) => {
           console.log("Could not retrieve resume: " + error);
@@ -498,7 +579,6 @@ export default {
                     }
                   });
                 });
-                console.log(`Courses loaded for education ID ${education.id}:`, dropdownSections.value.education.items[index].courses);
               })
               .catch(error => {
                 console.error(`Failed to fetch resume courses for education ID ${education.id}:`, error);
@@ -529,7 +609,7 @@ export default {
 
     const toggleCourseCheckbox = (course) => {
       course.isSelected = !course.isSelected;
-      console.log('Course selection toggled:', course.name, 'isSelected:', course.isSelected);
+      //console.log('Course selection toggled:', course.name, 'isSelected:', course.isSelected);
       updatePDFPreview(); // Update the PDF preview if necessary
     };
 
@@ -766,6 +846,33 @@ export default {
 
 <style scoped>
 @import '@/assets/view-resume.css';
+.edit-bar {
+    background-color: #084565;
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    max-width: 100%;
+    margin-left: 70px;
+  }
+
+.tab {
+  flex: 1;
+  padding: 10px 20px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.tab.active {
+  background-color: #0e74a0;
+  font-weight: bold;
+}
+
+.tab:hover {
+    background-color: #0b547c;
+}
 
 .nav-button {
   background-color: #5AC8FA;
