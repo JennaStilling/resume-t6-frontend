@@ -130,15 +130,45 @@
       <div class="pdf-preview" v-if="activeTab === 'preview'">
         <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
       </div>
-      <div v-if="activeTab === 'template'">      
+      <div v-if="activeTab === 'template'">
         <div class="template-list" width="100%" height="100%">
-          <div 
-            v-for="(template, index) in templates" 
-            :key="index" 
-            class="template-item" 
+          <div v-for="(template, index) in templates" :key="index" class="template-item"
             :class="{ active: template.name === selectedTemplate }">
             <p class="template-name">{{ template.name }}</p>
             <button @click="previewTemplate(template)" class="preview-button">Preview</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-tab" width="100%" height="100%" v-if="activeTab === 'ai'">
+        <div>
+          <!-- Job Description Field -->
+          <div class="text-field-with-title">
+            <label for="degree" class="field-label">Job Description</label>
+            <div class="textarea-wrapper">
+              <textarea v-model="jobDescription" rows="3" class="text-field" placeholder="Paste desired job description here..."></textarea>
+              <button @click="pasteFromClipboard" class="paste-icon" title="Paste">
+                <img :src="pasteIcon" alt="Paste" />
+              </button>
+            </div>
+            <span class="mandatory">*</span>
+          </div>
+
+          <!-- AI Suggestion Field -->
+          <div class="text-field-with-title">
+            <label for="degree" class="field-label">AI Suggestion</label>
+            <textarea
+              v-model="result"
+              :placeholder="loading ? 'Loading...' : ''"
+              rows="18"
+              class="text-field"
+              readonly
+            ></textarea>
+            <span class="mandatory">*</span>
+          </div>
+
+          <!-- Cohere Request Button -->
+          <div @click="cohereRequest" class="ai-review-button">
+            <img :src="aiIcon" alt="AI Icon" class="ai-icon" /> Generate AI Review
           </div>
         </div>
       </div>
@@ -263,6 +293,7 @@ export default {
       changeTemplateType(template.type);
       // Switch back to the 'preview' tab
       handleTabChange('preview');
+      this.editBar = template;
     };
 
     onMounted(() => {
