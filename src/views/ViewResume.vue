@@ -18,6 +18,14 @@
         </button>
       </div>
 
+       <!-- Reviewer Suggestion -->
+       <div class="suggestion-box" v-if="resumeStatus">
+        {{ resumeReview.suggestion }}
+        <div class="submit-button">
+          <button @click="deleteReview()">Complete</button>
+        </div>
+      </div>
+
       <!-- Dropdown Sections -->
       <div
         v-for="(section, sectionKey) in dropdownSections"
@@ -275,6 +283,7 @@ import projectServices from '../services/projectServices.js';
 import Utils from '../config/utils';
 import html2pdf from 'html2pdf.js';
 import resumeServices from '../services/resumeServices.js'
+import resumeReviewServices from '@/services/resumeReviewServices.js';
 import resumeEducationServices from '../services/resumeEducationServices.js';
 import resumeCourseServices from '../services/resumeCourseServices.js';
 import resumeExperienceServices from '../services/resumeExperienceServices.js';
@@ -325,6 +334,8 @@ export default {
     const path = window.location.pathname;
     const match = path.match(/\/resume\/(\d+)$/);
     const resumeId = ref(match ? Number(match[1]) : null);
+    const resumeReview = ref(null);
+    const resumeStatus = ref(false);
 
     const isDropdownOpen = ref({
       education: false,
@@ -486,6 +497,7 @@ export default {
         .then((response) => {
           resume.value = response.data;
           resumeTitle.value = response.data.name;
+          if (resume.value.resumeReviewId != null) getReview();
         })
         .catch((error) => {
           console.log("Could not retrieve resume: " + error);
@@ -797,6 +809,29 @@ export default {
       }
     }
 
+    const getReview = () => {
+      resumeReviewServices.getResumeReviewById(resume.value.resumeReviewId)
+        .then((res) => {
+          resumeReview.value = res.data;
+          if (resumeReview.value.status === "reviewed") resumeStatus.value = true;
+          console.log(resumeReview.value);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }
+
+    const deleteReview = () => {
+      resumeReviewServices.deleteResumeReview(studentId.value, resumeReview.value.id)
+        .then((res) => {
+          console.log(res.data);
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }
+
     const deleteResumeData = (service) => {
       service(resumeId.value)
         .then(() => {
@@ -838,6 +873,9 @@ export default {
       jobDescription,
       toggleCourseDropdown,
       toggleCourseCheckbox,
+      resumeReview,
+      resumeStatus,
+      deleteReview,
     };
   }
 };
@@ -1050,4 +1088,24 @@ export default {
   color: #fff;
 }
 
+.suggestion-box {
+  min-height: 50px;
+  background-color: #D2D9DC;
+  display: flex;
+  flex-direction: column; 
+  justify-content: space-between; 
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px;
+  color: black;
+  flex-wrap: wrap;
+}
+
+.submit-button {
+  align-self: flex-end; 
+  padding: 5px;
+  border-radius: 10px;
+  background-color: green;
+  color: white;
+}
 </style>
