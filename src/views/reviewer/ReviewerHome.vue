@@ -3,7 +3,6 @@ import Utils from "@/config/utils.js";
 import UserServices from "../../services/userServices.js";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import ReviewInbox from "@/components/reviewerPages/ReviewInbox.vue";
 
 const user = ref(null);
 const initials = ref("");
@@ -19,6 +18,8 @@ console.log(user.value);
 
 getUserRoles();
 });
+
+
 
 const getUserRoles = () => {
   UserServices.getUser(user.value.userId)
@@ -40,7 +41,10 @@ const getUserRoles = () => {
 </script>
 
 <template>
-  <ReviewInbox />
+    <div class="home-page">
+        <h1>Welcome to ResuMate!</h1>
+        <p>This is the reviewer home page</p>
+    </div>
 </template>
 
 <style scoped>
