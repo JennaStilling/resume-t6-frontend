@@ -21,7 +21,7 @@ const vuetify = createVuetify({
       mdi,
     },
   },
-});
+}); 
 
 createApp(App)
 .provide('cohereClient', new CohereClient({ token: import.meta.env.VITE_APP_COHERE_API_KEY }))
