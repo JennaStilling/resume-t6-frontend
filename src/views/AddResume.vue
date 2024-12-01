@@ -9,7 +9,7 @@
           v-model="resumeTitle"
           id="resumeTitle"
           class="title-input"
-          placeholder="First Resume"
+          placeholder="Resume Name"
         />
         <button @click="saveResume">
           <img :src="saveIcon" alt="save" class="save-button"/>
@@ -447,7 +447,7 @@ export default {
         .then((res) => {
           resumeId.value = res.data.id;
           addResumeInfo();
-          //router.push({ name: "studentHome" });
+          router.push({ name: "studentHome" });
         })
         .catch((error) => {
           if (error.response && error.response.status === 406) {
