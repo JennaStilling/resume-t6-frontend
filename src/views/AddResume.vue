@@ -9,13 +9,13 @@
           v-model="resumeTitle"
           id="resumeTitle"
           class="title-input"
-          placeholder="First Resume"
+          placeholder="Resume Name"
         />
         <button @click="saveResume">
-            <img :src="saveIcon" alt="save" class="save-button"/>
+          <img :src="saveIcon" alt="save" class="save-button"/>
         </button>
         <button @click="downloadPDF">
-            <img :src="downloadIcon" alt="download"/>
+          <img :src="downloadIcon" alt="download"/>
         </button>
       </div>
 
@@ -36,72 +36,130 @@
         </div>
 
         <div v-if="isDropdownOpen[sectionKey]" class="dropdown-content">
-
-            <!-- Gets all the Section info -->
+          <!-- Education Section -->
+          <div v-if="sectionKey === 'education'">
             <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
-            <div
-              v-for="(item, index) in dropdownSections[sectionKey].items"
-              :key="index"
-              class="student-contact-info"
-              @click="toggleCheckbox(item)"
-            >
-              <div class="student-contact-info-inner">
               <div
-                class="group-child"
-                :class="{ 'selected': item.isSelected }"
+                v-for="(item, index) in dropdownSections[sectionKey].items"
+                :key="index"
+                class="student-contact-info"
+                @click="toggleCheckbox(item)"
               >
-                <p v-if="sectionKey === 'education'">{{ item.degree }}, {{ item.institution }}</p>
-                <p v-else-if="sectionKey === 'experience'">{{ item.role }}, {{ item.company }}</p>
-                <p v-else-if="sectionKey === 'certifications'">{{ item.name }}, {{ item.company }}</p>
-                <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
-                <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
-                <label class="custom-checkbox">
-                <input type="checkbox" v-model="item.isSelected" />
-                <span class="checkmark"></span>
-                </label>
-              </div>
+                <div class="student-contact-info-inner">
+                  <div class="group-child" :class="{ 'selected': item.isSelected }">
+                    <p>{{ item.degree ? `${item.degree}, ${item.institution}` : item.institution }}</p>
+                    <label class="custom-checkbox">
+                      <input type="checkbox" v-model="item.isSelected" />
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
+            <p v-else>No education data available.</p>
+          </div>
+
+        <!-- Courses Section -->
+        <div v-if="sectionKey === 'courses'">
+          <div v-if="dropdownSections.education.items.length" class="section-list">
+            <!-- Courses Dropdown -->
+            <div
+              v-for="(education, index) in dropdownSections.education.items"
+              :key="index"
+              class="courses-dropdown"
+            >
+              <!-- Courses Dropdown Header -->
+              <div class="courses-dropdown-header" @click="toggleCourseDropdown(index, education.id)">
+                <p>{{ education.degree ? `${education.degree}, ${education.institution}` : education.institution }}</p>
+                <img
+                  class="arrow-icon"
+                  :src="isCourseDropdownOpen[index] ? dropDownUpIcon : dropDownIcon"
+                  alt="arrow"
+                />
+              </div>
+
+              <!-- Courses Dropdown Content -->
+              <div v-if="isCourseDropdownOpen[index]" class="courses-dropdown-content">
+                <div v-if="education.courses.length">
+                  <ul>
+                    <li v-for="(course, courseIndex) in education.courses" :key="courseIndex" class="course-item">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" v-model="course.isSelected" @click="toggleCourseCheckbox(course)" />
+                       {{ course.name }} &nbsp;
+                       <span class="checkmark"></span>
+                    </label>
+                    </li>
+                  </ul>
+                </div>
+                <p v-else>No courses available.</p>
+              </div>
+            </div>
+          </div>
+        </div>  
+
+          <!-- Other Sections -->
+          <div v-if="sectionKey !== 'education' && sectionKey !== 'courses'">
+            <div v-if="dropdownSections[sectionKey].items.length" class="section-list">
+              <div
+                v-for="(item, index) in dropdownSections[sectionKey].items"
+                :key="index"
+                class="student-contact-info"
+                @click="toggleCheckbox(item)"
+              >
+                <div class="student-contact-info-inner">
+                  <div class="group-child" :class="{ 'selected': item.isSelected }">
+                    <p v-if="sectionKey === 'experience'">{{ item.role }}, {{ item.company }}</p>
+                    <p v-else-if="sectionKey === 'certifications'">{{ item.name }}, {{ item.company }}</p>
+                    <p v-else-if="sectionKey === 'skills'">{{ item.name }}</p>
+                    <p v-else-if="sectionKey === 'projects'">{{ item.name }}</p>
+                    <label class="custom-checkbox">
+                      <input type="checkbox" v-model="item.isSelected" />
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
             <p v-else>No {{ sectionKey }} data available.</p>
           </div>
-          </div>
         </div>
-        <div class="main-content">
-          <PreviewBar @tab-change="handleTabChange" />
-          <div class="pdf-preview" v-if="activeTab === 'preview'">
-            <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
-          </div>
-          <div v-if="activeTab === 'template'">      
-            <div class="template-list" width="100%" height="100%">
-              <div 
-                v-for="(template, index) in templates" 
-                :key="index" 
-                class="template-item" 
-                :class="{ active: template.name === selectedTemplate }">
-                <p class="template-name">{{ template.name }}</p>
-                <button @click="previewTemplate(template)" class="preview-button">Preview</button>
-              </div>
-            </div>
-          </div>
       </div>
     </div>
+    <div class="main-content">
+      <PreviewBar @tab-change="handleTabChange" />
+      <div class="pdf-preview" v-if="activeTab === 'preview'">
+        <iframe id="pdfPreview" ref="pdfPreview" width="100%" height="100%"></iframe>
+      </div>
+      <div v-if="activeTab === 'template'">      
+        <div class="template-list" width="100%" height="100%">
+          <div 
+            v-for="(template, index) in templates" 
+            :key="index" 
+            class="template-item" 
+            :class="{ active: template.name === selectedTemplate }">
+            <p class="template-name">{{ template.name }}</p>
+            <button @click="previewTemplate(template)" class="preview-button">Preview</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
-
 <script>
-// Services, etc...
 import { ref, onMounted } from 'vue';
 import educationServices from '../services/educationServices.js';
 import experienceServices from '../services/experienceServices.js';
 import certificationServices from '../services/certificationServices.js';
 import skillServices from '../services/skillServices.js';
 import projectServices from '../services/projectServices.js';
+import courseServices from '../services/courseServices.js'; 
 import Utils from '../config/utils';
 import html2pdf from 'html2pdf.js';
 import PreviewBar from '@/components/PreviewBar.vue';
-import resumeServices from '../services/resumeServices.js'
+import resumeServices from '../services/resumeServices.js';
 import resumeEducationServices from '../services/resumeEducationServices.js';
+import resumeCourseServices from '@/services/resumeCourseServices.js';
 import resumeExperienceServices from '../services/resumeExperienceServices.js';
 import resumeCertificationServices from '../services/resumeCertificationServices.js';
 import resumeSkillServices from '../services/resumeSkillServices.js';
@@ -118,6 +176,7 @@ import experienceIcon from '@/assets/build-icons/experience.png';
 import certsIcon from '@/assets/build-icons/certs.png';
 import skillsIcon from '@/assets/build-icons/skills.png';
 import projectIcon from '@/assets/build-icons/project.png';
+import coursesIcon from '@/assets/build-icons/courses.png'; 
 
 import { loadTemplateOne } from '@/services/templates/templateOne.js';
 import { loadTemplateTwo } from '@/services/templates/templateTwo.js';
@@ -130,6 +189,7 @@ import { loadTemplateSeven } from '@/services/templates/templateSeven.js';
 import { useRouter } from "vue-router";
 
 export default {
+  name: 'AddResume',
   components: {
     PreviewBar,
   },
@@ -152,9 +212,13 @@ export default {
       certifications: false,
       skills: false,
       projects: false,
+      courses: false, 
     });
+    const isCourseDropdownOpen = ref({});
+    const isNestedDropdownOpen = ref({});
     const dropdownSections = ref({
       education: { items: [] },
+      courses: { items: [] },
       experience: { items: [] },
       certifications: { items: [] },
       skills: { items: [] },
@@ -166,6 +230,7 @@ export default {
       certifications: certsIcon,
       skills: skillsIcon,
       projects: projectIcon,
+      courses: coursesIcon,
     };
 
     const getSectionIcon = (sectionKey) => {
@@ -191,7 +256,6 @@ export default {
     const previewTemplate = (template) => {
       selectTemplate(template);
       changeTemplateType(template.type);
-      // Switch back to the 'preview' tab
       handleTabChange('preview');      
     };
 
@@ -203,7 +267,6 @@ export default {
         loadCertificationData();
         loadSkillData();
         loadProjectData();
-        // Load the initial PDF content in the iframe
         const iframe = document.querySelector("iframe");
         if (iframe) {
           iframe.addEventListener('load', () => {
@@ -229,7 +292,7 @@ export default {
           } else {
             console.error('Iframe not found for PDF preview when handling tab change');
           }
-        }, 0); // Delay for Document Object Model (DOM) to update
+        }, 0);
       }
     }
 
@@ -254,34 +317,32 @@ export default {
       const user = Utils.getStore('user');
       const sections = dropdownSections.value;
 
+      sections.courses.items = dropdownSections.value.education.items.flatMap(education => 
+        education.courses.filter(course => course.isSelected)
+      );
+
+      console.log('Selected Courses:', sections.courses.items);
+
       switch (resume.value.template_type) {
       case 1:
         return loadTemplateOne(user, sections);
-        break;
       case 2:
         return loadTemplateTwo(user, sections);
-        break;
       case 3:
         return loadTemplateThree(user, sections);
-        break;
       case 4:
         return loadTemplateFour(user, sections);
-        break;
       case 5:
         return loadTemplateFive(user, sections);
-        break;
       case 6:
         return loadTemplateSix(user, sections);
-        break;
       case 7:
         return loadTemplateSeven(user, sections);
-        break;
       default:
         return loadTemplateOne(user, sections);
       }
     };
 
-    // Loads all the section data
     const loadData = (service, sectionKey) => {
       service(studentId.value)
       .then(response => {
@@ -295,32 +356,76 @@ export default {
       });
     };
 
-    const loadEducationData = () => loadData(educationServices.getAllEducations, 'education');
+    const loadEducationData = () => {
+      educationServices.getAllEducations(studentId.value)
+        .then(response => {
+          dropdownSections.value.education.items = response.data.map(education => ({
+            ...education,
+            isSelected: false,
+            courses: []
+          }));
+          loadCoursesData(); // Load courses for each education item
+        })
+        .catch(error => {
+          console.error('Failed to fetch education data:', error);
+        });
+    };
+
     const loadExperienceData = () => loadData(experienceServices.getAllExperiences, 'experience');
     const loadCertificationData = () => loadData(certificationServices.getAllCertifications, 'certifications');
     const loadSkillData = () => loadData(skillServices.getAllSkills, 'skills');
     const loadProjectData = () => loadData(projectServices.getAllProjects, 'projects');
 
+    const loadCoursesData = () => {
+      dropdownSections.value.education.items.forEach((education, index) => {
+        courseServices.getAllCourses(studentId.value, education.id)
+          .then(response => {
+            dropdownSections.value.education.items[index].courses = response.data.map(course => ({
+              ...course,
+              isSelected: false // Initialize isSelected property
+            }));
+            console.log(`Courses loaded for education ID ${education.id}:`, dropdownSections.value.education.items[index].courses);
+          })
+          .catch(error => {
+            console.error(`Failed to fetch courses for education ID ${education.id}:`, error);
+          });
+      });
+    };
+
     const toggleDropdown = (sectionKey) => {
       isDropdownOpen.value[sectionKey] = !isDropdownOpen.value[sectionKey];
     };
 
+    const toggleCourseDropdown = (index, educationId) => {
+      isCourseDropdownOpen.value[index] = !isCourseDropdownOpen.value[index];
+    };
+
+    const toggleCourseCheckbox = (course) => {
+      console.log('toggleCourseCheckbox called for:', course.name);
+      course.isSelected = !course.isSelected;
+      console.log('Course selected, then update PDF:', course);
+      updatePDFPreview(); // Update the PDF preview if necessary
+    };
+
+    const toggleNestedDropdown = (educationIndex, courseIndex) => {
+      if (!isNestedDropdownOpen.value[educationIndex]) {
+        isNestedDropdownOpen.value[educationIndex] = {};
+      }
+      isNestedDropdownOpen.value[educationIndex][courseIndex] = !isNestedDropdownOpen.value[educationIndex][courseIndex];
+    };
+
     const toggleCheckbox = (item) => {
       item.isSelected = !item.isSelected;
-      //console.log("Item selected in toggle checkbox:", item);
       updatePDFPreview(); 
     };
 
     const downloadPDF = () => {
-      // Create a temporary container for the HTML content
       const content = generatePDFContent();
       const container = document.createElement('div');
       container.innerHTML = content;
 
-      // Append the container to the body temporarily
       document.body.appendChild(container);
 
-      // Use html2pdf to generate and download the PDF
       html2pdf()
         .set({
           margin: 3,
@@ -337,7 +442,6 @@ export default {
 
     function saveResume() {
       resume.value.name = resumeTitle;
-      //resume.value.template_type = 1;
 
       resumeServices.createResume(studentId.value, resume.value)
         .then((res) => {
@@ -347,8 +451,7 @@ export default {
         })
         .catch((error) => {
           if (error.response && error.response.status === 406) {
-            message.value = "Error: " + error.code + ":" + error.message;
-            console.log(error);
+            console.log("Error: " + error.code + ":" + error.message);
           } else {
             console.log(error);
           }
@@ -361,88 +464,79 @@ export default {
       const selectedCertifications = dropdownSections.value.certifications.items.filter(item => item.isSelected);
       const selectedSkills = dropdownSections.value.skills.items.filter(item => item.isSelected);
       const selectedProjects = dropdownSections.value.projects.items.filter(item => item.isSelected);
+      const selectedCourses = dropdownSections.value.education.items.flatMap(education => education.courses.filter(course => course.isSelected));
 
       selectedEducation.forEach(item => {
-          resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
+        resumeEducationServices.createResumeEducation(resumeId.value, item.id, {})
           .then(() => {
             console.log("Education added to resume successfully");
           })
           .catch((error) => {
-            if (error.response && error.response.status === 406) {
-              message.value = "Error: " + error.code + ":" + error.message;
-              console.log(error);
-            } else {
-              console.log(error);
-            }
+            console.log(error);
           });
-        });
+      });
 
-        selectedExperience.forEach(item => {
-          resumeExperienceServices.createResumeExperience(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Experience added to resume successfully");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }              
-            });
-        });
+      selectedExperience.forEach(item => {
+        resumeExperienceServices.createResumeExperience(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Experience added to resume successfully");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
 
-        selectedCertifications.forEach(item => {
-          resumeCertificationServices.createResumeCertification(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Certification added successfully to resume");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }
-            })
-        })
+      selectedCertifications.forEach(item => {
+        resumeCertificationServices.createResumeCertification(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Certification added successfully to resume");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
 
-        selectedSkills.forEach(item => {
-          resumeSkillServices.createResumeSkill(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Skill added to resume successfully");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }
-            });
-        });
+      selectedSkills.forEach(item => {
+        resumeSkillServices.createResumeSkill(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Skill added to resume successfully");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
 
-        selectedProjects.forEach(item => {
-          resumeProjectServices.createResumeProject(resumeId.value, item.id, {})
-            .then(() => {
-              console.log("Project added to resume successfully");
-            })
-            .catch((error) => {
-              if (error.response && error.response.status === 406) {
-                message.value = "Error: " + error.code + ":" + error.message;
-                console.log(error);
-              } else {
-                console.log(error);
-              }
-            });
-        });
+      selectedProjects.forEach(item => {
+        resumeProjectServices.createResumeProject(resumeId.value, item.id, {})
+          .then(() => {
+            console.log("Project added to resume successfully");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+
+      selectedCourses.forEach(course => {
+        resumeCourseServices.createResumeCourse(resumeId.value, course.educationId, course.id, {})
+          .then(() => {
+            console.log("Course added to resume successfully");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
     }
 
     return {
       studentId,
       isDropdownOpen,
+      isCourseDropdownOpen,
+      isNestedDropdownOpen,
       dropdownSections,
       toggleDropdown,
+      toggleCourseDropdown,
+      toggleCourseCheckbox,
+      toggleNestedDropdown,
       toggleCheckbox,
       updatePDFPreview,
       editPencilIcon,
@@ -459,13 +553,89 @@ export default {
       templates,
       selectedTemplate,
       selectTemplate,
-      previewTemplate
+      previewTemplate,
     };
-  }
+  },
 };
 </script>
 
 
 <style scoped>
 @import '@/assets/view-resume.css';
+
+.courses-dropdown {
+  margin-bottom: 20px;
+  background-color: #084565;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  width: 100%;
+  position: relative;
+}
+
+.courses-dropdown-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 15px;
+  font-size: 24px;
+  color: white;
+  background-color: #0b547c;
+  border-bottom: 1px solid #099ace;
+}
+
+.courses-dropdown-content {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: #0e74a0;
+  transition: height 0.3s ease;
+}
+
+.courses-dropdown.open .courses-dropdown-content {
+  display: block;
+}
+
+.education-dropdown {
+  margin-bottom: 15px;
+  background-color: #128DCF;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.education-dropdown-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 20px;
+  color: white;
+  background-color: #1c88bf;
+}
+
+.education-dropdown-content {
+  display: none;
+  padding: 10px;
+  background-color: #1a7fb8;
+  font-size: 16px;
+  color: #fff;
+}
+
+.education-dropdown.open .education-dropdown-content {
+  display: flex;
+}
+
+.courses-dropdown-header:hover,
+.education-dropdown-header:hover {
+  background-color: #0a6c91;
+}
+
+.course-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  color: #fff;
+}
 </style>
