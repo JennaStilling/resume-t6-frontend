@@ -1,20 +1,36 @@
 {
-  "name": "resume-builder",
+  "name": "course-listing-t6-frontend",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "bundle": "mv .env dist",
     "preview": "vite preview"
   },
   "dependencies": {
-    "pinia": "^2.1.7",
-    "vue": "^3.4.29",
-    "vuetify": "^3.7.2"
+    "@programic/vue3-tooltip": "^1.0.0",
+    "@syncfusion/ej2-vue-dropdowns": "^27.1.58",
+    "@vueuse/components": "^11.2.0",
+    "@vueuse/core": "^11.2.0",
+    "axios": "^1.7.7",
+    "canvg": "^4.0.2",
+    "cohere-ai": "^7.14.0",
+    "cross-env": "^7.0.3",
+    "html2pdf.js": "^0.10.2",
+    "pinia": "^2.2.4",
+    "v-dropdown": "^3.0.0",
+    "vite-plugin-vuetify": "^2.0.4",
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5",
+    "vuetify": "^3.7.3",
+    "vuex": "^4.1.0",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.5",
-    "vite": "^5.3.1"
+    "@vitejs/plugin-vue": "^5.1.4",
+    "path": "^0.12.7",
+    "vite": "^5.4.10"
   }
 }

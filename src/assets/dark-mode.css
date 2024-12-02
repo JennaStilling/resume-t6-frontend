@@ -1,0 +1,287 @@
+/* Layout Styles */
+.container {
+    display: flex;
+    background-color: #021E2C;
+    color: #FFF;
+    overflow: hidden;
+}
+.sidebar {
+    width: 25%;
+    padding: 10px;
+    background-color: #021E2C;
+    color: #FFF;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.main-content {
+    overflow: hidden;
+    flex: 1;
+    padding: 50px;
+    box-sizing: border-box;
+    background-color: #021E2C;
+}
+
+/* List and Dropdown Styles */
+.list {
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding-left: 30px;
+    padding-top: 20px;
+}
+.dropdown {
+    width: 100%;
+    max-height: 240px;
+    overflow-y: auto;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
+    background-color: #FFF;
+    padding: 10px;
+}
+.dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #000;
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+.dropdown-item:last-child {
+    border-bottom: none; 
+}
+
+/* Name and Button Styles */
+.name {
+    font-size: 14px;
+}
+.buttons {
+    display: flex;
+    gap: 5px;
+}
+.icon-buttons {
+    display: flex;
+    gap: 10px;
+}
+.icon{
+    cursor: pointer;
+    width: 25px;
+    height: 25px;
+}
+
+/* Form and Field Styles */
+.text-field-with-title {
+    position: relative;
+    margin-bottom: 15px;
+    width: 70%;
+}
+.field-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    font-family: 'Helvetica', sans-serif;
+    margin: 5px;
+    white-space: normal;
+    word-wrap: break-word;
+    display: flex;
+}
+.text-field {
+    width: 30%;
+    margin-top: 30px;
+    padding: 5px;
+    border-radius: 4px;
+    background-color: #084565;
+    border: 1px solid #099ace;
+    color: #fff;
+    font-size: 16px; 
+    font-family: 'Helvetica', sans-serif;
+}
+
+/* Save Button Styles */
+.save-button {
+    width: 130px; 
+    position: relative;
+    height: 40px; 
+    text-align: center; 
+    font-size: 12px; 
+    color: #021E2C;
+    font-family: Helvetica, sans-serif;
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+}
+
+.save-button-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #118acb, #69cbff);
+    border: 3px solid #084565;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+.save-changes {
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold; 
+}
+
+/* Navigation Button Styles */
+.navigation-buttons {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-button {
+    position: relative;
+    height: 40px;
+    width: 80px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 14px; /* Smaller text size */
+    color: #fff;
+    font-family: 'Helvetica', sans-serif;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+    background: linear-gradient(90deg, #7b1329, #e1234b);
+    font-weight: 700;
+}
+
+/* Minimal Scrollbar Style */
+.dropdown::-webkit-scrollbar {
+    width: 5px;
+}
+.dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+.dropdown::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+/* Form Data Styles */
+.mandatory {
+    color: red;
+    margin-left: 2px;
+    font-size: 12px;
+}
+
+.text-field-with-title {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.field-label {
+    flex: 1;
+}
+
+.text-field {
+    flex: 2;
+    margin-left: 5px;
+}
+
+.text-field-boring{
+    display: flex;
+    padding-top: 30px;
+    text-indent: 5px; 
+}
+
+.text-field::placeholder {
+    color: #118ACB;
+    font-size: 14px; /* Smaller text size */
+}
+
+/* Modal styles */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+  
+.modal-content {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: left;
+    max-width: 400px;
+    width: 80%;
+    position: relative;
+}
+  
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: black;
+}
+  
+.modal-header p {
+    font-size: 20px;
+    color:#000a0f;
+}
+  
+.modal-header hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #9f9b9b;
+}
+  
+.modal-body {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 20px;
+}
+  
+.modal-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #118ACB;
+    color: white;
+    box-shadow: #0c557d;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+  
+.error {
+    background-color: #e74c3c;
+}
+
+.add-button-green {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 1px 1px;
+    width: 200px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 4px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .add-button-green:hover {
+    background-color: #45a049;
+  }
