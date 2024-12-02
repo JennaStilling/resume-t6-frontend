@@ -71,7 +71,7 @@
         </div>
 
         <!-- IF EDUCATION IS SELECTED SHOW THIS -->
-        <div v-if="formData.degree && formData.institution">
+        <div v-if="formData.institution">
           <div class="text-field-boring" readonly>
             {{ formData.degree && formData.institution ? `${formData.degree}, ${formData.institution}` : '' }}
             <br><br>
