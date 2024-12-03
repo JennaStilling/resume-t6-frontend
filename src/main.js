@@ -24,5 +24,4 @@ const vuetify = createVuetify({
 }); 
 
 createApp(App)
-.provide('cohereClient', new CohereClient({ token: import.meta.env.VITE_APP_COHERE_API_KEY }))
-.use(router).use(createPinia()).use(vuetify).use(store).mount('#app');
+.use(router).use(createPinia()).use(vuetify).use(store).mount('#app').provide('cohereClient', new CohereClient({ token: process.env.VITE_APP_COHERE_API_KEY }));
