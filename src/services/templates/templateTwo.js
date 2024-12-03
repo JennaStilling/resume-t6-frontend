@@ -58,17 +58,29 @@ export const loadTemplateTwo = (user, dropdownSections) => {
       const gpaText = Number.isInteger(educationItem.gpa) ? `${educationItem.gpa}.0` : educationItem.gpa;
       const formattedDate = educationItem.graduation_date ? new Date(educationItem.graduation_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
       
-      content += `<li style="display: flex; justify-content: space-between;">
+      if(educationItem.degree){
+        content += `<li style="display: flex; justify-content: space-between;">
+            <strong>${educationItem.institution}</strong>
+            ${educationItem.graduation_date ? '<span>Graduation:</span>' : ''}
+          </li>`;
+        
+        content += `<li style="display: flex; justify-content: space-between;">
+            <em>${educationItem.degree}</em>
+            <span>${formattedDate}</span>
+          </li>`;
+
+        content += `<li>GPA: ${gpaText}</li>`;
+      }else{
+        content += `<li style="display: flex; justify-content: space-between;">
           <strong>${educationItem.institution}</strong>
           ${educationItem.graduation_date ? '<span>Graduation:</span>' : ''}
         </li>`;
       
-      content += `<li style="display: flex; justify-content: space-between;">
-          <em>${educationItem.degree}</em>
+        content += `<li style="display: flex; justify-content: space-between;">
+          GPA: ${gpaText}
           <span>${formattedDate}</span>
         </li>`;
-      
-      content += `<li>GPA: ${gpaText}</li>`;
+      }
 
       // Add Courses under each Education
       const selectedCourses = educationItem.courses.filter(course => course.isSelected);
