@@ -74,6 +74,10 @@ router.beforeEach(async (to, from) => {
 
   const currentUser = ref({});
 
+  if (to.name === 'login') {
+    return true; // Explicitly allow navigation
+  }
+
   if (isAuthenticated) {
     try {
       const res = await UserServices.getUser(user.value.userId);
