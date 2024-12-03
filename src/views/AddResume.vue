@@ -453,7 +453,7 @@ export default {
       return html2canvas(container, options).then(async (canvas) => {
         console.log("Canvas:", canvas);
         const imageURL = canvas.toDataURL('image/png');
-        console.log("Image URL:", imageURL);
+        //console.log("Image URL:", imageURL);
         console.log("Resume id:", resumeIdHere);
 
         // Upload the image
@@ -507,7 +507,7 @@ export default {
 
         saveAsPNG(resumeIdHere).then(() => {
           console.log("Resume saved successfully", resumeIdHere);
-          //router.push({ name: "studentHome" }); // Navigate back home
+          router.push({ name: "studentHome" }); // Navigate back home
         });
 
       })
