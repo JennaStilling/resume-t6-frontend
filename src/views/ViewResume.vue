@@ -273,7 +273,7 @@
 
 <script>
 // Services, etc...
-import { ref, inject, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import educationServices from '../services/educationServices.js';
 import courseServices from '../services/courseServices.js';
 import experienceServices from '../services/experienceServices.js';
@@ -316,6 +316,8 @@ import { loadTemplateSix } from '@/services/templates/templateSix.js';
 import { loadTemplateSeven } from '@/services/templates/templateSeven.js';
 
 import { useRouter } from "vue-router";
+
+import { cohereClient } from "@/services/cohereClientServices.js";
 
 export default {
   setup() {
@@ -726,7 +728,6 @@ export default {
         });
 
     }
-    const cohereClient = inject('cohereClient');
 
     const loading = ref(false);
 
