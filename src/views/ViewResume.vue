@@ -282,6 +282,7 @@ import skillServices from '../services/skillServices.js';
 import projectServices from '../services/projectServices.js';
 import Utils from '../config/utils';
 import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas';
 import resumeServices from '../services/resumeServices.js'
 import resumeReviewServices from '@/services/resumeReviewServices.js';
 import resumeEducationServices from '../services/resumeEducationServices.js';
@@ -459,6 +460,58 @@ export default {
       } else {
         console.error('Iframe not found when updating');
       }
+    };
+
+    const saveAsPNG = (resumeIdHere) => {
+      const content = generatePDFContent(); // Generate the content
+      const container = document.createElement('div'); // Create a container element
+      container.innerHTML = content;
+
+      container.style.backgroundColor = '#ffffff'; // White background
+      container.style.padding = '0'; 
+      container.style.overflow = 'hidden'; 
+      container.style.display = 'inline-block'; 
+      container.style.transform = 'scale(0.32)'; // Scale down the text content
+      container.style.transformOrigin = 'top center'; 
+      container.style.position = 'relative'; // Ensure proper layout alignment
+      container.style.height = '200px'; // Fixed height
+      container.style.margin = '0 auto'; // Center the container horizontally
+      container.style.padding = '55px'
+
+      document.body.appendChild(container); // Temporarily append to body
+
+      const options = {
+        scale: 3, // Increase resolution
+        width: 150, // Set fixed width
+        height: container.offsetHeight, // Capture the full height dynamically
+        useCORS: true, // Cross-origin support
+        backgroundColor: '#ffffff' // Set white background explicitly
+      };
+
+      console.log(options.width, options.height);
+
+      // Use html2canvas to capture the content
+      return html2canvas(container, options).then(async (canvas) => {
+        console.log("Canvas:", canvas);
+        const imageURL = canvas.toDataURL('image/png');
+        //console.log("Image URL:", imageURL);
+        //console.log("Resume id:", resumeIdHere);
+
+        // Upload the image
+        try {
+          const response = await resumeServices.uploadResumeImage(studentId.value, resumeIdHere, imageURL);
+          if (response.status === 200 || response.status === 201) {
+            console.log('PNG uploaded successfully');
+          } else {
+            console.error('Failed to upload PNG');
+          }
+        } catch (error) {
+          console.log("Image URL should be:", imageURL);
+          console.error('Error uploading PNG:', error);
+        } finally {
+          document.body.removeChild(container); // Clean up the DOM
+        }
+      });
     };
 
     const generatePDFContent = () => {
@@ -656,7 +709,12 @@ export default {
         .then((res) => {
           resumeId.value = res.data.id;
           updateResumeInfo();
-          router.push({ name: "studentHome" });
+          const resumeIdHere = res.data.id;
+
+          saveAsPNG(resumeIdHere).then(() => {
+            console.log("Resume saved successfully", resumeIdHere);
+            router.push({ name: "studentHome" }); // Navigate back home
+        });
         })
         .catch((error) => {
           if (error.response && error.response.status === 406) {

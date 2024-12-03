@@ -187,6 +187,7 @@ import { loadTemplateSix } from '@/services/templates/templateSix.js';
 import { loadTemplateSeven } from '@/services/templates/templateSeven.js';
 
 import { useRouter } from "vue-router";
+import html2canvas from 'html2canvas';
 
 export default {
   name: 'AddResume',
@@ -419,6 +420,60 @@ export default {
       updatePDFPreview(); 
     };
 
+    const saveAsPNG = (resumeIdHere) => {
+      const content = generatePDFContent(); // Generate the content
+      const container = document.createElement('div'); // Create a container element
+      container.innerHTML = content;
+
+      container.style.backgroundColor = '#ffffff'; // White background
+      container.style.padding = '0'; // Optional: Avoid extra spacing
+      container.style.overflow = 'hidden'; // Prevent any overflow
+      container.style.display = 'inline-block'; // Ensure proper inline layout for consistent capture
+      container.style.transform = 'scale(0.32)'; // Scale down the text content
+      container.style.transformOrigin = 'top center'; // Adjust scaling origin
+      container.style.position = 'relative'; // Ensure proper layout alignment
+      container.style.height = '200px'; // Fixed height
+      container.style.margin = '0 auto'; // Center the container horizontally
+      container.style.padding = '55px'
+
+      document.body.appendChild(container); // Temporarily append to body
+
+      // Calculate dimensions for html2canvas
+      const options = {
+        scale: 3, // Increase resolution
+        width: 150, // Set fixed width
+        height: container.offsetHeight, // Capture the full height dynamically
+        useCORS: true, // Cross-origin support
+        backgroundColor: '#ffffff' // Set white background explicitly
+      };
+
+      console.log(options.width, options.height);
+
+      // Use html2canvas to capture the content
+      return html2canvas(container, options).then(async (canvas) => {
+        console.log("Canvas:", canvas);
+        const imageURL = canvas.toDataURL('image/png');
+        //console.log("Image URL:", imageURL);
+        console.log("Resume id:", resumeIdHere);
+
+        // Upload the image
+        try {
+          const response = await resumeServices.uploadResumeImage(studentId.value, resumeIdHere, imageURL);
+          if (response.status === 200 || response.status === 201) {
+            console.log('PNG uploaded successfully');
+          } else {
+            console.error('Failed to upload PNG');
+          }
+        } catch (error) {
+          console.log("Image URL should be:", imageURL);
+          console.error('Error uploading PNG:', error);
+        } finally {
+          document.body.removeChild(container); // Clean up the DOM
+        }
+      });
+    };
+
+
     const downloadPDF = () => {
       const content = generatePDFContent();
       const container = document.createElement('div');
@@ -441,22 +496,30 @@ export default {
     };
 
     function saveResume() {
-      resume.value.name = resumeTitle;
+    // Save the resume data
+    resume.value.name = resumeTitle;
 
-      resumeServices.createResume(studentId.value, resume.value)
-        .then((res) => {
-          resumeId.value = res.data.id;
-          addResumeInfo();
-          router.push({ name: "studentHome" });
-        })
-        .catch((error) => {
-          if (error.response && error.response.status === 406) {
-            console.log("Error: " + error.code + ":" + error.message);
-          } else {
-            console.log(error);
-          }
+    resumeServices.createResume(studentId.value, resume.value)
+      .then((res) => {
+        resumeId.value = res.data.id;
+        const resumeIdHere = res.data.id;
+        addResumeInfo();
+
+        saveAsPNG(resumeIdHere).then(() => {
+          console.log("Resume saved successfully", resumeIdHere);
+          router.push({ name: "studentHome" }); // Navigate back home
         });
-    }
+
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 406) {
+          console.log("Error: " + error.code + ":" + error.message);
+        } else {
+          console.log(error);
+        }
+      });
+  }
+
 
     function addResumeInfo() {
       const selectedEducation = dropdownSections.value.education.items.filter(item => item.isSelected);
@@ -517,7 +580,7 @@ export default {
       });
 
       selectedCourses.forEach(course => {
-        resumeCourseServices.createResumeCourse(resumeId.value, course.educationId, course.id, {})
+      resumeCourseServices.createResumeCourse(resumeId.value, course.educationId, course.id, {})
           .then(() => {
             console.log("Course added to resume successfully");
           })
