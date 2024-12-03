@@ -1,3 +1,4 @@
+
 import apiClient from "./services.js";
 
 export default {
@@ -25,5 +26,8 @@ export default {
     },
     getResumeAsReviewer(resumeReviewId) {
       return apiClient.get(`resumeReview/${resumeReviewId}/resume`);
-    }
+    },
+    uploadResumeImage(studentId, resumeId, image) {
+      return apiClient.post(`student/${studentId}/resume/${resumeId}/upload`, { image });
+    },
 };

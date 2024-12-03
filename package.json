@@ -18,6 +18,7 @@
     "canvg": "^4.0.2",
     "cohere-ai": "^7.14.0",
     "cross-env": "^7.0.3",
+    "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.2",
     "pinia": "^2.2.4",
     "v-dropdown": "^3.0.0",
