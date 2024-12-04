@@ -13,6 +13,7 @@ jobs:
       VITE_APP_CLIENT_ID: ${{secrets.VITE_APP_CLIENT_ID}}
       VITE_APP_API_URL: ${{secrets.VITE_APP_API_URL}}
       VITE_APP_CLIENT_URL: ${{secrets.VITE_APP_CLIENT_URL}}
+      VITE_APP_COHERE_API_KEY: ${{secrets.VITE_APP_COHERE_API_KEY}}
     steps:
       - uses: actions/checkout@v2
         with:
