@@ -72,14 +72,14 @@ export default {
 
         const reviewPromises = this.userResumeReviews.map(async (review) => {
           const reviewDetails = await resumeReviewServices.getResumeReviewById(review.resumeReviewId);
-          const studentDetails = await userServices.getStudentUser(reviewDetails.data.studentId, userId);
-
+          const studentDetails = await userServices.getAllStudentUsers(reviewDetails.data.studentId);
+          
           if (reviewDetails.data.status === "created") {
             this.resumeReviews.push({
               id: reviewDetails.data.id,
               notes: reviewDetails.data.notes,
-              studentfName: studentDetails.data.fName,
-              studentlName: studentDetails.data.lName,
+              studentfName: studentDetails.data[0].fName,
+              studentlName: studentDetails.data[0].lName,
               requestDate: reviewDetails.data.createdAt, // Assuming createdAt is the request date
             });
           }
