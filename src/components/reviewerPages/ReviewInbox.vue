@@ -3,72 +3,104 @@
     <h1>Review Resumes Inbox</h1>
     <ul class="review-list">
       <li 
-        v-for="review in resumeReviews" 
+        v-for="review in paginatedReviews" 
         :key="review.id"
         @click="navigateToReviewResume(review.id)"
         class="review-item"
       >
         <div class="review-header">
           <span class="student-name">{{ review.studentfName }} {{ review.studentlName }}</span>
-          <span class="review-id">Review ID: {{ review.id }}</span>
+          <span class="request-date">{{ formatDate(review.requestDate) }}</span>
         </div>
         <div class="review-body">
           Request: {{ review.notes }}
         </div>
       </li>
     </ul>
+    
+    <div class="pagination">
+      <button 
+        :disabled="currentPage === 1" 
+        @click="changePage(currentPage - 1)"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button 
+        :disabled="currentPage === totalPages" 
+        @click="changePage(currentPage + 1)"
+      >
+        Next
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 import userResumeReviewServices from "@/services/userResumeReviewServices.js";
 import resumeReviewServices from "@/services/resumeReviewServices";
-import userServices from "@/services/userServices.js"; // Import userServices
+import userServices from "@/services/userServices.js";
 import { ref, onMounted, computed } from "vue";
-import { useRouter, useRoute } from "vue-router";
 import Utils from "../../config/utils.js";
 
 export default {
   data() {
     return {
       userResumeReviews: [],
-      resumeReviews: [], // Array to store full resume reviews
+      resumeReviews: [],
+      currentPage: 1,
+      itemsPerPage: 10, // CHANGE THIS TO 1 FOR TESTING BUTTONS
     };
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.resumeReviews.length / this.itemsPerPage);
+    },
+    paginatedReviews() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.resumeReviews.slice(start, end);
+    },
   },
   methods: {
     async fetchUserResumeReviews() {
       try {
         const user = Utils.getStore("user");
         const userId = user.userId;
-        console.log("Current userId: " + userId);
         const response = await userResumeReviewServices.getAllUserResumeReviewsByUserId(userId);
         this.userResumeReviews = response.data;
 
-        // Fetch detailed reviews for each resumeReviewId
         const reviewPromises = this.userResumeReviews.map(async (review) => {
           const reviewDetails = await resumeReviewServices.getResumeReviewById(review.resumeReviewId);
-          console.log(reviewDetails);
-          const studentDetails = await userServices.getStudentUser(reviewDetails.data.studentId, userId);
+          const studentDetails = await userServices.getAllStudentUsers(reviewDetails.data.studentId);
+          
           if (reviewDetails.data.status === "created") {
-            let tempObj = {
-              id: reviewDetails.data.id, 
-              notes: reviewDetails.data.notes, 
-              studentfName: studentDetails.data.fName,
-              studentlName: studentDetails.data.lName
-            }
-            
-            this.resumeReviews.push(tempObj);
+            this.resumeReviews.push({
+              id: reviewDetails.data.id,
+              notes: reviewDetails.data.notes,
+              studentfName: studentDetails.data[0].fName,
+              studentlName: studentDetails.data[0].lName,
+              requestDate: reviewDetails.data.createdAt, // Assuming createdAt is the request date
+            });
           }
         });
 
-        // Wait for all promises to resolve and store the result
-        // this.resumeReviews = await Promise.all(reviewPromises);
+        await Promise.all(reviewPromises);
       } catch (error) {
         console.error("Error fetching user resume reviews:", error);
       }
     },
+    changePage(newPage) {
+      if (newPage > 0 && newPage <= this.totalPages) {
+        this.currentPage = newPage;
+      }
+    },
     navigateToReviewResume(reviewId) {
-      this.$router.push({ name: 'reviewResume', params: { id: reviewId } });
+      this.$router.push({ name: "reviewResume", params: { id: reviewId } });
+    },
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
     }
   },
   created() {
@@ -79,18 +111,20 @@ export default {
 
 <style scoped>
 .inbox-container {
-  background-color: #A6B1B6;
+  background-color: #C4D8E1;
   padding: 20px;
-  border-radius: 10px;
-  max-width: 600px;
+  border-radius: 20px;
+  max-width: 80%;
   margin: 0 auto;
   margin-top: 50px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-  color: #333;
+  color: #0c0c0c;
   text-align: center;
   margin-bottom: 20px;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .review-list {
@@ -102,14 +136,14 @@ h1 {
   cursor: pointer;
   padding: 15px;
   margin: 10px 0;
-  background-color: #EDF4F7;
+  background-color: #FFF;
   border-radius: 8px;
   transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .review-item:hover {
-  background-color: #DCE7EB;
+  background-color: #F0F8FF;
   transform: translateY(-2px);
 }
 
@@ -120,15 +154,41 @@ h1 {
   margin-bottom: 5px;
 }
 
-.student-name {
+.student-name, .request-date {
   color: #2C3E50;
-}
-
-.review-id {
-  color: #7F8C8D;
 }
 
 .review-body {
   color: #34495E;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 19px;
+}
+
+button {
+  background-color: #0f769e;
+  color: #FFF;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:disabled {
+  background-color: #96acb7;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background-color: #0581b1;
+}
+
+span {
+  font-weight: bold;
 }
 </style>

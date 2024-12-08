@@ -28,8 +28,8 @@ const user = computed(() => Utils.getStore("user"));
 
 // Define routes
 const routes = [
-  { path: '/', name: "login"},
-  { path: '/home', name: 'home', component: HomePageRouter },
+  { path: '/login', name: "login"},
+  { path: '/', name: 'home', component: HomePageRouter },
 
   // Profile paths:
   { path: "/contact-info", name: "contactInfo", component: ContactInfo },
@@ -73,6 +73,10 @@ router.beforeEach(async (to, from) => {
   console.log("User:", user.value);
 
   const currentUser = ref({});
+
+  if (to.name === 'login') {
+    return true; // Explicitly allow navigation
+  }
 
   if (isAuthenticated) {
     try {

@@ -41,10 +41,12 @@ import resumeReviewServices from '@/services/resumeReviewServices';
 import resumeServices from '@/services/resumeServices';
 import resumeCertificationServices from '@/services/resumeCertificationServices';
 import resumeEducationServices from '@/services/resumeEducationServices';
+import resumeCourseServices from '@/services/resumeCourseServices';
 import resumeExperienceServices from '@/services/resumeExperienceServices';
 import resumeProjectServices from '@/services/resumeProjectServices';
 import resumeSkillServices from '@/services/resumeSkillServices';
 import educationServices from '@/services/educationServices';
+import courseServices from '@/services/courseServices';
 import experienceServices from '@/services/experienceServices';
 import certificationServices from '@/services/certificationServices';
 import projectServices from '@/services/projectServices';
@@ -55,7 +57,7 @@ import { loadTemplateThree} from '@/services/templates/templateThree.js';
 import { loadTemplateFour } from '@/services/templates/templateFour.js';
 import { loadTemplateFive } from '@/services/templates/templateFive.js';
 import { loadTemplateSix } from '@/services/templates/templateSix.js';
-import { loadTemplateSeven } from '@/services/templates/templateSeven';
+import { loadTemplateSeven } from '@/services/templates/templateSeven.js';
 import userServices from '@/services/userServices';
 import Utils from '@/config/utils';
 
@@ -138,6 +140,7 @@ const getResume = () => {
           resume.value = res.data[0];
           // Get the Resume Data here
           loadEducationData();
+          loadCoursesData();
           loadExperienceData()
           loadCertificationData();
           loadSkillData()
@@ -170,6 +173,7 @@ const loadData = (service, sectionKey, resumeService) => {
             response.data.forEach(item => {
               dropdownSections.value[sectionKey].items.forEach(obj => {
                 if (sectionKey === "education") if (obj.id === item.educationId) obj.isSelected = true;
+                if (sectionKey === "courses") if (obj.id === item.courseId) obj.isSelected = true;
                 if (sectionKey === "experience") if (obj.id === item.experienceId) obj.isSelected = true;
                 if (sectionKey === "certifications") if (obj.id === item.certificationId) obj.isSelected = true;
                 if (sectionKey === "skills") if (obj.id === item.skillId) obj.isSelected = true;
@@ -192,11 +196,64 @@ const loadData = (service, sectionKey, resumeService) => {
       });
   };
 
-  const loadEducationData = () => loadData(educationServices.getAllEducations, 'education', resumeEducationServices.getAllResumeEducations);
+  const loadEducationData = () => {
+    educationServices.getAllEducations(resumeReview.value.studentId)
+      .then(response => {
+        dropdownSections.value.education.items = response.data.map(education => ({
+          ...education,
+          isSelected: false,
+          courses: [] // Initialize courses array
+        }));
+        resumeEducationServices.getAllResumeEducations(resume.value.id)
+          .then(resumeEducations => {
+            resumeEducations.data.forEach(resumeEducation => {
+              dropdownSections.value.education.items.forEach(education => {
+                if (education.id === resumeEducation.educationId) {
+                  education.isSelected = true;
+                }
+              });
+            });
+            loadCoursesData(); // Load courses after setting education selection
+          })
+          .catch(error => {
+            console.error('Failed to fetch resume education data:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Failed to fetch education data:', error);
+      });
+  };
   const loadExperienceData = () => loadData(experienceServices.getAllExperiences, 'experience', resumeExperienceServices.getAllResumeExperiences);
   const loadCertificationData = () => loadData(certificationServices.getAllCertifications, 'certifications', resumeCertificationServices.getAllResumeCertifications);
   const loadSkillData = () => loadData(skillServices.getAllSkills, 'skills', resumeSkillServices.getAllResumeSkills);
   const loadProjectData = () => loadData(projectServices.getAllProjects, 'projects', resumeProjectServices.getAllResumeProjects);
+  const loadCoursesData = () => {
+    dropdownSections.value.education.items.forEach((education, index) => {
+      courseServices.getAllCourses(resumeReview.value.studentId, education.id)
+        .then(response => {
+          dropdownSections.value.education.items[index].courses = response.data.map(course => ({
+            ...course,
+            isSelected: false // Initialize isSelected property
+          }));
+          resumeCourseServices.getAllResumeCourses(resume.value.id, education.id)
+            .then(resumeCourses => {
+              resumeCourses.data.forEach(resumeCourse => {
+                dropdownSections.value.education.items[index].courses.forEach(course => {
+                  if (course.id === resumeCourse.courseId) {
+                    course.isSelected = true;
+                  }
+                });
+              });
+            })
+            .catch(error => {
+              console.error(`Failed to fetch resume courses for education ID ${education.id}:`, error);
+            });
+        })
+        .catch(error => {
+          console.error(`Failed to fetch courses for education ID ${education.id}:`, error);
+        });
+    });
+  };
 
   const submitReview = () => {
       // Update resumeReview
@@ -231,6 +288,8 @@ const loadData = (service, sectionKey, resumeService) => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 700px;
+  max-height: 100%;
 }
 
 .header {
@@ -267,6 +326,7 @@ const loadData = (service, sectionKey, resumeService) => {
   margin-left: 50px;
   margin-right: 50px;
   background-color: white;
+  min-height: 500px;
 }
 
 .email-section {
